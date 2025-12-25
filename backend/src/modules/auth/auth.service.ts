@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { addDays } from 'date-fns';
 import prisma from '../../config/database';
+
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -13,6 +14,58 @@ import {
 import { AuthenticationError, NotFoundError } from '../../utils/appError';
 
 export class AuthService {
+  async register(name: string, email: string, password: string) {
+  // 1. Check if user already exists
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (existingUser) {
+    throw new AuthenticationError('Email already registered');
+  }
+
+  // 2. Hash password
+  const passwordHash = await bcrypt.hash(password, 12);
+
+  // 3. Create user
+  const user = await prisma.user.create({
+    data: {
+      name,
+      email,
+      passwordHash,
+      role: 'WRITER', // default role
+    },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      profileImage: true,
+      bio: true,
+    },
+  });
+
+  // 4. Generate tokens
+  const tokenPayload: TokenPayload = {
+    userId: user.id,
+    email: user.email,
+    role: user.role,
+  };
+
+  const accessToken = generateAccessToken(tokenPayload);
+  const refreshToken = generateRefreshToken(tokenPayload);
+
+  // 5. Save refresh token
+  const expiresAt = addDays(new Date(), 7);
+  await saveRefreshToken(user.id, refreshToken, expiresAt);
+
+  return {
+    accessToken,
+    refreshToken,
+    user,
+  };
+}
+
   async login(email: string, password: string) {
     // Find user
     const user = await prisma.user.findUnique({

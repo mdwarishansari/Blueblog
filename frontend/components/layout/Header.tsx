@@ -59,39 +59,39 @@ export default function Header() {
               <FiSearch size={20} />
             </button>
 
-            {/* User/Auth */}
-            {isAuthenticated ? (
-              <div className="hidden md:flex items-center space-x-3">
-                <Link
-                  href="/admin/dashboard"
-                  className="flex items-center space-x-2 bg-primary-50 text-primary-700 px-4 py-2 rounded-lg hover:bg-primary-100"
-                >
-                  <FiUser size={18} />
-                  <span>Dashboard</span>
-                </Link>
-                <button
-                  onClick={logout}
-                  className="text-gray-600 hover:text-red-600"
-                >
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <div className="hidden md:flex items-center space-x-3">
-                <Link
-                  href="/admin/login"
-                  className="text-gray-700 hover:text-primary-600"
-                >
-                  Login
-                </Link>
-                <Link
-                  href="/admin/login?register=true"
-                  className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700"
-                >
-                  Get Started
-                </Link>
-              </div>
-            )}
+            {/* Replace the auth section in Header.tsx*/}
+{isAuthenticated ? (
+  <div className="flex items-center gap-3">
+    <Link
+      href="/admin/dashboard"
+      className="flex items-center gap-2 btn-primary"
+    >
+      <FiUser size={18} />
+      <span>Dashboard</span>
+    </Link>
+    <button
+      onClick={logout}
+      className="text-gray-600 hover:text-red-600 hidden md:block"
+    >
+      Logout
+    </button>
+  </div>
+) : (
+  <div className="flex items-center gap-3">
+    <Link
+      href="/admin/login"
+      className="text-gray-700 hover:text-primary-600 hidden md:block"
+    >
+      Login
+    </Link>
+    <Link
+      href="/admin/register"
+      className="btn-primary"
+    >
+      Get Started
+    </Link>
+  </div>
+)}
 
             {/* Mobile Menu Button */}
             <button
