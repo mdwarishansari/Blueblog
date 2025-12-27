@@ -26,21 +26,26 @@ export class UsersService {
 
     // Create user
     const user = await prisma.user.create({
-      data: {
-        ...data,
-        passwordHash: hashedPassword
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        bio: true,
-        profileImage: true,
-        createdAt: true,
-        updatedAt: true
-      }
-    });
+  data: {
+    name: data.name,
+    email: data.email,
+    role: data.role,
+    bio: data.bio,
+    profileImage: data.profileImage,
+    passwordHash: hashedPassword, // ✅ ONLY THIS
+  },
+  select: {
+    id: true,
+    name: true,
+    email: true,
+    role: true,
+    bio: true,
+    profileImage: true,
+    createdAt: true,
+    updatedAt: true,
+  },
+});
+
 
     return user;
   }
