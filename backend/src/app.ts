@@ -12,6 +12,27 @@ import userRoutes from './modules/users/users.routes';
 import postRoutes from './modules/posts/posts.routes';
 import categoryRoutes from './modules/categories/categories.routes';
 import imageRoutes from './modules/images/images.routes';
+import { z } from 'zod';
+import meRoutes from './modules/me/me.routes';
+import settingsRoutes from './modules/settings/settings.routes';
+
+
+
+export const changePasswordSchema = z.object({
+  body: z.object({
+    currentPassword: z.string().min(6),
+    newPassword: z.string().min(6),
+  }),
+});
+
+export const updateProfileSchema = z.object({
+  body: z.object({
+    name: z.string().min(2).optional(),
+    bio: z.string().optional(),
+    profileImage: z.string().url().optional().or(z.literal('')),
+  }),
+});
+
 
 const app = express();
 
@@ -49,14 +70,11 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/posts', postRoutes);
 app.use('/api/v1/categories', categoryRoutes);
 app.use('/api/v1/images', imageRoutes);
+app.use('/api/v1/me', meRoutes);
 
-// 404 handler
-// app.use('*', (req, res) => {
-//   res.status(404).json({
-//     status: 'error',
-//     message: `Route ${req.originalUrl} not found`
-//   });
-// });
+
+app.use('/api/v1/settings', settingsRoutes);
+
 app.use((req, res) => {
   res.status(404).json({
     status: 'error',
