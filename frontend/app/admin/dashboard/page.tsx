@@ -9,6 +9,8 @@ import { FiFileText, FiFolder, FiUsers, FiBarChart2, FiPlus, FiEdit, FiTrash2 } 
 import AdminLayout from '@/components/layout/AdminLayout'
 import Loading from '@/components/ui/Loading'
 import Link from 'next/link'
+import AdminPage from '@/components/guards/AdminPage'
+
 
 interface DashboardStats {
   totalPosts: number
@@ -144,6 +146,7 @@ export default function DashboardPage() {
   ]
 
   return (
+    <AdminPage>
     <AdminLayout>
       <div className="space-y-6">
         {/* Welcome Banner */}
@@ -324,5 +327,6 @@ export default function DashboardPage() {
         </div>
       </div>
     </AdminLayout>
+    </AdminPage>
   )
 }

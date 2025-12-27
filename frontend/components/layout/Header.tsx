@@ -35,19 +35,22 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`text-gray-700 hover:text-primary-600 transition-colors ${
-                  pathname === link.href ? 'text-primary-600 font-semibold' : ''
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+          {!isAuthenticated && (
+  <nav className="hidden md:flex items-center space-x-8">
+    {navLinks.map((link) => (
+      <Link
+        key={link.href}
+        href={link.href}
+        className={`text-gray-700 hover:text-primary-600 ${
+          pathname === link.href ? 'font-semibold text-primary-600' : ''
+        }`}
+      >
+        {link.label}
+      </Link>
+    ))}
+  </nav>
+)}
+
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">

@@ -5,6 +5,7 @@ import BlogCard from '@/components/blog/BlogCard'
 import HeroSection from '@/components/home/HeroSection'
 import CategoryList from '@/components/home/CategoryList'
 import Loading from '@/components/ui/Loading'
+import PublicPage from '@/components/guards/PublicPage'
 
 export default function Home() {
   const [posts, setPosts] = useState<any[]>([])
@@ -39,6 +40,7 @@ export default function Home() {
   }
 
   return (
+    <PublicPage>
     <div className="space-y-12">
       {/* Hero Section */}
       <HeroSection />
@@ -95,5 +97,6 @@ export default function Home() {
         </form>
       </section>
     </div>
+    </PublicPage>
   )
 }

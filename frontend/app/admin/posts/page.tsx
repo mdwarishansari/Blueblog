@@ -49,35 +49,40 @@ export default function AdminPostsPage() {
     }
   }, [isAuthenticated, currentPage, statusFilter, search])
 
-  const fetchPosts = async () => {
-    try {
-      setLoading(true)
-      const params: any = {
-        page: currentPage,
-        limit: 20,
-        sort: '-created_at'
-      }
-      
-      if (statusFilter !== 'ALL') {
-        params.status = statusFilter
-      }
-      
-      if (search) {
-        params.search = search
-      }
-      
-      const response = await postApi.getAll(params)
-      
-      if (response.status === 'success' && response.data) {
-        setPosts(response.data as Post[])
-        setTotalPages(response.pagination?.pages || 1)
-      }
-    } catch (error) {
-      console.error('Error fetching posts:', error)
-    } finally {
-      setLoading(false)
+const fetchPosts = async () => {
+  try {
+    setLoading(true)
+
+    const params: any = {
+      page: currentPage,
+      limit: 20,
+      sort: '-created_at',
     }
+
+    if (statusFilter !== 'ALL') params.status = statusFilter
+    if (search) params.search = search
+
+    const response = await postApi.getAll(params)
+
+    /**
+     * ✅ HANDLE BOTH POSSIBLE BACKEND SHAPES
+     */
+    const postsArray = Array.isArray(response?.data)
+      ? response.data
+      : Array.isArray(response?.data?.items)
+        ? response.data.items
+        : []
+
+    setPosts(postsArray)
+    setTotalPages(response?.data?.pagination?.pages || 1)
+  } catch (error) {
+    console.error('Error fetching posts:', error)
+    setPosts([])
+  } finally {
+    setLoading(false)
   }
+}
+
 
   const handleDelete = async (postId: string) => {
     if (!confirm('Are you sure you want to delete this post?')) return

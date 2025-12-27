@@ -44,19 +44,26 @@ export default function AdminCategoriesPage() {
   }, [isAuthenticated])
 
   const fetchCategories = async () => {
-    try {
-      setLoading(true)
-      const response = await categoryApi.getAll()
-      
-      if (response.status === 'success' && response.data) {
-        setCategories(response.data as Category[])
-      }
-    } catch (error) {
-      console.error('Error fetching categories:', error)
-    } finally {
-      setLoading(false)
-    }
+  try {
+    setLoading(true)
+
+    const response = await categoryApi.getAll()
+
+    const categoriesArray = Array.isArray(response?.data)
+      ? response.data
+      : Array.isArray(response?.data?.items)
+        ? response.data.items
+        : []
+
+    setCategories(categoriesArray)
+  } catch (error) {
+    console.error('Error fetching categories:', error)
+    setCategories([])
+  } finally {
+    setLoading(false)
   }
+}
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -286,7 +293,9 @@ export default function AdminCategoriesPage() {
           
           <div className="card">
             <div className="text-2xl font-bold text-gray-900 mb-1">
-              {Math.max(...categories.map(c => c.post_count || 0))}
+              {categories.length
+  ? Math.max(...categories.map(c => c.post_count || 0)): 0}
+
             </div>
             <div className="text-sm text-gray-600">Most Posts in a Category</div>
           </div>
