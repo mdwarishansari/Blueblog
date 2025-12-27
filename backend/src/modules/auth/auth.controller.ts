@@ -4,17 +4,6 @@ import { catchAsync } from '../../utils/catchAsync';
 
 const authService = new AuthService();
 
-export const register = catchAsync(async (req: Request, res: Response) => {
-  const { name, email, password } = req.body;
-
-  const result = await authService.register(name, email, password);
-
-  res.status(201).json({
-    status: 'success',
-    data: result,
-  });
-});
-
 
 export const login = catchAsync(async (req: Request, res: Response) => {
   const { email, password } = req.body;

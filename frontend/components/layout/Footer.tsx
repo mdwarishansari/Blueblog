@@ -49,7 +49,7 @@ export default function Footer() {
             </Link>
             <p className="text-gray-400 mb-6 max-w-md">
               A modern, SEO-optimized blogging platform for sharing knowledge and insights.
-              Join our community of writers and readers.
+              Read articles and insights from our editorial team.
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social) => (

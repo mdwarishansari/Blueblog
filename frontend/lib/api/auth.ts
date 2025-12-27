@@ -1,56 +1,53 @@
-import apiClient from './client';
-import { LoginCredentials, AuthTokens, User, ApiResponse } from '@/types';
+// frontend/lib/api/auth.ts
+import apiClient from './client'
+import { ApiResponse, User } from '@/types'
 
-export interface RegisterCredentials {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword?: string;
+export interface LoginCredentials {
+  email: string
+  password: string
+}
+
+export interface LoginResponse {
+  accessToken: string
+  refreshToken: string
+  user: User
 }
 
 export const authApi = {
-  // Login
+  // LOGIN (ONLY ENTRY POINT)
   login: async (credentials: LoginCredentials) => {
-    const response = await apiClient.post<ApiResponse<{ user: User; tokens: AuthTokens }>>(
+    const res = await apiClient.post<ApiResponse<LoginResponse>>(
       '/auth/login',
       credentials
-    );
-    return response.data;
+    )
+    return res.data.data
   },
 
-  // Register
-  register: async (credentials: RegisterCredentials) => {
-    const response = await apiClient.post<ApiResponse<{ user: User; tokens: AuthTokens }>>(
-      '/auth/register',
-      credentials
-    );
-    return response.data;
-  },
-
-  // Get current user
+  // CURRENT USER
   getMe: async () => {
-    const response = await apiClient.get<ApiResponse<User>>('/auth/me');
-    return response.data;
+    const res = await apiClient.get<ApiResponse<{ user: User }>>('/auth/me')
+    return res.data.data.user
   },
 
-  // Logout
-  logout: async () => {
-    const response = await apiClient.post<ApiResponse>('/auth/logout');
-    return response.data;
+  // LOGOUT (REQUIRES REFRESH TOKEN)
+  logout: async (refreshToken: string) => {
+    await apiClient.post('/auth/logout', { refreshToken })
   },
 
-  // Change password
-  changePassword: async (data: { currentPassword: string; newPassword: string }) => {
-    const response = await apiClient.post<ApiResponse>('/auth/change-password', data);
-    return response.data;
-  },
-
-  // Refresh token
+  // REFRESH TOKEN
   refreshToken: async (refreshToken: string) => {
-    const response = await apiClient.post<ApiResponse<{ accessToken: string }>>(
-      '/auth/refresh',
-      { refreshToken }
-    );
-    return response.data;
+    const res = await apiClient.post<
+      ApiResponse<{ accessToken: string; refreshToken: string }>
+    >('/auth/refresh', { refreshToken })
+
+    return res.data.data
   },
-};
+
+  // CHANGE PASSWORD (AUTHENTICATED)
+  changePassword: async (data: {
+    currentPassword: string
+    newPassword: string
+  }) => {
+    await apiClient.post('/auth/change-password', data)
+  },
+}

@@ -9,46 +9,25 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true)
 
   // =========================
-  // REGISTER
-  // =========================
-  const register = useCallback(
-    async (name: string, email: string, password: string) => {
-      const response = await authApi.register({ name, email, password })
-
-      // ✅ CORRECT EXTRACTION
-      const { accessToken, refreshToken, user } = response.data
-
-      localStorage.setItem('accessToken', accessToken)
-      localStorage.setItem('refreshToken', refreshToken)
-      localStorage.setItem('user', JSON.stringify(user))
-
-      setUser(user)
-
-      return { accessToken, refreshToken, user }
-    },
-    []
-  )
-
-  // =========================
   // LOGIN
   // =========================
   const login = useCallback(
-    async (email: string, password: string) => {
-      const response = await authApi.login({ email, password })
+  async (email: string, password: string) => {
+    // authApi.login ALREADY returns { accessToken, refreshToken, user }
+    const { accessToken, refreshToken, user } =
+      await authApi.login({ email, password })
 
-      // ✅ CORRECT EXTRACTION
-      const { accessToken, refreshToken, user } = response.data
+    localStorage.setItem('accessToken', accessToken)
+    localStorage.setItem('refreshToken', refreshToken)
+    localStorage.setItem('user', JSON.stringify(user))
 
-      localStorage.setItem('accessToken', accessToken)
-      localStorage.setItem('refreshToken', refreshToken)
-      localStorage.setItem('user', JSON.stringify(user))
+    setUser(user)
 
-      setUser(user)
+    return { accessToken, refreshToken, user }
+  },
+  []
+)
 
-      return { accessToken, refreshToken, user }
-    },
-    []
-  )
 
   // =========================
   // LOGOUT
@@ -70,24 +49,25 @@ export const useAuth = () => {
   // CHECK AUTH (ON RELOAD)
   // =========================
   const checkAuth = useCallback(async () => {
-    const token = localStorage.getItem('accessToken')
-    if (!token) {
-      setLoading(false)
-      return
-    }
+  const token = localStorage.getItem('accessToken')
+  if (!token) {
+    setLoading(false)
+    return
+  }
 
-    try {
-      const response = await authApi.getMe()
-      setUser(response.data.user)
-    } catch (err) {
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('refreshToken')
-      localStorage.removeItem('user')
-      setUser(null)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  try {
+    const user = await authApi.getMe()
+    setUser(user)
+  } catch {
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    localStorage.removeItem('user')
+    setUser(null)
+  } finally {
+    setLoading(false)
+  }
+}, [])
+
 
   useEffect(() => {
     checkAuth()
@@ -97,7 +77,6 @@ export const useAuth = () => {
     user,
     loading,
     login,
-    register,
     logout,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'ADMIN',

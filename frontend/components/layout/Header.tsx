@@ -85,7 +85,7 @@ export default function Header() {
       Login
     </Link>
     <Link
-      href="/admin/register"
+      href="/admin/login"
       className="btn-primary"
     >
       Get Started
@@ -168,7 +168,7 @@ export default function Header() {
                       Login
                     </Link>
                     <Link
-                      href="/admin/login?register=true"
+                      href="/admin/login"
                       className="block py-2 px-4 bg-primary-600 text-white rounded-lg hover:bg-primary-700 mt-2"
                       onClick={() => setIsMenuOpen(false)}
                     >

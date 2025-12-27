@@ -28,14 +28,46 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const { user, logout } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  const navigation = [
-    { name: 'Dashboard', href: '/admin/dashboard', icon: FiHome },
-    { name: 'Posts', href: '/admin/posts', icon: FiFileText },
-    { name: 'Categories', href: '/admin/categories', icon: FiFolder },
-    { name: 'Media', href: '/admin/images', icon: FiImage },
-    { name: 'Users', href: '/admin/users', icon: FiUser },
-    { name: 'Settings', href: '/admin/settings', icon: FiSettings },
-  ]
+const navigation = [
+  {
+    name: 'Dashboard',
+    href: '/admin/dashboard',
+    icon: FiHome,
+    roles: ['ADMIN', 'EDITOR', 'WRITER'],
+  },
+  {
+    name: 'Posts',
+    href: '/admin/posts',
+    icon: FiFileText,
+    roles: ['ADMIN', 'EDITOR', 'WRITER'],
+  },
+  {
+    name: 'Categories',
+    href: '/admin/categories',
+    icon: FiFolder,
+    roles: ['ADMIN', 'EDITOR'],
+  },
+  {
+    name: 'Media',
+    href: '/admin/images',
+    icon: FiImage,
+    roles: ['ADMIN', 'EDITOR', 'WRITER'],
+  },
+  {
+    name: 'Users',
+    href: '/admin/users',
+    icon: FiUser,
+    roles: ['ADMIN'],
+  },
+  {
+    name: 'Settings',
+    href: '/admin/settings',
+    icon: FiSettings,
+    roles: ['ADMIN'],
+  },
+]
+
+
 
   const handleLogout = async () => {
     await logout()
