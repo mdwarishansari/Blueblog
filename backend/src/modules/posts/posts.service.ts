@@ -133,9 +133,14 @@ if (filters.status && filters.status !== 'ALL') {
     }
 
     // Parse sort
-    const [sortField, sortOrder] = sort.split(':');
-    const orderBy: any = {};
-    orderBy[sortField] = sortOrder;
+    // ✅ SAFE SORT PARSING
+const sortParam = typeof sort === 'string' ? sort : 'createdAt:desc'
+const [sortField, sortOrder] = sortParam.split(':')
+
+const orderBy = {
+  [sortField]: sortOrder === 'desc' ? 'desc' : 'asc',
+}
+
 
     // Get total count
     const total = await prisma.post.count({ where });
