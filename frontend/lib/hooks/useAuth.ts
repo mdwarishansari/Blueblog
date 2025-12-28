@@ -68,6 +68,15 @@ export const useAuth = () => {
   }
 }, [])
 
+  const refreshUser = useCallback(async () => {
+  try {
+    const updatedUser = await authApi.getMe()
+    setUser(updatedUser)
+    localStorage.setItem('user', JSON.stringify(updatedUser))
+  } catch {
+    // silent fail
+  }
+}, [])
 
   useEffect(() => {
     checkAuth()
@@ -78,6 +87,7 @@ export const useAuth = () => {
     loading,
     login,
     logout,
+    refreshUser,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'ADMIN',
     isEditor: user?.role === 'EDITOR' || user?.role === 'ADMIN',

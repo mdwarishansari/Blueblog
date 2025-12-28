@@ -33,23 +33,20 @@ export const changePassword = catchAsync(async (req: Request, res: Response) => 
   });
 });
 
-
-export const updateProfile = async (req: Request, res: Response) => {
-  const userId = req.user!.id;
-  const { name, bio, profileImage } = req.body;
+export const updateProfile = catchAsync(async (req, res) => {
+  const userId = req.user.id
 
   const user = await prisma.user.update({
     where: { id: userId },
-    data: { name, bio, profileImage },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      bio: true,
-      profileImage: true,
+    data: {
+      name: req.body.name,
+      bio: req.body.bio,
+      profileImage: req.body.profileImage,
     },
-  });
+  })
 
-  res.json({ status: 'success', data: { user } });
-};
+  res.status(200).json({
+    status: 'success',
+    data: user,
+  })
+})

@@ -60,11 +60,12 @@ const navigation = [
     roles: ['ADMIN'],
   },
   {
-    name: 'Settings',
-    href: '/admin/settings',
-    icon: FiSettings,
-    roles: ['ADMIN'],
-  },
+  name: 'Account',
+  href: '/admin/account',
+  icon: FiSettings,
+  roles: ['ADMIN', 'EDITOR', 'WRITER'],
+},
+
 ]
 
 
@@ -97,13 +98,13 @@ const navigation = [
               sidebarOpen ? 'translate-x-0' : '-translate-x-full'
             }`}
           >
-            <div className="absolute top-0 right-0 -mr-12 pt-2">
+            <div className="absolute top-0 right-0 pt-2 -mr-12">
               <button
-                className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                className="flex items-center justify-center w-10 h-10 ml-1 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
                 onClick={() => setSidebarOpen(false)}
               >
                 <span className="sr-only">Close sidebar</span>
-                <FiX className="h-6 w-6 text-white" />
+                <FiX className="w-6 h-6 text-white" />
               </button>
             </div>
 
@@ -129,60 +130,7 @@ const navigation = [
       </div>
 
       {/* Main content */}
-      <div className="lg:pl-64 flex flex-col flex-1">
-        {/* Top bar */}
-        <header className="sticky top-0 z-10 bg-white border-b">
-          <div className="px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center">
-                <button
-                  type="button"
-                  className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
-                  onClick={() => setSidebarOpen(true)}
-                >
-                  <span className="sr-only">Open sidebar</span>
-                  <FiMenu className="h-6 w-6" />
-                </button>
-                
-                <div className="ml-4">
-                  <h1 className="text-xl font-semibold text-gray-900">
-                    Admin Dashboard
-                  </h1>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <button className="p-2 text-gray-600 hover:text-gray-900 relative">
-                  <FiBell size={20} />
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                </button>
-                
-                <button className="p-2 text-gray-600 hover:text-gray-900">
-                  <FiHelpCircle size={20} />
-                </button>
-                
-                <div className="flex items-center gap-3">
-                  <div className="text-right hidden sm:block">
-                    <p className="text-sm font-medium text-gray-900">
-                      {user.name}
-                    </p>
-                    <p className="text-xs text-gray-500">{user.role}</p>
-                  </div>
-                  <div className="relative">
-                    <img
-                      src={user.profile_image || '/default-avatar.png'}
-                      alt={user.name}
-                      className="w-10 h-10 rounded-full border"
-                    />
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Main content area */}
+      <div className="flex flex-col flex-1 lg:pl-64">
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           {children}
         </main>
@@ -204,8 +152,8 @@ function SidebarContent({ user, navigation, pathname, onLogout }: SidebarContent
       {/* Logo */}
       <div className="flex items-center px-4 mb-8">
         <Link href="/" className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">B</span>
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600">
+            <span className="text-lg font-bold text-white">B</span>
           </div>
           <span className="text-xl font-bold text-gray-900">
             {process.env.NEXT_PUBLIC_SITE_NAME}
@@ -215,16 +163,16 @@ function SidebarContent({ user, navigation, pathname, onLogout }: SidebarContent
 
       {/* User profile */}
       <div className="px-4 mb-8">
-        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+        <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
           <img
-            src={user.profile_image || '/default-avatar.png'}
+            src={user.profileImage || '/default-avatar.png'}
             alt={user.name}
-            className="w-12 h-12 rounded-full border"
+            className="w-12 h-12 border rounded-full"
           />
           <div>
             <p className="font-medium text-gray-900">{user.name}</p>
             <p className="text-sm text-gray-500">{user.email}</p>
-            <span className="inline-block mt-1 px-2 py-1 text-xs font-medium bg-primary-100 text-primary-800 rounded">
+            <span className="inline-block px-2 py-1 mt-1 text-xs font-medium rounded bg-primary-100 text-primary-800">
               {user.role}
             </span>
           </div>
@@ -254,8 +202,8 @@ function SidebarContent({ user, navigation, pathname, onLogout }: SidebarContent
               />
               {item.name}
               {item.name === 'Posts' && (
-                <span className="ml-auto bg-primary-100 text-primary-800 text-xs font-medium px-2 py-1 rounded">
-                  24
+                <span className="px-2 py-1 ml-auto text-xs font-medium rounded bg-primary-100 text-primary-800">
+                  
                 </span>
               )}
             </Link>
@@ -264,21 +212,13 @@ function SidebarContent({ user, navigation, pathname, onLogout }: SidebarContent
       </nav>
 
       {/* Bottom section */}
-      <div className="border-t px-4 py-4 space-y-3">
-        <Link
-          href="/"
-          target="_blank"
-          className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg"
-        >
-          <FiHome className="mr-3 h-5 w-5 text-gray-400" />
-          View Site
-        </Link>
+      <div className="px-4 py-4 space-y-3 border-t">
         
         <button
           onClick={onLogout}
-          className="flex items-center w-full px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg"
+          className="flex items-center w-full px-3 py-2 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50"
         >
-          <FiLogOut className="mr-3 h-5 w-5" />
+          <FiLogOut className="w-5 h-5 mr-3" />
           Logout
         </button>
       </div>

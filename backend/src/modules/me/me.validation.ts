@@ -11,6 +11,6 @@ export const updateProfileSchema = z.object({
   body: z.object({
     name: z.string().min(2).optional(),
     bio: z.string().optional(),
-    profileImage: z.string().url().optional().or(z.literal('')),
+    profileImage: z.string().url().nullable().optional(),
   }),
 });
