@@ -48,16 +48,14 @@ export const getPostsSchema = z.object({
     search: z.string().optional(),
     category: z.string().optional(),
     author: z.string().optional(),
-    status: z.enum(postStatuses).optional(),
+    status: z.enum(['DRAFT', 'PUBLISHED', 'ALL']).optional(),
     sort: z.string().optional().default('publishedAt:desc')
   })
 });
 
 export const publishPostSchema = z.object({
   params: z.object({
-    id: z.string().uuid('Invalid post ID')
+    id: z.string().uuid()
   }),
-  body: z.object({
-    publishedAt: z.string().datetime().optional()
-  })
+  body: z.object({}).optional()
 });

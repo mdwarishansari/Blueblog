@@ -22,23 +22,23 @@ import { createRateLimiter } from '../../middleware/rateLimiter.middleware';
 
 const router = Router();
 
-// Public routes
-router.get('/', validate(getPostsSchema), getPosts);
+// 🔓 PUBLIC
+router.get('/public', validate(getPostsSchema), getPosts);
 router.get('/slug/:slug', getPostBySlug);
 router.get('/:id/related', getRelatedPosts);
 
-// Protected routes
+// 🔒 EVERYTHING BELOW REQUIRES AUTH
 router.use(authenticate);
 
-// Create post (WRITER, EDITOR, ADMIN)
-router.post('/', authorize('WRITER', 'EDITOR', 'ADMIN'), createRateLimiter, validate(createPostSchema), createPost);
-
-// Update and delete post (author or EDITOR/ADMIN)
+// 🔒 ADMIN / DASHBOARD
+router.get('/', validate(getPostsSchema), getPosts);
 router.get('/:id', getPost);
+
+// Mutations
+router.post('/', authorize('WRITER', 'EDITOR', 'ADMIN'), validate(createPostSchema), createPost);
 router.put('/:id', authorize('WRITER', 'EDITOR', 'ADMIN'), validate(updatePostSchema), updatePost);
 router.delete('/:id', authorize('EDITOR', 'ADMIN'), deletePost);
 
-// Publish/Unpublish (EDITOR, ADMIN)
 router.post('/:id/publish', authorize('EDITOR', 'ADMIN'), validate(publishPostSchema), publishPost);
 router.post('/:id/unpublish', authorize('EDITOR', 'ADMIN'), unpublishPost);
 

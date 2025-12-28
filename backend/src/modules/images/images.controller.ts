@@ -17,7 +17,7 @@ export const uploadImage = catchAsync(async (req: Request, res: Response) => {
   res.status(201).json({
     status: 'success',
     data: { image }
-  });
+  })
 });
 
 export const getImages = catchAsync(async (req: Request, res: Response) => {

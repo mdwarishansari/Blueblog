@@ -6,6 +6,8 @@ import AdminLayout from '@/components/layout/AdminLayout'
 import SEOForm from '@/components/admin/SEOForm'
 import ImageUploader from '@/components/admin/ImageUploader'
 import { FiSave, FiEye, FiCalendar, FiX, FiSend } from 'react-icons/fi'
+import { postApi } from '@/lib/api/posts'
+
 
 export default function EditPostPage() {
   const router = useRouter()
@@ -26,26 +28,50 @@ export default function EditPostPage() {
   })
 
   const handleSave = async (publish = false) => {
-    setSaving(true)
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      alert(publish ? 'Post published successfully!' : 'Post saved as draft!')
-      router.push('/admin/posts')
-    } catch (error) {
-      console.error('Error saving post:', error)
-      alert('Failed to save post')
-    } finally {
-      setSaving(false)
+  setSaving(true)
+
+  try {
+    const payload = {
+      title: formData.title,
+      slug: formData.slug,
+      excerpt: formData.excerpt,
+      content: {
+        blocks: [
+          { type: 'paragraph', data: { text: formData.content } }
+        ]
+      },
+      bannerImageId: formData.banner_image_id || undefined,
+      categoryIds: formData.category_ids,
+      seoTitle: formData.seo_title || undefined,
+      seoDescription: formData.seo_description || undefined,
+      canonicalUrl: formData.canonical_url || undefined,
     }
+
+    const res = await postApi.create(payload)
+    const postId = res.data.post.id
+
+    if (publish) {
+      await postApi.publish(postId)
+    }
+
+    alert(publish ? 'Post published successfully!' : 'Post saved as draft!')
+    router.push('/admin/posts')
+
+  } catch (error) {
+    console.error(error)
+    alert('Failed to save post')
+  } finally {
+    setSaving(false)
   }
+}
+
+
 
   return (
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Create New Post</h1>
             <p className="text-gray-600">Start writing your next great article</p>
@@ -62,7 +88,7 @@ export default function EditPostPage() {
             <button
               onClick={() => handleSave(false)}
               disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 text-white rounded-lg bg-primary-600 hover:bg-primary-700 disabled:opacity-50"
             >
               <FiSave size={18} />
               {saving ? 'Saving...' : 'Save Draft'}
@@ -70,7 +96,7 @@ export default function EditPostPage() {
             <button
               onClick={() => handleSave(true)}
               disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50"
             >
               <FiSend size={18} />
               {saving ? 'Publishing...' : 'Publish'}
@@ -79,12 +105,12 @@ export default function EditPostPage() {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Left Column - Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6 lg:col-span-2">
             {/* Title */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block mb-2 text-sm font-medium text-gray-700">
                 Post Title *
               </label>
               <input
@@ -101,13 +127,13 @@ export default function EditPostPage() {
                     .trim()
                 }))}
                 placeholder="Enter post title"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-xl"
+                className="w-full px-3 py-2 text-xl border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
 
             {/* Excerpt */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block mb-2 text-sm font-medium text-gray-700">
                 Excerpt
               </label>
               <textarea
@@ -121,7 +147,7 @@ export default function EditPostPage() {
 
             {/* Content Editor */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block mb-2 text-sm font-medium text-gray-700">
                 Content *
               </label>
               <textarea
@@ -129,7 +155,7 @@ export default function EditPostPage() {
                 onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
                 placeholder="Write your post content here..."
                 rows={20}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono"
+                className="w-full px-3 py-2 font-mono border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
           </div>
@@ -137,8 +163,8 @@ export default function EditPostPage() {
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
             {/* Featured Image */}
-            <div className="bg-white border rounded-xl p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Featured Image</h3>
+            <div className="p-6 bg-white border rounded-xl">
+              <h3 className="mb-4 font-semibold text-gray-900">Featured Image</h3>
               <ImageUploader
                 onUploadComplete={(image) => {
                   setFormData(prev => ({ ...prev, banner_image_id: image.id }))
@@ -147,8 +173,8 @@ export default function EditPostPage() {
             </div>
 
             {/* SEO Settings */}
-            <div className="bg-white border rounded-xl p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">SEO Settings</h3>
+            <div className="p-6 bg-white border rounded-xl">
+              <h3 className="mb-4 font-semibold text-gray-900">SEO Settings</h3>
               <SEOForm
                 title={formData.seo_title || formData.title}
                 description={formData.seo_description || formData.excerpt}

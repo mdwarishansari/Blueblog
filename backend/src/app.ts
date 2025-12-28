@@ -64,6 +64,11 @@ app.get('/api/v1/health', (req, res) => {
   });
 });
 
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+});
+
 // API routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);

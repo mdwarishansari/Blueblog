@@ -9,30 +9,31 @@ export const imageApi = {
         'Content-Type': 'multipart/form-data',
       },
     });
-    return response.data;
+    return response.data.data.image;
   },
 
   // Get all images
   getAll: async (params?: { page?: number; limit?: number }) => {
-    const response = await apiClient.get<ApiResponse<Image[]>>('/images', { params });
-    return response.data;
-  },
+  const response = await apiClient.get('/images', { params });
+  return response.data.data; // { images, pagination }
+},
+
 
   // Get image by ID
   getById: async (id: string) => {
     const response = await apiClient.get<ApiResponse<Image>>(`/images/${id}`);
-    return response.data;
+    return response.data.data.image;
   },
 
   // Update image
   update: async (id: string, imageData: Partial<Image>) => {
     const response = await apiClient.put<ApiResponse<Image>>(`/images/${id}`, imageData);
-    return response.data;
+    return response.data.data.image;
   },
 
   // Delete image
   delete: async (id: string) => {
     const response = await apiClient.delete<ApiResponse>(`/images/${id}`);
-    return response.data;
+    return response.data.data.image;
   },
 };

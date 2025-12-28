@@ -20,14 +20,16 @@ export const getPosts = catchAsync(async (req: Request, res: Response) => {
   const { page = 1, limit = 12, search, category, author, status, sort } = req.query;
   
   const result = await postsService.getPosts({
-    page: Number(page),
-    limit: Math.min(Number(limit), 50),
-    search: search as string,
-    category: category as string,
-    author: author as string,
-    status: status as string,
-    sort: sort as string
-  });
+  page: Number(page),
+  limit: Math.min(Number(limit), 50),
+  search: search as string,
+  category: category as string,
+  author: author as string,
+  status: status as string,
+  sort: sort as string,
+  user: req.user
+});
+
   
   res.status(200).json({
     status: 'success',
@@ -82,16 +84,18 @@ export const deletePost = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const publishPost = catchAsync(async (req: Request, res: Response) => {
+export const publishPost = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const { publishedAt } = req.body;
+  const publishedAt = req.body?.publishedAt;
+
   const post = await postsService.publishPost(id, publishedAt);
-  
+
   res.status(200).json({
     status: 'success',
-    data: { post }
+    post
   });
 });
+
 
 export const unpublishPost = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;

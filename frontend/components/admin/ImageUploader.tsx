@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { FiUpload, FiX, FiCheck, FiImage } from 'react-icons/fi'
+import { imageApi } from '@/lib/api/images'
 
 interface ImageUploaderProps {
   onUploadComplete: (imageData: any) => void
@@ -66,36 +67,25 @@ export default function ImageUploader({
     }, 100)
 
     try {
-      // In a real implementation, you would upload to your backend API
-      // For now, we'll simulate the upload
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      clearInterval(interval)
-      setProgress(100)
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('altText', altText)
+  formData.append('title', title)
+  formData.append('caption', caption)
 
-      // Simulate API response
-      const mockImageData = {
-        id: `img_${Date.now()}`,
-        url: URL.createObjectURL(file), // In real app, this would be Cloudinary URL
-        alt_text: altText || file.name,
-        title: title || file.name,
-        caption,
-        width: 1200,
-        height: 630,
-        format: file.type.split('/')[1],
-        size: file.size,
-      }
+  const image = await imageApi.upload(formData)
+  // image = { id: UUID, url, ... }
 
-      onUploadComplete(mockImageData)
-      
-      // Reset progress after success
-      setTimeout(() => setProgress(0), 1000)
-      
-    } catch (err) {
-      setError('Upload failed. Please try again.')
-    } finally {
-      setUploading(false)
-    }
+  clearInterval(interval)
+  setProgress(100)
+
+  onUploadComplete(image) // ✅ UUID passes validation
+} catch (err) {
+  setError('Upload failed. Please try again.')
+} finally {
+  setUploading(false)
+}
+
   }
 
   const handleRemoveImage = () => {
@@ -136,7 +126,7 @@ export default function ImageUploader({
         
         {!preview ? (
           <div
-            className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-primary-500 transition-colors cursor-pointer"
+            className="p-8 text-center transition-colors border-2 border-gray-300 border-dashed cursor-pointer rounded-xl hover:border-primary-500"
             onClick={() => fileInputRef.current?.click()}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
@@ -149,12 +139,12 @@ export default function ImageUploader({
               className="hidden"
             />
             
-            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+            <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-gray-100 rounded-full">
               <FiUpload size={24} className="text-gray-400" />
             </div>
             
             <div className="space-y-2">
-              <p className="text-gray-700 font-medium">
+              <p className="font-medium text-gray-700">
                 Drop your image here, or click to browse
               </p>
               <p className="text-sm text-gray-500">
@@ -166,37 +156,37 @@ export default function ImageUploader({
             </div>
           </div>
         ) : (
-          <div className="relative rounded-xl overflow-hidden border">
+          <div className="relative overflow-hidden border rounded-xl">
             <img
               src={preview}
               alt="Preview"
-              className="w-full h-64 object-cover"
+              className="object-cover w-full h-64"
             />
             
-            <div className="absolute top-3 right-3 flex gap-2">
+            <div className="absolute flex gap-2 top-3 right-3">
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="p-2 bg-white/90 backdrop-blur-sm rounded-lg hover:bg-white"
+                className="p-2 rounded-lg bg-white/90 backdrop-blur-sm hover:bg-white"
               >
                 <FiImage size={18} />
               </button>
               <button
                 onClick={handleRemoveImage}
-                className="p-2 bg-white/90 backdrop-blur-sm rounded-lg hover:bg-white"
+                className="p-2 rounded-lg bg-white/90 backdrop-blur-sm hover:bg-white"
               >
                 <FiX size={18} />
               </button>
             </div>
             
             {uploading && (
-              <div className="absolute bottom-0 left-0 right-0 bg-gray-900/50 p-2">
+              <div className="absolute bottom-0 left-0 right-0 p-2 bg-gray-900/50">
                 <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-primary-600 transition-all duration-300"
+                    className="h-full transition-all duration-300 bg-primary-600"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
-                <p className="text-xs text-white text-center mt-1">
+                <p className="mt-1 text-xs text-center text-white">
                   {progress}% Uploading...
                 </p>
               </div>
@@ -205,16 +195,16 @@ export default function ImageUploader({
         )}
 
         {error && (
-          <div className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">
+          <div className="p-3 text-sm text-red-600 rounded-lg bg-red-50">
             {error}
           </div>
         )}
       </div>
 
       {preview && (
-        <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+        <div className="p-4 space-y-4 rounded-lg bg-gray-50">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Alt Text (Required for SEO)
             </label>
             <input
@@ -224,13 +214,13 @@ export default function ImageUploader({
               placeholder="Describe what's in the image"
               className="input-field"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="mt-1 text-xs text-gray-500">
               Helps screen readers and improves SEO
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Image Title
             </label>
             <input
@@ -243,7 +233,7 @@ export default function ImageUploader({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Caption (Optional)
             </label>
             <textarea
@@ -272,9 +262,9 @@ export default function ImageUploader({
       )}
 
       {/* SEO Tips */}
-      <div className="border border-blue-100 bg-blue-50 rounded-lg p-4">
-        <h4 className="font-medium text-blue-900 mb-2">SEO Tips for Images</h4>
-        <ul className="text-sm text-blue-800 space-y-1">
+      <div className="p-4 border border-blue-100 rounded-lg bg-blue-50">
+        <h4 className="mb-2 font-medium text-blue-900">SEO Tips for Images</h4>
+        <ul className="space-y-1 text-sm text-blue-800">
           <li className="flex items-start gap-2">
             <FiCheck size={14} className="mt-0.5 flex-shrink-0" />
             <span>Use descriptive alt text that includes your target keyword</span>

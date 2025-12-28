@@ -15,15 +15,14 @@ interface Post {
   title: string
   slug: string
   status: 'DRAFT' | 'PUBLISHED'
-  published_at: string
-  created_at: string
+  publishedAt: string | null
+  createdAt: string
   author: {
     name: string
   }
-  categories: Array<{
-    name: string
-  }>
+  categories: { name: string }[]
 }
+
 
 export default function AdminPostsPage() {
   const router = useRouter()
@@ -36,6 +35,13 @@ export default function AdminPostsPage() {
   const [selectedPosts, setSelectedPosts] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  // ✅ MUST be inside component
+const selectedPostObjects = posts.filter(post =>
+  selectedPosts.includes(post.id)
+)
+
+const hasDrafts = selectedPostObjects.some(p => p.status === 'DRAFT')
+const hasPublished = selectedPostObjects.some(p => p.status === 'PUBLISHED')
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -56,25 +62,17 @@ const fetchPosts = async () => {
     const params: any = {
       page: currentPage,
       limit: 20,
-      sort: '-created_at',
+      sort: 'createdAt:desc',
     }
 
     if (statusFilter !== 'ALL') params.status = statusFilter
     if (search) params.search = search
 
-    const response = await postApi.getAll(params)
+    const result = await postApi.getAll(params)
 
-    /**
-     * ✅ HANDLE BOTH POSSIBLE BACKEND SHAPES
-     */
-    const postsArray = Array.isArray(response?.data)
-      ? response.data
-      : Array.isArray(response?.data?.items)
-        ? response.data.items
-        : []
+    setPosts(result.posts)
+    setTotalPages(result.pagination.totalPages)
 
-    setPosts(postsArray)
-    setTotalPages(response?.data?.pagination?.pages || 1)
   } catch (error) {
     console.error('Error fetching posts:', error)
     setPosts([])
@@ -82,6 +80,7 @@ const fetchPosts = async () => {
     setLoading(false)
   }
 }
+
 
 
   const handleDelete = async (postId: string) => {
@@ -151,7 +150,7 @@ const fetchPosts = async () => {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Posts Management</h1>
             <p className="text-gray-600">Create, edit, and manage your blog posts</p>
@@ -167,18 +166,18 @@ const fetchPosts = async () => {
         </div>
 
         {/* Filters and Search */}
-        <div className="bg-white border rounded-xl p-4 space-y-4">
-          <div className="flex flex-col md:flex-row gap-4">
+        <div className="p-4 space-y-4 bg-white border rounded-xl">
+          <div className="flex flex-col gap-4 md:flex-row">
             {/* Search */}
             <div className="flex-1">
               <div className="relative">
-                <FiSearch className="absolute left-3 top-3 text-gray-400" size={20} />
+                <FiSearch className="absolute text-gray-400 left-3 top-3" size={20} />
                 <input
                   type="text"
                   placeholder="Search posts by title, author, or content..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10 w-full input-field"
+                  className="w-full pl-10 input-field"
                 />
               </div>
             </div>
@@ -189,7 +188,7 @@ const fetchPosts = async () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
                 <option value="ALL">All Status</option>
                 <option value="DRAFT">Draft</option>
@@ -198,7 +197,7 @@ const fetchPosts = async () => {
             </div>
             
             {/* Export Button */}
-            <button className="btn-secondary inline-flex items-center gap-2">
+            <button className="inline-flex items-center gap-2 btn-secondary">
               <FiDownload size={18} />
               Export
             </button>
@@ -206,13 +205,13 @@ const fetchPosts = async () => {
 
           {/* Bulk Actions */}
           {selectedPosts.length > 0 && (
-            <div className="flex items-center justify-between bg-primary-50 p-3 rounded-lg">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-primary-50">
               <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
                   checked={selectedPosts.length === posts.length}
                   onChange={toggleSelectAll}
-                  className="rounded border-gray-300"
+                  className="border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium text-primary-800">
                   {selectedPosts.length} posts selected
@@ -220,53 +219,71 @@ const fetchPosts = async () => {
               </div>
               
               <div className="flex gap-2">
-                <button
-                  onClick={handleBulkPublish}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium"
-                >
-                  Publish Selected
-                </button>
-                <button
-                  onClick={handleBulkDelete}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium"
-                >
-                  Delete Selected
-                </button>
-              </div>
+  {hasDrafts && (
+    <button
+      onClick={handleBulkPublish}
+      className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
+    >
+      Publish Selected
+    </button>
+  )}
+
+  {hasPublished && (
+    <button
+      onClick={async () => {
+        if (!confirm(`Unpublish ${selectedPosts.length} posts?`)) return
+        await Promise.all(selectedPosts.map(id => postApi.unpublish(id)))
+        fetchPosts()
+        setSelectedPosts([])
+      }}
+      className="px-4 py-2 text-sm font-medium text-white bg-yellow-600 rounded-lg hover:bg-yellow-700"
+    >
+      Unpublish Selected
+    </button>
+  )}
+
+  <button
+    onClick={handleBulkDelete}
+    className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+  >
+    Delete Selected
+  </button>
+</div>
+
             </div>
           )}
         </div>
 
         {/* Posts Table */}
-        <div className="bg-white border rounded-xl overflow-hidden">
+        <div className="overflow-hidden bg-white border rounded-xl">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     <input
                       type="checkbox"
                       checked={selectedPosts.length === posts.length && posts.length > 0}
                       onChange={toggleSelectAll}
-                      className="rounded border-gray-300"
+                      className="border-gray-300 rounded"
                     />
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Title
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Categories
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Author
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Published
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Actions
                   </th>
                 </tr>
@@ -279,7 +296,7 @@ const fetchPosts = async () => {
                         type="checkbox"
                         checked={selectedPosts.includes(post.id)}
                         onChange={() => toggleSelectPost(post.id)}
-                        className="rounded border-gray-300"
+                        className="border-gray-300 rounded"
                       />
                     </td>
                     <td className="px-6 py-4">
@@ -287,7 +304,7 @@ const fetchPosts = async () => {
                         <div className="flex-1 min-w-0">
                           <Link
                             href={`/admin/posts/${post.id}`}
-                            className="text-sm font-medium text-gray-900 hover:text-primary-600 truncate block max-w-md"
+                            className="block max-w-md text-sm font-medium text-gray-900 truncate hover:text-primary-600"
                           >
                             {post.title}
                           </Link>
@@ -307,11 +324,11 @@ const fetchPosts = async () => {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-1 max-w-xs">
+                      <div className="flex flex-wrap max-w-xs gap-1">
                         {post.categories?.slice(0, 2).map((cat, index) => (
                           <span
                             key={index}
-                            className="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 text-gray-800"
+                            className="inline-flex items-center px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded"
                           >
                             {cat.name}
                           </span>
@@ -323,13 +340,13 @@ const fetchPosts = async () => {
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
                       {post.author?.name}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {post.published_at ? formatDate(post.published_at) : 'Not published'}
+                    <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                      {post.publishedAt ? formatDate(post.publishedAt) : 'Not published'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/blog/${post.slug}`}
@@ -363,14 +380,14 @@ const fetchPosts = async () => {
 
           {/* Empty State */}
           {posts.length === 0 && !loading && (
-            <div className="text-center py-16">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+            <div className="py-16 text-center">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full">
                 <FiPlus size={24} className="text-gray-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="mb-2 text-lg font-semibold text-gray-900">
                 No posts found
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="mb-6 text-gray-600">
                 {search || statusFilter !== 'ALL'
                   ? 'Try adjusting your search or filters'
                   : 'Get started by creating your first post'}
@@ -387,7 +404,7 @@ const fetchPosts = async () => {
 
           {/* Pagination */}
           {posts.length > 0 && (
-            <div className="px-6 py-4 border-t flex items-center justify-between">
+            <div className="flex items-center justify-between px-6 py-4 border-t">
               <div className="text-sm text-gray-700">
                 Showing <span className="font-medium">{(currentPage - 1) * 20 + 1}</span> to{' '}
                 <span className="font-medium">{Math.min(currentPage * 20, posts.length)}</span> of{' '}
@@ -443,30 +460,30 @@ const fetchPosts = async () => {
         </div>
 
         {/* Stats Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <div className="card">
-            <div className="text-2xl font-bold text-gray-900 mb-1">
+            <div className="mb-1 text-2xl font-bold text-gray-900">
               {posts.length}
             </div>
             <div className="text-sm text-gray-600">Total Posts</div>
           </div>
           
           <div className="card">
-            <div className="text-2xl font-bold text-gray-900 mb-1">
+            <div className="mb-1 text-2xl font-bold text-gray-900">
               {posts.filter(p => p.status === 'PUBLISHED').length}
             </div>
             <div className="text-sm text-gray-600">Published</div>
           </div>
           
           <div className="card">
-            <div className="text-2xl font-bold text-gray-900 mb-1">
+            <div className="mb-1 text-2xl font-bold text-gray-900">
               {posts.filter(p => p.status === 'DRAFT').length}
             </div>
             <div className="text-sm text-gray-600">Drafts</div>
           </div>
           
           <div className="card">
-            <div className="text-2xl font-bold text-gray-900 mb-1">
+            <div className="mb-1 text-2xl font-bold text-gray-900">
               {new Set(posts.flatMap(p => p.categories?.map(c => c.name) || [])).size}
             </div>
             <div className="text-sm text-gray-600">Categories Used</div>

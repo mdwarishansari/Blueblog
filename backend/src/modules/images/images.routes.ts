@@ -38,7 +38,14 @@ const upload = multer({
 router.use(authenticate);
 router.use(authorize('WRITER', 'EDITOR', 'ADMIN'));
 
-router.post('/upload', createRateLimiter, upload.single('image'), validate(uploadImageSchema), uploadImage);
+router.post(
+  '/upload',
+  createRateLimiter,
+  upload.single('file'),
+  validate(uploadImageSchema),
+  uploadImage
+);
+
 router.get('/', getImages);
 router.get('/:id', getImage);
 router.put('/:id', validate(updateImageSchema), updateImage);

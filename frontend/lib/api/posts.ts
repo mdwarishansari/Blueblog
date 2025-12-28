@@ -4,17 +4,18 @@ import { Post, ApiResponse } from '@/types';
 export const postApi = {
   // Get all posts (public)
   getAll: async (params?: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    category?: string;
-    author?: string;
-    status?: string;
-    sort?: string;
-  }) => {
-    const response = await apiClient.get<ApiResponse<Post[]>>('/posts', { params });
-    return response.data;
-  },
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string;
+  author?: string;
+  status?: string;
+  sort?: string;
+}) => {
+  const response = await apiClient.get('/posts', { params });
+  return response.data.data; // 👈 VERY IMPORTANT
+},
+
 
   // Get single post by slug (public)
   getBySlug: async (slug: string) => {

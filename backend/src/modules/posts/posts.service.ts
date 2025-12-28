@@ -58,34 +58,69 @@ export class PostsService {
   }
 
   async getPosts(filters: {
-    page: number;
-    limit: number;
-    search?: string;
-    category?: string;
-    author?: string;
-    status?: string;
-    sort?: string;
-  }) {
+  page: number;
+  limit: number;
+  search?: string;
+  category?: string;
+  author?: string;
+  status?: string;
+  sort?: string;
+  user?: {
+    id: string;
+    role: 'ADMIN' | 'EDITOR' | 'WRITER';
+  };
+}) {
     const { page, limit, search, category, author, status, sort } = filters;
     const skip = (page - 1) * limit;
 
     // Build where clause
     const where: any = {};
     
-    if (status) {
-      where.status = status;
-    } else {
-      // Default to published posts for non-admin
-      where.status = 'PUBLISHED';
-    }
+    const isAdmin = filters.user?.role === 'ADMIN' || filters.user?.role === 'EDITOR';
+const isWriter = filters.user?.role === 'WRITER';
+
+// 🔥 STATUS FILTER — FIXED
+if (filters.status && filters.status !== 'ALL') {
+  // Explicit filter
+  where.status = filters.status;
+} else {
+  // ALL status
+  if (isAdmin) {
+    // Admin & Editor → see everything (NO status filter)
+    // do nothing
+  } else if (isWriter) {
+    // Writer → published + own drafts
+    where.OR = [
+      { status: 'PUBLISHED' },
+      { status: 'DRAFT', authorId: filters.user!.id }
+    ];
+  } else {
+    // Public
+    where.status = 'PUBLISHED';
+  }
+}
+
+
     
     if (search) {
-      where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { excerpt: { contains: search, mode: 'insensitive' } },
-        { content: { path: ['content'], string_contains: search } }
-      ];
-    }
+  const searchConditions = [
+    { title: { contains: search, mode: 'insensitive' } },
+    { excerpt: { contains: search, mode: 'insensitive' } },
+    { content: { path: ['content'], string_contains: search } }
+  ];
+
+  if (where.OR) {
+    // 🔥 merge with existing OR (status logic)
+    where.AND = [
+      { OR: where.OR },
+      { OR: searchConditions }
+    ];
+    delete where.OR;
+  } else {
+    where.OR = searchConditions;
+  }
+}
+
     
     if (category) {
       where.categories = {
@@ -345,4 +380,5 @@ export class PostsService {
 
     return relatedPosts;
   }
+  
 }
