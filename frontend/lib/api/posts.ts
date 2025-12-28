@@ -23,6 +23,12 @@ export const postApi = {
     return response.data;
   },
 
+  // Get single post by ID (ADMIN / EDIT)
+getById: async (id: string) => {
+  const response = await apiClient.get(`/posts/${id}`)
+  return response.data
+},
+
   // Create post (admin/writer)
   create: async (postData: Partial<Post>) => {
     const response = await apiClient.post<ApiResponse<Post>>('/posts', postData);

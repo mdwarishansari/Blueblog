@@ -238,15 +238,16 @@ if (filters.status && filters.status !== 'ALL') {
     }
 
     // Check if new slug is available
-    if (data.slug && data.slug !== post.slug) {
-      const existingSlug = await prisma.post.findUnique({
-        where: { slug: data.slug }
-      });
-      
-      if (existingSlug) {
-        throw new ConflictError('Post with this slug already exists');
-      }
-    }
+    // ✅ Check slug ONLY if it actually changed
+if (data.slug && data.slug !== post.slug) {
+  const existingSlug = await prisma.post.findUnique({
+    where: { slug: data.slug }
+  });
+
+  if (existingSlug) {
+    throw new ConflictError('Post with this slug already exists');
+  }
+}
 
     // Prepare update data
     const updateData: any = { ...data };

@@ -114,7 +114,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
         canonical={`/category/${category.slug}`}
       />
       
-      <div className="max-w-7xl mx-auto">
+      <div className="mx-auto max-w-7xl">
         {/* Breadcrumbs */}
         <Breadcrumbs
           items={[
@@ -126,18 +126,18 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
         
         {/* Category Header */}
         <div className="mb-12 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 text-primary-600 mb-4">
-            <span className="text-2xl font-bold">{category.name.charAt(0)}</span>
+          <div className="inline-flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-primary-100 text-primary-600">
+            <span className="text-2xl font-bold">{category.name?.charAt(0)}</span>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">{category.name}</h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <h1 className="mb-3 text-4xl font-bold text-gray-900">{category.name}</h1>
+          <p className="max-w-2xl mx-auto text-gray-600">
             Explore our collection of {category.post_count || 0} articles about {category.name}.
             Stay updated with the latest insights and tutorials.
           </p>
         </div>
         
         {/* View Controls */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 p-4 bg-gray-50 rounded-xl">
+        <div className="flex flex-col items-start justify-between gap-4 p-4 mb-8 sm:flex-row sm:items-center bg-gray-50 rounded-xl">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">
               {pagination?.total || 0} Articles Found
@@ -150,7 +150,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <label className="text-sm text-gray-600">View:</label>
-              <div className="flex border rounded-lg overflow-hidden">
+              <div className="flex overflow-hidden border rounded-lg">
                 <a
                   href={`?view=grid${page > 1 ? `&page=${page}` : ''}`}
                   className={`p-2 border-r ${view === 'grid' ? 'bg-primary-50 text-primary-600' : 'bg-white text-gray-600'}`}
@@ -168,7 +168,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
             
             <div className="flex items-center gap-2">
               <FiFilter size={18} className="text-gray-500" />
-              <select className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+              <select className="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
                 <option>Latest</option>
                 <option>Most Popular</option>
                 <option>Most Viewed</option>
@@ -183,7 +183,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
           {posts.length > 0 ? (
             <>
               {view === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {posts.map((post: any) => (
                     <BlogCard key={post.id} post={post} variant="default" />
                   ))}
@@ -198,7 +198,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
               
               {/* Pagination */}
               {pagination && pagination.pages > 1 && (
-                <div className="mt-12 flex justify-center">
+                <div className="flex justify-center mt-12">
                   <nav className="flex items-center gap-2">
                     {page > 1 && (
                       <a
@@ -249,12 +249,12 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
               )}
             </>
           ) : (
-            <div className="text-center py-16">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+            <div className="py-16 text-center">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full">
                 <FiGrid size={24} className="text-gray-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No articles yet</h3>
-              <p className="text-gray-600 max-w-md mx-auto">
+              <h3 className="mb-2 text-xl font-semibold text-gray-900">No articles yet</h3>
+              <p className="max-w-md mx-auto text-gray-600">
                 No articles have been published in this category yet. Check back soon!
               </p>
             </div>
@@ -262,8 +262,8 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
         </Suspense>
         
         {/* Category Description */}
-        <div className="mt-16 p-8 bg-gradient-to-r from-primary-50 to-secondary-50 rounded-2xl">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">About {category.name}</h2>
+        <div className="p-8 mt-16 bg-gradient-to-r from-primary-50 to-secondary-50 rounded-2xl">
+          <h2 className="mb-4 text-2xl font-bold text-gray-900">About {category.name}</h2>
           <div className="prose max-w-none">
             <p className="text-gray-700">
               This category features articles about {category.name}. Our writers cover various 
@@ -271,12 +271,12 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
               Whether you're a beginner or an experienced professional, you'll find valuable 
               content to enhance your knowledge.
             </p>
-            <p className="text-gray-700 mt-4">
+            <p className="mt-4 text-gray-700">
               Subscribe to our newsletter to get notified when new articles are published in 
               this category. You can also follow specific authors to get personalized updates.
             </p>
           </div>
-          <div className="mt-6 flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4 mt-6">
             <button className="btn-primary">
               Subscribe to Category
             </button>

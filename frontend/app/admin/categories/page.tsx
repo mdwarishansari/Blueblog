@@ -12,9 +12,12 @@ interface Category {
   id: string
   name: string
   slug: string
-  post_count?: number
-  created_at: string
+  _count?: {
+    posts: number
+  }
+  createdAt: string
 }
+
 
 export default function AdminCategoriesPage() {
   const router = useRouter()
@@ -49,13 +52,10 @@ export default function AdminCategoriesPage() {
 
     const response = await categoryApi.getAll()
 
-    const categoriesArray = Array.isArray(response?.data)
-      ? response.data
-      : Array.isArray(response?.data?.items)
-        ? response.data.items
-        : []
+const categoriesArray = response?.data?.categories ?? []
 
-    setCategories(categoriesArray)
+setCategories(categoriesArray)
+
   } catch (error) {
     console.error('Error fetching categories:', error)
     setCategories([])
@@ -79,21 +79,21 @@ export default function AdminCategoriesPage() {
     }
 
     try {
-      if (editingCategory) {
-        // Update existing category
-        await categoryApi.update(editingCategory.id, formData)
-      } else {
-        // Create new category
-        await categoryApi.create(formData)
-      }
-      
-      // Reset form and refresh
-      resetForm()
-      fetchCategories()
-    } catch (error: any) {
-      console.error('Error saving category:', error)
-      alert(error.message || 'Failed to save category')
-    }
+  if (editingCategory) {
+    await categoryApi.update(editingCategory.id, formData)
+    alert('Category updated successfully ✅')
+  } else {
+    await categoryApi.create(formData)
+    alert('Category created successfully ✅')
+  }
+
+  resetForm()
+  fetchCategories()
+} catch (error: any) {
+  console.error('Error saving category:', error)
+  alert(error.message || 'Failed to save category')
+}
+
   }
 
   const handleDelete = async (categoryId: string) => {
@@ -162,7 +162,7 @@ export default function AdminCategoriesPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
             <p className="text-gray-600">Organize your content with categories</p>
@@ -178,30 +178,30 @@ export default function AdminCategoriesPage() {
         </div>
 
         {/* Search */}
-        <div className="bg-white border rounded-xl p-4">
+        <div className="p-4 bg-white border rounded-xl">
           <div className="relative">
-            <FiSearch className="absolute left-3 top-3 text-gray-400" size={20} />
+            <FiSearch className="absolute text-gray-400 left-3 top-3" size={20} />
             <input
               type="text"
               placeholder="Search categories..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 w-full input-field"
+              className="w-full pl-10 input-field"
             />
           </div>
         </div>
 
         {/* Categories Grid */}
         {filteredCategories.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {filteredCategories.map((category) => (
               <div
                 key={category.id}
-                className="bg-white border rounded-xl p-6 hover:shadow-md transition-shadow"
+                className="p-6 transition-shadow bg-white border rounded-xl hover:shadow-md"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-lg bg-primary-100 flex items-center justify-center">
+                    <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-100">
                       <FiFolder size={24} className="text-primary-600" />
                     </div>
                     <div>
@@ -230,7 +230,8 @@ export default function AdminCategoriesPage() {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Posts</span>
                     <span className="font-medium text-gray-900">
-                      {category.post_count || 0}
+                      {category._count?.posts ?? 0}
+
                     </span>
                   </div>
                   
@@ -242,11 +243,11 @@ export default function AdminCategoriesPage() {
                   </div>
                 </div>
                 
-                <div className="mt-4 pt-4 border-t">
+                <div className="pt-4 mt-4 border-t">
                   <a
                     href={`/category/${category.slug}`}
                     target="_blank"
-                    className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                    className="text-sm font-medium text-primary-600 hover:text-primary-700"
                   >
                     View Category Page →
                   </a>
@@ -255,14 +256,14 @@ export default function AdminCategoriesPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 bg-white border rounded-xl">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+          <div className="py-16 text-center bg-white border rounded-xl">
+            <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full">
               <FiFolder size={24} className="text-gray-400" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">
               {search ? 'No categories found' : 'No categories yet'}
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="mb-6 text-gray-600">
               {search ? 'Try a different search term' : 'Create your first category to organize posts'}
             </p>
             <button
@@ -276,23 +277,23 @@ export default function AdminCategoriesPage() {
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div className="card">
-            <div className="text-2xl font-bold text-gray-900 mb-1">
+            <div className="mb-1 text-2xl font-bold text-gray-900">
               {categories.length}
             </div>
             <div className="text-sm text-gray-600">Total Categories</div>
           </div>
           
           <div className="card">
-            <div className="text-2xl font-bold text-gray-900 mb-1">
-              {categories.reduce((sum, cat) => sum + (cat.post_count || 0), 0)}
+            <div className="mb-1 text-2xl font-bold text-gray-900">
+              {categories.reduce((sum, c) => sum + (c._count?.posts ?? 0), 0)}
             </div>
             <div className="text-sm text-gray-600">Total Posts in Categories</div>
           </div>
           
           <div className="card">
-            <div className="text-2xl font-bold text-gray-900 mb-1">
+            <div className="mb-1 text-2xl font-bold text-gray-900">
               {categories.length
   ? Math.max(...categories.map(c => c.post_count || 0)): 0}
 
@@ -304,8 +305,8 @@ export default function AdminCategoriesPage() {
 
       {/* Add/Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="w-full max-w-md p-6 bg-white rounded-2xl">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-gray-900">
                 {editingCategory ? 'Edit Category' : 'Add New Category'}
@@ -320,7 +321,7 @@ export default function AdminCategoriesPage() {
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   Category Name *
                 </label>
                 <input
@@ -331,12 +332,12 @@ export default function AdminCategoriesPage() {
                   className="input-field"
                 />
                 {errors.name && (
-                  <p className="text-sm text-red-600 mt-1">{errors.name}</p>
+                  <p className="mt-1 text-sm text-red-600">{errors.name}</p>
                 )}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   URL Slug *
                 </label>
                 <input
@@ -347,9 +348,9 @@ export default function AdminCategoriesPage() {
                   className="input-field"
                 />
                 {errors.slug && (
-                  <p className="text-sm text-red-600 mt-1">{errors.slug}</p>
+                  <p className="mt-1 text-sm text-red-600">{errors.slug}</p>
                 )}
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="mt-1 text-xs text-gray-500">
                   Used in URLs: /category/{formData.slug || 'your-slug'}
                 </p>
               </div>

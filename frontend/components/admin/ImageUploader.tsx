@@ -5,8 +5,8 @@ import { FiUpload, FiX, FiCheck, FiImage } from 'react-icons/fi'
 import { imageApi } from '@/lib/api/images'
 
 interface ImageUploaderProps {
-  onUploadComplete: (imageData: any) => void
-  existingImage?: string
+  onUploadComplete: (image: { id: string; url: string }) => void
+  existingImageUrl?: string | null
   altText?: string
   title?: string
   caption?: string
@@ -14,13 +14,13 @@ interface ImageUploaderProps {
 
 export default function ImageUploader({
   onUploadComplete,
-  existingImage,
+  existingImageUrl,
   altText: initialAltText = '',
   title: initialTitle = '',
   caption: initialCaption = '',
 }: ImageUploaderProps) {
   const [uploading, setUploading] = useState(false)
-  const [preview, setPreview] = useState<string | null>(existingImage || null)
+  const [preview, setPreview] = useState<string | null>(existingImageUrl || null)
   const [altText, setAltText] = useState(initialAltText)
   const [title, setTitle] = useState(initialTitle)
   const [caption, setCaption] = useState(initialCaption)
@@ -123,7 +123,12 @@ export default function ImageUploader({
         <label className="block text-sm font-medium text-gray-700">
           Featured Image
         </label>
-        
+        {existingImageUrl && !uploading && (
+  <div className="p-3 text-sm text-yellow-800 border border-yellow-200 rounded-lg bg-yellow-50">
+    A featured image already exists. Uploading a new image will replace it.
+  </div>
+)}
+
         {!preview ? (
           <div
             className="p-8 text-center transition-colors border-2 border-gray-300 border-dashed cursor-pointer rounded-xl hover:border-primary-500"
