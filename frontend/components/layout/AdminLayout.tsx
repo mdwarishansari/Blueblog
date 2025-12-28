@@ -51,7 +51,7 @@ const navigation = [
     name: 'Media',
     href: '/admin/images',
     icon: FiImage,
-    roles: ['ADMIN', 'EDITOR', 'WRITER'],
+    roles: ['ADMIN'],
   },
   {
     name: 'Users',
@@ -181,7 +181,10 @@ function SidebarContent({ user, navigation, pathname, onLogout }: SidebarContent
 
       {/* Navigation */}
       <nav className="flex-1 px-2 space-y-1">
-        {navigation.map((item) => {
+        {navigation
+  .filter(item => item.roles.includes(user.role))
+  .map((item) => {
+
           const Icon = item.icon
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
           

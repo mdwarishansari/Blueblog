@@ -26,9 +26,14 @@ router.get('/:slug/posts', getCategoryPosts);
 
 // Protected routes (ADMIN only for write operations)
 router.use(authenticate);
-router.post('/', authorize('ADMIN'), createRateLimiter, validate(createCategorySchema), createCategory);
+router.post('/', authorize('ADMIN','EDITOR'), createRateLimiter, validate(createCategorySchema), createCategory);
 router.get('/:id', authorize('ADMIN', 'EDITOR'), getCategory);
-router.put('/:id', authorize('ADMIN'), validate(updateCategorySchema), updateCategory);
-router.delete('/:id', authorize('ADMIN'), deleteCategory);
+router.put('/:id', authorize('ADMIN','EDITOR'), validate(updateCategorySchema), updateCategory);
+router.delete(
+  '/:id',
+  authorize('ADMIN'), // 🔒 only admin can delete
+  deleteCategory
+);
+
 
 export default router;
