@@ -3,14 +3,24 @@ import { Image, ApiResponse } from '@/types';
 
 export const imageApi = {
   // Upload image
+  // upload: async (formData: FormData) => {
+  //   const response = await apiClient.post<ApiResponse<Image>>('/images/upload', formData, {
+  //     headers: {
+  //       'Content-Type': 'multipart/form-data',
+  //     },
+  //   });
+  //   return response.data.data.image;
+  // },
+
   upload: async (formData: FormData) => {
-    const response = await apiClient.post<ApiResponse<Image>>('/images/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data.data.image;
-  },
+  const response = await apiClient.post(
+    '/images/upload',
+    formData
+    // ❌ NO HEADERS HERE
+  );
+  return response.data.data.image;
+},
+
 
   // Get all images
   getAll: async (params?: { page?: number; limit?: number }) => {

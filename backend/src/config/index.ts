@@ -11,6 +11,7 @@ export const config = {
 
   // Database
   databaseUrl: process.env.DATABASE_URL!,
+  
 
   // JWT
   jwt: {

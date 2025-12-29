@@ -1,22 +1,21 @@
 import { Request, Response } from 'express';
 import { ImagesService } from './images.service';
 import { catchAsync } from '../../utils/catchAsync';
-
+import { ValidationError } from '../../utils/appError'
 const imagesService = new ImagesService();
 
 export const uploadImage = catchAsync(async (req: Request, res: Response) => {
+  console.log('FILE:', req.file);
+  console.log('BODY:', req.body);
   if (!req.file) {
-    return res.status(400).json({
-      status: 'error',
-      message: 'No image file provided'
-    });
+    throw new ValidationError('No image file uploaded', [])
   }
 
-  const image = await imagesService.uploadImage(req.file, req.body);
-  
+  const image = await imagesService.uploadImage(req.file, req.body)
+
   res.status(201).json({
     status: 'success',
-    data: { image }
+    data: { image },
   })
 });
 

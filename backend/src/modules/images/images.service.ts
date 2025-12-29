@@ -1,5 +1,6 @@
 import prisma from '../../config/database';
-import { uploadToCloudinary, deleteFromCloudinary } from '../../utils/cloudinary';
+import { uploadToCloudinary, deleteFromCloudinary } from '../../config/cloudinary'
+
 import { NotFoundError } from '../../utils/appError';
 
 export class ImagesService {
@@ -14,7 +15,7 @@ export class ImagesService {
     // Save to database
     const image = await prisma.image.create({
       data: {
-        url: cloudinaryResult.secure_url,
+        url: cloudinaryResult.url,
         altText: data.altText,
         title: data.title,
         caption: data.caption,

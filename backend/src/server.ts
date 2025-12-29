@@ -1,6 +1,7 @@
 import app from './app';
 import { config } from './config';
 import { logger } from '../src/utils/logger';
+import 'dotenv/config';
 
 const PORT = config.port;
 

@@ -78,8 +78,9 @@ export default function ImageUploader({
 
   clearInterval(interval)
   setProgress(100)
-
-  onUploadComplete(image) // ✅ UUID passes validation
+      onUploadComplete(image)
+  // onUploadComplete(image.data.image)
+ // ✅ UUID passes validation
 } catch (err) {
   setError('Upload failed. Please try again.')
 } finally {

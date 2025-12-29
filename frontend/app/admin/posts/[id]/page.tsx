@@ -8,6 +8,7 @@ import ImageUploader from '@/components/admin/ImageUploader'
 import { FiSave, FiSend, FiX } from 'react-icons/fi'
 import { postApi } from '@/lib/api/posts'
 import { categoryApi } from '@/lib/api/categories'
+import { useAuth } from '@/lib/hooks/useAuth' // ✅ FIXED
 
 /* ------------------------------------------------------------------ */
 /* TYPES */
@@ -25,6 +26,7 @@ interface Category {
 export default function EditPostPage() {
   const router = useRouter()
   const params = useParams()
+  const { user } = useAuth() // ✅ FIXED
 
   const postId = params?.id as string
   const isEdit = postId !== 'new'
@@ -49,22 +51,18 @@ export default function EditPostPage() {
   })
 
   /* ------------------------------------------------------------------ */
-  /* LOAD CATEGORIES (ONCE) */
+  /* LOAD CATEGORIES */
   /* ------------------------------------------------------------------ */
 
   useEffect(() => {
     categoryApi
       .getAll()
-      .then(res => {
-        setCategories(res.data.categories || [])
-      })
-      .catch(err => {
-        console.error('Failed to load categories', err)
-      })
+      .then(res => setCategories(res.data.categories || []))
+      .catch(err => console.error('Failed to load categories', err))
   }, [])
 
   /* ------------------------------------------------------------------ */
-  /* LOAD POST (EDIT MODE ONLY) */
+  /* LOAD POST (EDIT MODE) */
   /* ------------------------------------------------------------------ */
 
   useEffect(() => {
@@ -93,12 +91,8 @@ export default function EditPostPage() {
 
         setOriginalSlug(post.slug)
       })
-      .catch(err => {
-        console.error('Failed to load post', err)
-      })
-      .finally(() => {
-        setLoadingPost(false)
-      })
+      .catch(err => console.error('Failed to load post', err))
+      .finally(() => setLoadingPost(false))
   }, [isEdit, postId])
 
   /* ------------------------------------------------------------------ */
@@ -122,7 +116,6 @@ export default function EditPostPage() {
         canonicalUrl: formData.canonical_url || undefined,
       }
 
-      // 🔒 Prevent slug conflict
       if (!isEdit || formData.slug !== originalSlug) {
         payload.slug = formData.slug
       }
@@ -136,7 +129,8 @@ export default function EditPostPage() {
         savedPostId = res.data.post.id
       }
 
-      if (publish) {
+      // ❌ WRITER CANNOT PUBLISH (DOCX RULE)
+      if (publish && user?.role !== 'WRITER') {
         await postApi.publish(savedPostId)
       }
 
@@ -150,7 +144,7 @@ export default function EditPostPage() {
   }
 
   /* ------------------------------------------------------------------ */
-  /* LOADING STATE */
+  /* LOADING */
   /* ------------------------------------------------------------------ */
 
   if (loadingPost) {
@@ -178,8 +172,8 @@ export default function EditPostPage() {
             </h1>
             <p className="text-gray-600">
               {isEdit
-                ? 'Update your existing article'
-                : 'Start writing your next great article'}
+                ? 'Update your draft'
+                : 'Write a new draft'}
             </p>
           </div>
 
@@ -201,14 +195,17 @@ export default function EditPostPage() {
               Save Draft
             </button>
 
-            <button
-              disabled={saving}
-              onClick={() => handleSave(true)}
-              className="px-4 py-2 text-white bg-green-600 rounded-lg"
-            >
-              <FiSend className="inline mr-1" />
-              Publish
-            </button>
+            {/* ❌ HIDDEN FOR WRITER */}
+            {user?.role !== 'WRITER' && (
+              <button
+                disabled={saving}
+                onClick={() => handleSave(true)}
+                className="px-4 py-2 text-white bg-green-600 rounded-lg"
+              >
+                <FiSend className="inline mr-1" />
+                Publish
+              </button>
+            )}
           </div>
         </div>
 
@@ -301,18 +298,10 @@ export default function EditPostPage() {
                 description={formData.seo_description || formData.excerpt}
                 slug={formData.slug}
                 canonicalUrl={formData.canonical_url}
-                onTitleChange={v =>
-                  setFormData(p => ({ ...p, seo_title: v }))
-                }
-                onDescriptionChange={v =>
-                  setFormData(p => ({ ...p, seo_description: v }))
-                }
-                onSlugChange={v =>
-                  setFormData(p => ({ ...p, slug: v }))
-                }
-                onCanonicalChange={v =>
-                  setFormData(p => ({ ...p, canonical_url: v }))
-                }
+                onTitleChange={v => setFormData(p => ({ ...p, seo_title: v }))}
+                onDescriptionChange={v => setFormData(p => ({ ...p, seo_description: v }))}
+                onSlugChange={v => setFormData(p => ({ ...p, slug: v }))}
+                onCanonicalChange={v => setFormData(p => ({ ...p, canonical_url: v }))}
               />
             </div>
           </div>

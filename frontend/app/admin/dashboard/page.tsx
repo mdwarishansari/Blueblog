@@ -53,21 +53,46 @@ export default function DashboardPage() {
   }, [isAuthenticated])
 
   const fetchDashboardData = async () => {
-    try {
-      setLoading(true)
+  try {
+    setLoading(true)
 
-      /* 🔥 SAME APIs AS WORKING PAGES */
-      const [
-        postsResult,
-        categoriesResult,
-        imagesResult,
-        usersResult,
-      ] = await Promise.all([
-        postApi.getAll({ limit: 1000 }),
-        categoryApi.getAll(),
-        imageApi.getAll(),
-        userApi.getAll(),
-      ])
+    // 🔐 WRITER DASHBOARD
+    if (user?.role === 'WRITER') {
+      const postsResult = await postApi.getAll({ limit: 1000 })
+
+      const posts = postsResult.posts.filter(
+        (p: any) => p.author?.id === user.id
+      )
+
+      const publishedPosts = posts.filter(p => p.status === 'PUBLISHED').length
+      const draftPosts = posts.filter(p => p.status === 'DRAFT').length
+
+      setStats({
+        totalPosts: posts.length,
+        publishedPosts,
+        draftPosts,
+        totalCategories: 0,
+        totalImages: 0,
+        totalUsers: 0,
+      })
+
+      setRecentPosts(posts.slice(0, 5))
+      return
+    }
+
+    // 🔐 ADMIN / EDITOR DASHBOARD (UNCHANGED)
+    const [
+      postsResult,
+      categoriesResult,
+      imagesResult,
+      usersResult,
+    ] = await Promise.all([
+      postApi.getAll({ limit: 1000 }),
+      categoryApi.getAll(),
+      imageApi.getAll(),
+      userApi.getAll(),
+    ])
+
 
       /* ---------- POSTS ---------- */
       const posts = postsResult?.posts ?? []

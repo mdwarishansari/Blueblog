@@ -88,7 +88,9 @@ if (filters.status && filters.status !== 'ALL') {
   if (isAdmin) {
     // Admin & Editor → see everything (NO status filter)
     // do nothing
-  } else if (isWriter) {
+  } else if (filters.user?.role === 'WRITER') {
+  where.authorId = filters.user.id;
+
     // Writer → published + own drafts
     where.OR = [
       { status: 'PUBLISHED' },

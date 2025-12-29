@@ -36,19 +36,22 @@ const upload = multer({
 
 // Protected routes
 router.use(authenticate);
-router.use(authorize('WRITER', 'EDITOR', 'ADMIN'));
 
+// ✅ upload allowed for all
 router.post(
   '/upload',
-  createRateLimiter,
-  upload.single('file'),
-  validate(uploadImageSchema),
+  authorize('ADMIN', 'EDITOR', 'WRITER'),
+  upload.single('file'),     // ✅ FIRST
   uploadImage
-);
+  
+)
+;
 
-router.get('/', getImages);
-router.get('/:id', getImage);
-router.put('/:id', validate(updateImageSchema), updateImage);
-router.delete('/:id', deleteImage);
+// ❌ only admin/editor can manage images
+router.get('/', authorize('ADMIN', 'EDITOR'), getImages);
+router.get('/:id', authorize('ADMIN', 'EDITOR'), getImage);
+router.put('/:id', authorize('ADMIN', 'EDITOR'), validate(updateImageSchema), updateImage);
+router.delete('/:id', authorize('ADMIN', 'EDITOR'), deleteImage);
+
 
 export default router;

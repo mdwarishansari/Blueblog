@@ -27,7 +27,9 @@ interface Post {
 export default function AdminPostsPage() {
   const router = useRouter()
   const { isAuthenticated, loading: authLoading } = useAuth()
-  
+  const { user } = useAuth()
+  const isWriter = user?.role === 'WRITER'
+
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -204,7 +206,7 @@ const fetchPosts = async () => {
           </div>
 
           {/* Bulk Actions */}
-          {selectedPosts.length > 0 && (
+          {!isWriter && selectedPosts.length > 0 && (
             <div className="flex items-center justify-between p-3 rounded-lg bg-primary-50">
               <div className="flex items-center gap-3">
                 <input
@@ -217,9 +219,10 @@ const fetchPosts = async () => {
                   {selectedPosts.length} posts selected
                 </span>
               </div>
-              
+              {!isWriter && (
               <div className="flex gap-2">
   {hasDrafts && (
+    
     <button
       onClick={handleBulkPublish}
       className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
@@ -249,7 +252,7 @@ const fetchPosts = async () => {
     Delete Selected
   </button>
 </div>
-
+              )}
             </div>
           )}
         </div>
@@ -260,6 +263,7 @@ const fetchPosts = async () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
+                {!isWriter && (
                   <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     <input
                       type="checkbox"
@@ -268,6 +272,7 @@ const fetchPosts = async () => {
                       className="border-gray-300 rounded"
                     />
                   </th>
+                  )}
                   <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Title
                   </th>
@@ -291,14 +296,17 @@ const fetchPosts = async () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {posts.map((post) => (
                   <tr key={post.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <input
-                        type="checkbox"
-                        checked={selectedPosts.includes(post.id)}
-                        onChange={() => toggleSelectPost(post.id)}
-                        className="border-gray-300 rounded"
-                      />
-                    </td>
+                    {!isWriter && (
+  <td className="px-6 py-4 whitespace-nowrap">
+    <input
+      type="checkbox"
+      checked={selectedPosts.includes(post.id)}
+      onChange={() => toggleSelectPost(post.id)}
+      className="border-gray-300 rounded"
+    />
+  </td>
+)}
+
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="flex-1 min-w-0">
@@ -363,6 +371,7 @@ const fetchPosts = async () => {
                         >
                           <FiEdit size={16} />
                         </Link>
+                        {!isWriter && (
                         <button
                           onClick={() => handleDelete(post.id)}
                           className="p-1 text-gray-600 hover:text-red-600"
@@ -370,6 +379,7 @@ const fetchPosts = async () => {
                         >
                           <FiTrash2 size={16} />
                         </button>
+  )}
                       </div>
                     </td>
                   </tr>
