@@ -28,6 +28,12 @@ export const getPosts = catchAsync(async (req: Request, res: Response) => {
   status: status as string,
   sort: sort as string,
   user: req.user
+  ? {
+      id: req.user.id,
+      role: req.user.role as 'ADMIN' | 'EDITOR' | 'WRITER',
+    }
+  : undefined
+
 });
 
   

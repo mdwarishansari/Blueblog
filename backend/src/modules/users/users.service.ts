@@ -2,13 +2,14 @@ import bcrypt from 'bcryptjs';
 import prisma from '../../config/database';
 import { NotFoundError, ConflictError } from '../../utils/appError';
 import { config } from '../../config';
+import { UserRole } from '@prisma/client'
 
 export class UsersService {
   async createUser(data: {
     name: string;
     email: string;
     password: string;
-    role: string;
+    role: UserRole;
     bio?: string;
     profileImage?: string;
   }) {
@@ -29,7 +30,7 @@ export class UsersService {
   data: {
     name: data.name,
     email: data.email,
-    role: data.role,
+    role: data.role as UserRole,
     bio: data.bio,
     profileImage: data.profileImage,
     passwordHash: hashedPassword, // ✅ ONLY THIS
@@ -54,7 +55,7 @@ export class UsersService {
     page: number;
     limit: number;
     search?: string;
-    role?: string;
+    role?: UserRole;
   }) {
     const { page, limit, search, role } = filters;
     const skip = (page - 1) * limit;
@@ -147,11 +148,12 @@ export class UsersService {
   }
 
   async updateUser(id: string, data: {
-    name?: string;
-    role?: string;
-    bio?: string;
-    profileImage?: string;
-  }) {
+  name?: string;
+  role?: UserRole;
+  bio?: string;
+  profileImage?: string;
+})
+ {
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
       where: { id }
@@ -164,7 +166,11 @@ export class UsersService {
     // Update user
     const user = await prisma.user.update({
       where: { id },
-      data,
+      data: {
+  ...data,
+  role: data.role as UserRole | undefined,
+},
+
       select: {
         id: true,
         name: true,

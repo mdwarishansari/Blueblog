@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { UsersService } from './users.service';
 import { catchAsync } from '../../utils/catchAsync';
-
+import { UserRole } from '@prisma/client';
 const usersService = new UsersService();
 
 export const createUser = catchAsync(async (req: Request, res: Response) => {
@@ -16,12 +16,15 @@ export const createUser = catchAsync(async (req: Request, res: Response) => {
 export const getUsers = catchAsync(async (req: Request, res: Response) => {
   const { page = 1, limit = 12, search, role } = req.query;
   
-  const result = await usersService.getUsers({
-    page: Number(page),
-    limit: Math.min(Number(limit), 50),
-    search: search as string,
-    role: role as string
-  });
+  
+
+const result = await usersService.getUsers({
+  page: Number(page),
+  limit: Math.min(Number(limit), 50),
+  search: search as string,
+  role: role ? (role as UserRole) : undefined,
+});
+
   
   res.status(200).json({
     status: 'success',

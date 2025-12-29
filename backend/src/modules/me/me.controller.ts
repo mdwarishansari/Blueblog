@@ -5,7 +5,12 @@ import { ValidationError } from '../../utils/appError';
 import { catchAsync } from '../../utils/catchAsync';
 
 export const changePassword = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user!.id;
+  if (!req.user) {
+  throw new Error('Unauthorized')
+}
+
+const userId = req.user.id
+
   const { currentPassword, newPassword } = req.body;
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -34,7 +39,12 @@ export const changePassword = catchAsync(async (req: Request, res: Response) => 
 });
 
 export const updateProfile = catchAsync(async (req, res) => {
-  const userId = req.user.id
+  if (!req.user) {
+  throw new Error('Unauthorized')
+}
+
+const userId = req.user.id
+
 
   const user = await prisma.user.update({
     where: { id: userId },
