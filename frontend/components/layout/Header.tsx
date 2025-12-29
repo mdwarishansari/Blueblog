@@ -4,14 +4,15 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { FiMenu, FiX, FiUser, FiSearch } from 'react-icons/fi'
-import { useAuth } from '@/lib/hooks/useAuth'
+import { useAuth } from '@/lib/context/AuthContext'
+import { useRouter } from 'next/navigation'
 
 export default function Header() {
   const pathname = usePathname()
   const { user, isAuthenticated, logout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
-
+  const router = useRouter()
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/blog', label: 'Blog' },
@@ -22,12 +23,12 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b">
-      <div className="container mx-auto px-4">
+      <div className="container px-4 mx-auto">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">B</span>
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600">
+              <span className="text-lg font-bold text-white">B</span>
             </div>
             <span className="text-xl font-bold text-gray-900">
               {process.env.NEXT_PUBLIC_SITE_NAME || 'Blog'}
@@ -36,7 +37,7 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           {!isAuthenticated && (
-  <nav className="hidden md:flex items-center space-x-8">
+  <nav className="items-center hidden space-x-8 md:flex">
     {navLinks.map((link) => (
       <Link
         key={link.href}
@@ -73,17 +74,24 @@ export default function Header() {
       <span>Dashboard</span>
     </Link>
     <button
-      onClick={logout}
-      className="text-gray-600 hover:text-red-600 hidden md:block"
-    >
-      Logout
-    </button>
+  onClick={async () => {
+    await logout()
+
+    // choose ONE
+    router.replace('/admin/login') // admin apps
+    // router.replace('/')          // public home
+
+    router.refresh()
+  }}
+>
+  Logout
+</button>
   </div>
 ) : (
   <div className="flex items-center gap-3">
     <Link
       href="/admin/login"
-      className="text-gray-700 hover:text-primary-600 hidden md:block"
+      className="hidden text-gray-700 hover:text-primary-600 md:block"
     >
       Login
     </Link>
@@ -99,7 +107,7 @@ export default function Header() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 text-gray-600 hover:text-primary-600"
+              className="p-2 text-gray-600 md:hidden hover:text-primary-600"
             >
               {isMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
             </button>
@@ -113,7 +121,7 @@ export default function Header() {
               <input
                 type="search"
                 placeholder="Search articles, tutorials..."
-                className="w-full px-4 py-3 pl-12 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
               <FiSearch className="absolute left-4 top-3.5 text-gray-400" size={20} />
             </div>
@@ -123,8 +131,8 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden border-t bg-white">
-          <div className="container mx-auto px-4 py-4">
+        <div className="bg-white border-t md:hidden">
+          <div className="container px-4 py-4 mx-auto">
             <div className="space-y-3">
               {navLinks.map((link) => (
                 <Link
@@ -146,17 +154,21 @@ export default function Header() {
                   <>
                     <Link
                       href="/admin/dashboard"
-                      className="block py-2 px-4 text-primary-700 hover:bg-primary-50 rounded-lg"
+                      className="block px-4 py-2 rounded-lg text-primary-700 hover:bg-primary-50"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Dashboard
                     </Link>
                     <button
-                      onClick={() => {
-                        logout()
+                      onClick={async () => {
+    await logout()
                         setIsMenuOpen(false)
+                        router.replace('/admin/login') // admin apps
+    // router.replace('/')          // public home
+
+    router.refresh()
                       }}
-                      className="block w-full text-left py-2 px-4 text-red-600 hover:bg-red-50 rounded-lg"
+                      className="block w-full px-4 py-2 text-left text-red-600 rounded-lg hover:bg-red-50"
                     >
                       Logout
                     </button>
@@ -165,14 +177,14 @@ export default function Header() {
                   <>
                     <Link
                       href="/admin/login"
-                      className="block py-2 px-4 text-gray-700 hover:bg-gray-50 rounded-lg"
+                      className="block px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-50"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Login
                     </Link>
                     <Link
                       href="/admin/login"
-                      className="block py-2 px-4 bg-primary-600 text-white rounded-lg hover:bg-primary-700 mt-2"
+                      className="block px-4 py-2 mt-2 text-white rounded-lg bg-primary-600 hover:bg-primary-700"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Get Started

@@ -4,6 +4,8 @@ import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import SEO from '@/components/seo/SEO'
+import { useAuth } from '@/lib/context/AuthContext'
+import { AuthProvider } from '@/lib/context/AuthContext'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -70,12 +72,14 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className={`${inter.className} min-h-screen flex flex-col`}>
+      <AuthProvider>
         <SEO />
         <Header />
-        <main className="flex-grow container mx-auto px-4 py-8">
+        <main className="container flex-grow px-4 py-8 mx-auto">
           {children}
         </main>
         <Footer />
+        </AuthProvider>
       </body>
     </html>
   )

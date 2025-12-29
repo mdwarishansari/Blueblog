@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi'
-import { useAuth } from '@/lib/hooks/useAuth'
+import { useAuth } from '@/lib/context/AuthContext'
 import SEO from '@/components/seo/SEO'
 
 export default function LoginPage() {
@@ -26,8 +26,9 @@ export default function LoginPage() {
       const result = await login(email, password)
 
       if (result?.accessToken) {
-        router.push('/admin/dashboard')
         router.refresh()
+        router.push('/admin/dashboard')
+        
       } else {
         setError('Invalid credentials')
       }
@@ -42,26 +43,26 @@ export default function LoginPage() {
     <>
       <SEO title="Admin Login" description="Access admin dashboard" />
 
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="max-w-md w-full bg-white p-8 rounded-xl shadow border">
-          <div className="text-center mb-6">
+      <div className="flex items-center justify-center min-h-screen px-4 bg-gray-50">
+        <div className="w-full max-w-md p-8 bg-white border shadow rounded-xl">
+          <div className="mb-6 text-center">
             <Link href="/" className="inline-flex items-center gap-2">
-              <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">B</span>
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary-600">
+                <span className="text-xl font-bold text-white">B</span>
               </div>
               <span className="text-2xl font-bold">
                 {process.env.NEXT_PUBLIC_SITE_NAME}
               </span>
             </Link>
 
-            <h2 className="text-2xl font-bold mt-4">Admin Login</h2>
-            <p className="text-gray-600 text-sm">
+            <h2 className="mt-4 text-2xl font-bold">Admin Login</h2>
+            <p className="text-sm text-gray-600">
               Authorized users only
             </p>
           </div>
 
           {error && (
-            <div className="bg-red-50 text-red-700 p-3 rounded mb-4">
+            <div className="p-3 mb-4 text-red-700 rounded bg-red-50">
               {error}
             </div>
           )}
@@ -70,13 +71,13 @@ export default function LoginPage() {
             <div>
               <label className="text-sm font-medium">Email</label>
               <div className="relative">
-                <FiMail className="absolute left-3 top-3 text-gray-400" />
+                <FiMail className="absolute text-gray-400 left-3 top-3" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value.trim())}
-                  className="pl-10 w-full px-3 py-3 border rounded-lg"
+                  className="w-full px-3 py-3 pl-10 border rounded-lg"
                 />
               </div>
             </div>
@@ -84,18 +85,18 @@ export default function LoginPage() {
             <div>
               <label className="text-sm font-medium">Password</label>
               <div className="relative">
-                <FiLock className="absolute left-3 top-3 text-gray-400" />
+                <FiLock className="absolute text-gray-400 left-3 top-3" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value.trim())}
-                  className="pl-10 pr-10 w-full px-3 py-3 border rounded-lg"
+                  className="w-full px-3 py-3 pl-10 pr-10 border rounded-lg"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-gray-400"
+                  className="absolute text-gray-400 right-3 top-3"
                 >
                   {showPassword ? <FiEyeOff /> : <FiEye />}
                 </button>
@@ -104,7 +105,7 @@ export default function LoginPage() {
 
             <button
               disabled={isLoading}
-              className="w-full py-3 bg-primary-600 text-white rounded-lg font-semibold"
+              className="w-full py-3 font-semibold text-white rounded-lg bg-primary-600"
             >
               {isLoading ? 'Signing in...' : 'Sign In'}
             </button>
