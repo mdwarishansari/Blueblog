@@ -1,71 +1,29 @@
 import { notFound } from 'next/navigation'
+import { FiCalendar, FiClock } from 'react-icons/fi'
+import { formatDate } from '@/lib/utils/formatDate'
 import SEO from '@/components/seo/SEO'
 import BlogContent from '@/components/blog/BlogContent'
-import RelatedPosts from '@/components/blog/RelatedPosts'
-import { FiCalendar, FiClock, FiTag } from 'react-icons/fi'
-import { formatDate } from '@/lib/utils/formatDate'
 
 interface PageProps {
-  params: {
-    slug: string
-  }
+  params: { slug: string }
 }
 
 /* ================= FETCH POST ================= */
 async function getPost(slug: string) {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/posts/slug/${slug}`,
-      { cache: 'no-store' }
-    )
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/posts/slug/${slug}`,
+    { cache: 'no-store' }
+  )
 
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.data
-  } catch {
-    return null
-  }
-}
-
-/* ================= RELATED POSTS ================= */
-async function getRelatedPosts(postId: string) {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/posts/${postId}/related`,
-      { cache: 'no-store' }
-    )
-
-    if (!res.ok) return []
-    const json = await res.json()
-    return json.data || []
-  } catch {
-    return []
-  }
-}
-
-/* ================= METADATA ================= */
-export async function generateMetadata({ params }: PageProps) {
-  const post = await getPost(params.slug)
-
-  if (!post) {
-    return {
-      title: 'Post Not Found',
-      description: 'The requested blog post could not be found.',
-    }
-  }
-
-  return {
-    title: post.seoTitle || post.title,
-    description: post.seoDescription || post.excerpt,
-  }
+  if (!res.ok) return null
+  const json = await res.json()
+  return json.data.post
 }
 
 /* ================= PAGE ================= */
 export default async function BlogPostPage({ params }: PageProps) {
   const post = await getPost(params.slug)
   if (!post) notFound()
-
-  const relatedPosts = await getRelatedPosts(post.id)
 
   const publishedDate = post.publishedAt
     ? formatDate(post.publishedAt)
@@ -84,64 +42,62 @@ export default async function BlogPostPage({ params }: PageProps) {
         ogType="article"
       />
 
-      <article className="max-w-4xl px-4 py-10 mx-auto">
-        {/* Title */}
-        <h1 className="mb-4 text-4xl font-bold text-gray-900">
-          {post.title}
-        </h1>
+      {/* HERO IMAGE */}
+      {post.bannerImage?.url && (
+        <div className="relative w-full h-[60vh] bg-black">
+          <img
+            src={post.bannerImage.url}
+            alt={post.title}
+            className="object-cover w-full h-full opacity-80"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 max-w-5xl px-6 pb-10 mx-auto text-white">
+            <h1 className="mb-6 text-4xl font-extrabold leading-tight tracking-tight md:text-5xl">
+  {post.title}
+</h1>
 
-        {/* Meta */}
-        <div className="flex flex-wrap gap-6 mb-6 text-sm text-gray-600">
-          <span className="flex items-center gap-1">
-            <FiCalendar size={14} />
-            {publishedDate}
-          </span>
-          <span className="flex items-center gap-1">
-            <FiClock size={14} />
-            {readingTime} min read
-          </span>
+<div className="flex flex-wrap gap-6 text-sm font-medium text-gray-200">
+  <span className="flex items-center gap-1">
+    <FiCalendar size={14} />
+    {publishedDate}
+  </span>
+  <span className="flex items-center gap-1">
+    <FiClock size={14} />
+    {readingTime} min read
+  </span>
+</div>
+
+          </div>
         </div>
+      )}
 
+      {/* CONTENT */}
+      <article className="max-w-3xl px-4 py-12 mx-auto">
         {/* Categories */}
         {post.categories?.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-6">
             {post.categories.map((cat: any) => (
-              <a
+              <span
                 key={cat.id}
-                href={`/category/${cat.slug}`}
-                className="inline-flex items-center gap-1 px-3 py-1 text-sm rounded-full bg-primary-50 text-primary-700"
+                className="px-3 py-1 text-sm font-medium rounded-full bg-primary-50 text-primary-700"
               >
-                <FiTag size={12} />
                 {cat.name}
-              </a>
+              </span>
             ))}
           </div>
         )}
 
-        {/* Featured Image */}
-        {post.bannerImage?.url && (
-          <img
-            src={post.bannerImage.url}
-            alt={post.title}
-            className="w-full mb-8 rounded-xl"
-          />
+        {/* Excerpt */}
+        {post.excerpt && (
+          <p className="mb-8 text-lg italic text-gray-600">
+            {post.excerpt}
+          </p>
         )}
 
-        {/* Content */}
+        {/* Blog Content */}
         <div className="prose prose-lg max-w-none">
-          {post.content ? (
-            <BlogContent content={post.content} />
-          ) : (
-            <p className="text-gray-500">No content available.</p>
-          )}
+          <BlogContent content={post.content} />
         </div>
-
-        {/* Related Posts */}
-        {relatedPosts.length > 0 && (
-          <div className="mt-16">
-            <RelatedPosts posts={relatedPosts} currentPostId={post.id} />
-          </div>
-        )}
       </article>
     </>
   )
