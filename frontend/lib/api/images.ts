@@ -5,14 +5,12 @@ export const imageApi = {
   upload: async (formData: FormData): Promise<Image> => {
     const res = await apiClient.post('/images/upload', formData)
 
-    // res === { status, data }
+    // res = { status, data }
     return res.data.image
   },
 
   getAll: async (params?: { page?: number; limit?: number }) => {
     const res = await apiClient.get('/images', { params })
-
-    // res === { status, data }
     return res.data
   },
 
