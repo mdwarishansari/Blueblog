@@ -120,7 +120,8 @@ const navigation = [
       </div>
 
       {/* Static sidebar for desktop */}
-      <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
+      <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 lg:overflow-y-auto">
+
         <SidebarContent
           user={user}
           navigation={navigation}

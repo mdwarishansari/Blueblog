@@ -7,12 +7,14 @@ export async function GET() {
     // Fetch posts from API
     const postsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts?status=PUBLISHED&limit=1000`)
     const postsData = await postsRes.json()
-    const posts = postsData.data || []
+    const posts = postsData.data?.posts || []
+
 
     // Fetch categories
     const categoriesRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`)
     const categoriesData = await categoriesRes.json()
-    const categories = categoriesData.data || []
+    const categories = categoriesData.data?.categories || []
+
 
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

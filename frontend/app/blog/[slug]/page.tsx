@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation'
 import { FiCalendar, FiClock } from 'react-icons/fi'
 import { formatDate } from '@/lib/utils/formatDate'
-import SEO from '@/components/seo/SEO'
+
 import BlogContent from '@/components/blog/BlogContent'
+import SEO from '@/components/seo/SEO'
 
 interface PageProps {
   params: { slug: string }
@@ -35,12 +36,12 @@ export default async function BlogPostPage({ params }: PageProps) {
   return (
     <>
       <SEO
-        title={post.seoTitle || post.title}
-        description={post.seoDescription || post.excerpt}
-        canonical={`/blog/${post.slug}`}
-        ogImage={post.bannerImage?.url}
-        ogType="article"
-      />
+  title={post.seo_title || post.title}
+  description={post.seo_description || post.excerpt}
+  canonical={`/blog/${post.slug}`}
+  ogImage={post.banner_image?.url}
+/>
+
 
       {/* HERO IMAGE */}
       {post.bannerImage?.url && (

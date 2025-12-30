@@ -5,10 +5,11 @@ export default function ContactPage() {
   return (
     <>
       <SEO
-        title="Contact"
-        description="Get in touch with us for questions, feedback, or collaboration."
-        canonical="/contact"
-      />
+  title="Contact"
+  description="Get in touch with us for questions, feedback, or collaborations."
+  canonical="/contact"
+/>
+
 
       <div className="max-w-4xl px-4 py-16 mx-auto">
         {/* Header */}

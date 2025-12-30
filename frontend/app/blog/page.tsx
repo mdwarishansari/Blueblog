@@ -1,4 +1,5 @@
 'use client'
+import SEO from '@/components/seo/SEO'
 
 import { useEffect, useState } from 'react'
 import BlogCard from '@/components/blog/BlogCard'
@@ -32,7 +33,14 @@ export default function BlogPage() {
   }
 
   return (
+    <>
     <div className="px-4 py-12 mx-auto max-w-7xl">
+    <SEO
+  title="Blog"
+  description="Browse all published articles, tutorials, and insights."
+  canonical="/blog"
+/>
+
       {/* Page Header */}
       <div className="mb-12 text-center">
         <h1 className="mb-3 text-4xl font-bold text-gray-900">
@@ -68,5 +76,6 @@ export default function BlogPage() {
         </div>
       )}
     </div>
+    </>
   )
 }

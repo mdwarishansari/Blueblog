@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation'
 import Breadcrumbs from '@/components/seo/Breadcrumbs'
-import SEO from '@/components/seo/SEO'
+
 import BlogCard from '@/components/blog/BlogCard'
+import SEO from '@/components/seo/SEO'
+
 function mapPostForCard(post: any) {
   return {
     ...post,
@@ -61,10 +63,11 @@ export default async function CategoryPage({ params }: PageProps) {
   return (
     <>
       <SEO
-        title={`${category.name} Articles`}
-        description={`Browse articles in ${category.name}`}
-        canonical={`/category/${category.slug}`}
-      />
+  title={`${category.name} Articles`}
+  description={`Browse all articles filed under ${category.name}.`}
+  canonical={`/category/${category.slug}`}
+/>
+
 
       <div className="px-4 py-10 mx-auto max-w-7xl">
         {/* Breadcrumbs */}

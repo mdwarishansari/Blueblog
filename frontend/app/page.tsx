@@ -6,6 +6,7 @@ import HeroSection from '@/components/home/HeroSection'
 import CategoryList from '@/components/home/CategoryList'
 import Loading from '@/components/ui/Loading'
 import PublicPage from '@/components/guards/PublicPage'
+import SEO from '@/components/seo/SEO'
 
 export default function Home() {
   const [posts, setPosts] = useState<any[]>([])
@@ -52,6 +53,11 @@ export default function Home() {
 
   return (
     <PublicPage>
+    <SEO
+        title="Home"
+        description="Read the latest articles, tutorials, and insights from our editorial team."
+        canonical="/"
+      />
       <div className="space-y-16">
         {/* Hero */}
         <HeroSection />

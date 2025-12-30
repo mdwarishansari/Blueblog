@@ -33,10 +33,11 @@ export default async function CategoriesPage() {
   return (
     <>
       <SEO
-        title="Categories"
-        description="Explore articles organized by topic"
-        canonical="/category"
-      />
+  title="Categories"
+  description="Browse articles by category."
+  canonical="/category"
+/>
+
 
       <div className="px-4 py-12 mx-auto max-w-7xl">
         {/* Header */}

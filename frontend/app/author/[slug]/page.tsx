@@ -122,14 +122,13 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
   return (
     <>
       <SEO
-        title={`${author.name} - Author`}
-        description={author.bio || `Articles by ${author.name}`}
-        canonical={`/author/${params.slug}`}
-        ogImage={author.profile_image}
-        ogType="profile"
-      />
+  title={`Articles by ${author.name}`}
+  description={`Read articles written by ${author.name}.`}
+  canonical={`/author/${author.slug}`}
+/>
+
       
-      <div className="max-w-7xl mx-auto">
+      <div className="mx-auto max-w-7xl">
         {/* Breadcrumbs */}
         <Breadcrumbs
           items={[
@@ -140,19 +139,19 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
         />
         
         {/* Author Header */}
-        <div className="bg-gradient-to-r from-gray-50 to-white rounded-2xl p-8 mb-12">
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-8">
+        <div className="p-8 mb-12 bg-gradient-to-r from-gray-50 to-white rounded-2xl">
+          <div className="flex flex-col items-start gap-8 md:flex-row md:items-center">
             {/* Author Avatar */}
             <div className="relative">
-              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
+              <div className="w-32 h-32 overflow-hidden border-4 border-white rounded-full shadow-lg">
                 <img
                   src={author.profile_image || '/default-avatar.png'}
                   alt={author.name}
-                  className="w-full h-full object-cover"
+                  className="object-cover w-full h-full"
                 />
               </div>
               {author.role === 'ADMIN' && (
-                <div className="absolute -bottom-2 -right-2 bg-primary-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                <div className="absolute px-3 py-1 text-xs font-bold text-white rounded-full -bottom-2 -right-2 bg-primary-600">
                   Admin
                 </div>
               )}
@@ -160,12 +159,12 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
             
             {/* Author Info */}
             <div className="flex-1">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+              <div className="flex flex-col justify-between gap-4 mb-4 md:flex-row md:items-center">
                 <div>
-                  <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                  <h1 className="mb-2 text-4xl font-bold text-gray-900">
                     {author.name}
                   </h1>
-                  <div className="flex items-center gap-4 text-gray-600 mb-3">
+                  <div className="flex items-center gap-4 mb-3 text-gray-600">
                     <span className="flex items-center gap-2">
                       <FiMail size={16} />
                       {author.email}
@@ -189,8 +188,8 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
               
               {/* Bio */}
               {author.bio && (
-                <div className="prose max-w-none mb-6">
-                  <p className="text-gray-700 text-lg">{author.bio}</p>
+                <div className="mb-6 prose max-w-none">
+                  <p className="text-lg text-gray-700">{author.bio}</p>
                 </div>
               )}
               
@@ -211,30 +210,30 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
         </div>
         
         {/* Author Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-          <div className="card text-center">
-            <div className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="grid grid-cols-2 gap-4 mb-12 md:grid-cols-4">
+          <div className="text-center card">
+            <div className="mb-2 text-3xl font-bold text-gray-900">
               {stats.totalPosts}
             </div>
             <div className="text-sm text-gray-600">Articles Published</div>
           </div>
           
-          <div className="card text-center">
-            <div className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="text-center card">
+            <div className="mb-2 text-3xl font-bold text-gray-900">
               {(stats.totalViews / 1000).toFixed(1)}K
             </div>
             <div className="text-sm text-gray-600">Total Views</div>
           </div>
           
-          <div className="card text-center">
-            <div className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="text-center card">
+            <div className="mb-2 text-3xl font-bold text-gray-900">
               {stats.avgReadTime} min
             </div>
             <div className="text-sm text-gray-600">Avg. Read Time</div>
           </div>
           
-          <div className="card text-center">
-            <div className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="text-center card">
+            <div className="mb-2 text-3xl font-bold text-gray-900">
               4.8
             </div>
             <div className="text-sm text-gray-600">Author Rating</div>
@@ -256,7 +255,7 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
           
           {posts.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {posts.map((post: any) => (
                   <BlogCard key={post.id} post={post} />
                 ))}
@@ -264,7 +263,7 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
               
               {/* Pagination */}
               {pagination && pagination.pages > 1 && (
-                <div className="mt-12 flex justify-center">
+                <div className="flex justify-center mt-12">
                   <nav className="flex items-center gap-2">
                     {page > 1 && (
                       <a
@@ -315,14 +314,14 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
               )}
             </>
           ) : (
-            <div className="text-center py-16">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+            <div className="py-16 text-center">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full">
                 <FiBook size={24} className="text-gray-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <h3 className="mb-2 text-xl font-semibold text-gray-900">
                 No articles yet
               </h3>
-              <p className="text-gray-600 max-w-md mx-auto">
+              <p className="max-w-md mx-auto text-gray-600">
                 {author.name} hasn't published any articles yet. Check back soon!
               </p>
             </div>
@@ -330,8 +329,8 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
         </div>
         
         {/* Author Expertise */}
-        <div className="bg-gradient-to-r from-primary-50 to-white rounded-2xl p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+        <div className="p-8 bg-gradient-to-r from-primary-50 to-white rounded-2xl">
+          <h2 className="mb-6 text-2xl font-bold text-gray-900">
             Areas of Expertise
           </h2>
           <div className="flex flex-wrap gap-3">
@@ -339,14 +338,14 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
               'JavaScript', 'React', 'Next.js', 'TypeScript'].map((skill) => (
               <span
                 key={skill}
-                className="px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-full hover:bg-primary-50 transition-colors"
+                className="px-4 py-2 transition-colors bg-white border rounded-full border-primary-200 text-primary-700 hover:bg-primary-50"
               >
                 {skill}
               </span>
             ))}
           </div>
           
-          <div className="mt-8 p-6 bg-white rounded-xl border">
+          <div className="p-6 mt-8 bg-white border rounded-xl">
             <div className="flex items-center gap-3 mb-4">
               <FiTrendingUp size={24} className="text-primary-600" />
               <h3 className="text-lg font-semibold text-gray-900">
