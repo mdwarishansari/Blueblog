@@ -9,7 +9,7 @@ import ImageUploader from '@/components/admin/ImageUploader'
 import { FiSave, FiSend, FiX } from 'react-icons/fi'
 import { postApi } from '@/lib/api/posts'
 import { categoryApi } from '@/lib/api/categories'
-import { useAuth } from '@/lib/hooks/useAuth' // ✅ FIXED
+import { useAuth } from '@/lib/hooks/useAuth'
 
 /* ------------------------------------------------------------------ */
 /* TYPES */

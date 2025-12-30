@@ -33,7 +33,6 @@ export const getPosts = catchAsync(async (req: Request, res: Response) => {
       role: req.user.role as 'ADMIN' | 'EDITOR' | 'WRITER',
     }
   : undefined
-
 });
 
   

@@ -61,23 +61,30 @@ export default function ImageUploader({
   }, 100)
 
   try {
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('altText', altText)
-    formData.append('title', title)
-    formData.append('caption', caption)
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('altText', altText)
+  formData.append('title', title)
+  formData.append('caption', caption)
 
-    const image = await imageApi.upload(formData)
+  const res = await imageApi.upload(formData)
 
-    clearInterval(interval)
-    setProgress(100)
-    onUploadComplete(image)
+  // 👇 TEMP SAFE CAST (NO TYPE BREAK)
+  const image = (res as any).data.image
 
-  } catch {
-    setError('Upload failed. Please try again.')
-  } finally {
-    setUploading(false)
-  }
+  clearInterval(interval)
+  setProgress(100)
+
+  onUploadComplete({
+    id: image.id,
+    url: image.url,
+  })
+} catch {
+  setError('Upload failed. Please try again.')
+} finally {
+  setUploading(false)
+}
+
 }
 
 
