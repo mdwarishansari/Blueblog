@@ -11,4 +11,4 @@ echo "Seeding database..."
 npx prisma db seed
 
 echo "Starting server..."
-node dist/server.js
+node dist/src/server.js
