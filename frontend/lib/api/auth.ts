@@ -25,9 +25,15 @@ export const authApi = {
 
   // CURRENT USER
   getMe: async () => {
-    const res = await apiClient.get<ApiResponse<{ user: User }>>('/auth/me')
-    return res.data.data.user
-  },
+  const res = await apiClient.get<ApiResponse<{ user: User }>>('/auth/me')
+
+  if (!res.data.data) {
+    throw new Error('Auth response missing user data')
+  }
+
+  return res.data.data.user
+},
+
 
   // LOGOUT (REQUIRES REFRESH TOKEN)
   logout: async (refreshToken: string) => {

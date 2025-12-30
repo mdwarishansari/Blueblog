@@ -38,7 +38,17 @@ export default function MediaLibraryPage() {
     try {
       setLoading(true)
       const res = await imageApi.getAll()
-      setImages(res.images || []) // ✅ FIX
+
+setImages(
+  (res.images || []).map((img: any) => ({
+    id: img.id,
+    url: img.url,
+    altText: img.altText ?? null,
+    width: img.width ?? null,
+    height: img.height ?? null,
+    createdAt: img.createdAt ?? img.created_at ?? '',
+  }))
+) 
     } catch (err) {
       console.error('Failed to fetch images', err)
     } finally {

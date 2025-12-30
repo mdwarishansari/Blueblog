@@ -26,7 +26,7 @@ apiClient.interceptors.request.use(
 
 // Handle auth failure globally
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => response.data,
   (error) => {
     if (
       error.response &&

@@ -11,6 +11,8 @@ interface Props {
     role?: Role
   }
   showPassword?: boolean
+  errors?: Record<string, string>
+  loading?: boolean
   onSubmit: (data: any) => Promise<void>
   onCancel: () => void
 }
@@ -18,6 +20,8 @@ interface Props {
 export default function UserForm({
   initialData,
   showPassword = false,
+  errors = {},
+  loading = false,
   onSubmit,
   onCancel,
 }: Props) {
@@ -25,13 +29,10 @@ export default function UserForm({
   const [email, setEmail] = useState(initialData?.email ?? '')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<Role>(initialData?.role ?? 'WRITER')
-  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
     await onSubmit({ name, email, password, role })
-    setLoading(false)
   }
 
   return (
@@ -43,6 +44,7 @@ export default function UserForm({
         onChange={e => setName(e.target.value)}
         required
       />
+      {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
 
       <input
         className="input-field"
@@ -50,18 +52,24 @@ export default function UserForm({
         value={email}
         onChange={e => setEmail(e.target.value)}
         required
-        disabled={!showPassword} // disable email on edit
+        disabled={!showPassword}
       />
+      {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
 
       {showPassword && (
-        <input
-          className="input-field"
-          placeholder="Password"
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-        />
+        <>
+          <input
+            className="input-field"
+            placeholder="Password"
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+          />
+          {errors.password && (
+            <p className="text-sm text-red-600">{errors.password}</p>
+          )}
+        </>
       )}
 
       <select
@@ -72,6 +80,7 @@ export default function UserForm({
         <option value="EDITOR">EDITOR</option>
         <option value="WRITER">WRITER</option>
       </select>
+      {errors.role && <p className="text-sm text-red-600">{errors.role}</p>}
 
       <div className="flex justify-end gap-2">
         <button type="button" className="btn-secondary" onClick={onCancel}>

@@ -41,22 +41,20 @@ export default function AdminUsersPage() {
   }, [isAuthenticated])
 
   const fetchUsers = async () => {
-    try {
-      setLoading(true)
-      const res = await userApi.getAll()
+  try {
+    setLoading(true)
 
-      if (res?.status === 'success') {
-        setUsers(res.data?.users ?? [])
-      } else {
-        setUsers([])
-      }
-    } catch (err) {
-      console.error('Failed to load users', err)
-      setUsers([])
-    } finally {
-      setLoading(false)
-    }
+    const res = await userApi.getAll()
+    setUsers(res.users)
+
+  } catch (err) {
+    console.error('Failed to load users', err)
+    setUsers([])
+  } finally {
+    setLoading(false)
   }
+}
+
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this user?')) return
@@ -79,18 +77,18 @@ export default function AdminUsersPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">User Management</h1>
 
           <button
             onClick={() => setShowCreate(true)}
-            className="btn-primary flex items-center gap-2"
+            className="flex items-center gap-2 btn-primary"
           >
             <FiPlus /> Create User
           </button>
         </div>
 
-        <div className="bg-white border rounded-xl overflow-hidden">
+        <div className="overflow-hidden bg-white border rounded-xl">
           <table className="min-w-full divide-y">
             <thead className="bg-gray-50">
               <tr>
@@ -106,7 +104,7 @@ export default function AdminUsersPage() {
                   <td className="px-6 py-4">{u.name}</td>
                   <td className="px-6 py-4">{u.email}</td>
                   <td className="px-6 py-4">{u.role}</td>
-                  <td className="px-6 py-4 flex gap-2">
+                  <td className="flex gap-2 px-6 py-4">
                     <button
                       onClick={() => setEditingUser(u)}
                       className="text-blue-600"

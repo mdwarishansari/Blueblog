@@ -38,8 +38,9 @@ export default function AccountSettingsPage() {
       await meApi.updateProfile({
   name,
   bio,
-  profileImage,
+  ...(profileImage ? { profileImage } : {}),
 })
+
 
       await refreshUser()
       alert('Profile updated')

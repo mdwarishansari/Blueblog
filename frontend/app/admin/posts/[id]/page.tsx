@@ -57,7 +57,7 @@ export default function EditPostPage() {
   useEffect(() => {
     categoryApi
       .getAll()
-      .then(res => setCategories(res.data.categories || []))
+      .then(res => setCategories(res.categories))
       .catch(err => console.error('Failed to load categories', err))
   }, [])
 
@@ -74,18 +74,19 @@ export default function EditPostPage() {
     postApi
       .getById(postId)
       .then(res => {
-        const post = res.data.post
+        const post = res.post
 
         setFormData({
           title: post.title,
           slug: post.slug,
           excerpt: post.excerpt || '',
           content: post.content?.blocks?.[0]?.data?.text || '',
-          seo_title: post.seoTitle || '',
-          seo_description: post.seoDescription || '',
-          canonical_url: post.canonicalUrl || '',
-          banner_image_id: post.bannerImage?.id || '',
-          banner_image_url: post.bannerImage?.url || '',
+          seo_title: post.seo_title || '',
+seo_description: post.seo_description || '',
+canonical_url: post.canonical_url || '',
+banner_image_id: post.banner_image?.id || '',
+banner_image_url: post.banner_image?.url || '',
+
           category_ids: post.categories?.map((c: any) => c.id) || [],
         })
 
@@ -123,10 +124,10 @@ export default function EditPostPage() {
       let savedPostId = postId
 
       if (isEdit) {
-        await postApi.update(postId, payload)
+        await postApi.update(postId, payload) 
       } else {
         const res = await postApi.create(payload)
-        savedPostId = res.data.post.id
+        savedPostId = res.post.id
       }
 
       // ❌ WRITER CANNOT PUBLISH (DOCX RULE)

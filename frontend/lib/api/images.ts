@@ -1,49 +1,58 @@
-import apiClient from './client';
-import { Image, ApiResponse } from '@/types';
+// frontend/lib/api/images.ts
+import apiClient from './client'
+import { Image, ApiResponse } from '@/types'
 
 export const imageApi = {
-  // Upload image
-  // upload: async (formData: FormData) => {
-  //   const response = await apiClient.post<ApiResponse<Image>>('/images/upload', formData, {
-  //     headers: {
-  //       'Content-Type': 'multipart/form-data',
-  //     },
-  //   });
-  //   return response.data.data.image;
-  // },
+  upload: async (formData: FormData): Promise<Image> => {
+    const res = await apiClient.post<ApiResponse<{ image: Image }>>(
+      '/images/upload',
+      formData
+    )
 
-  upload: async (formData: FormData) => {
-  const response = await apiClient.post(
-    '/images/upload',
-    formData
-    // ❌ NO HEADERS HERE
-  );
-  return response.data.data.image;
-},
+    if (!res.data.data) {
+      throw new Error('Image upload failed')
+    }
 
+    return res.data.data.image
+  },
 
-  // Get all images
   getAll: async (params?: { page?: number; limit?: number }) => {
-  const response = await apiClient.get('/images', { params });
-  return response.data.data; // { images, pagination }
-},
+    const res = await apiClient.get<ApiResponse<{
+      images: Image[]
+      pagination: any
+    }>>('/images', { params })
 
+    if (!res.data.data) {
+      throw new Error('Failed to fetch images')
+    }
 
-  // Get image by ID
-  getById: async (id: string) => {
-    const response = await apiClient.get<ApiResponse<Image>>(`/images/${id}`);
-    return response.data.data.image;
+    return res.data.data
   },
 
-  // Update image
-  update: async (id: string, imageData: Partial<Image>) => {
-    const response = await apiClient.put<ApiResponse<Image>>(`/images/${id}`, imageData);
-    return response.data.data.image;
+  getById: async (id: string): Promise<Image> => {
+    const res = await apiClient.get<ApiResponse<{ image: Image }>>(`/images/${id}`)
+
+    if (!res.data.data) {
+      throw new Error('Image not found')
+    }
+
+    return res.data.data.image
   },
 
-  // Delete image
+  update: async (id: string, imageData: Partial<Image>): Promise<Image> => {
+    const res = await apiClient.put<ApiResponse<{ image: Image }>>(
+      `/images/${id}`,
+      imageData
+    )
+
+    if (!res.data.data) {
+      throw new Error('Image update failed')
+    }
+
+    return res.data.data.image
+  },
+
   delete: async (id: string) => {
-    const response = await apiClient.delete<ApiResponse>(`/images/${id}`);
-    return response.data.data.image;
+    await apiClient.delete(`/images/${id}`)
   },
-};
+}

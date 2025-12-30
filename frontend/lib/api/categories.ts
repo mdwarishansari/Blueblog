@@ -1,40 +1,71 @@
-import apiClient from './client';
-import { Category, ApiResponse } from '@/types';
+import apiClient from './client'
+import { Category, ApiResponse } from '@/types'
 
 export const categoryApi = {
-  // Get all categories
+  // =========================
+  // GET ALL CATEGORIES
+  // =========================
   getAll: async () => {
-    const response = await apiClient.get<ApiResponse<Category[]>>('/categories');
-    return response.data;
+  const res = await apiClient.get('/categories')
+  return res.data.data as {
+    categories: Category[]
+    pagination: {
+      page: number
+      limit: number
+      total: number
+      totalPages: number
+    }
+  }
+},
+
+  // =========================
+  // GET CATEGORY BY SLUG
+  // =========================
+  getBySlug: async (slug: string): Promise<ApiResponse<{ category: Category }>> => {
+    const response = await apiClient.get(`/categories/slug/${slug}`)
+    return response.data
   },
 
-  // Get category by slug
-  getBySlug: async (slug: string) => {
-    const response = await apiClient.get<ApiResponse<Category>>(`/categories/slug/${slug}`);
-    return response.data;
+  // =========================
+  // GET POSTS BY CATEGORY SLUG
+  // =========================
+  getPostsBySlug: async (
+    slug: string,
+    params?: { page?: number; limit?: number }
+  ): Promise<ApiResponse<any>> => {
+    const response = await apiClient.get(
+      `/categories/${slug}/posts`,
+      { params }
+    )
+    return response.data
   },
 
-  // Get posts by category slug
-  getPostsBySlug: async (slug: string, params?: { page?: number; limit?: number }) => {
-    const response = await apiClient.get<ApiResponse>(`/categories/${slug}/posts`, { params });
-    return response.data;
+  // =========================
+  // CREATE CATEGORY (ADMIN)
+  // =========================
+  create: async (
+    data: { name: string; slug: string }
+  ): Promise<ApiResponse<{ category: Category }>> => {
+    const response = await apiClient.post('/categories', data)
+    return response.data
   },
 
-  // Create category (admin only)
-  create: async (categoryData: { name: string; slug: string }) => {
-    const response = await apiClient.post<ApiResponse<Category>>('/categories', categoryData);
-    return response.data;
+  // =========================
+  // UPDATE CATEGORY (ADMIN)
+  // =========================
+  update: async (
+    id: string,
+    data: Partial<Category>
+  ): Promise<ApiResponse<{ category: Category }>> => {
+    const response = await apiClient.put(`/categories/${id}`, data)
+    return response.data
   },
 
-  // Update category (admin only)
-  update: async (id: string, categoryData: Partial<Category>) => {
-    const response = await apiClient.put<ApiResponse<Category>>(`/categories/${id}`, categoryData);
-    return response.data;
+  // =========================
+  // DELETE CATEGORY (ADMIN)
+  // =========================
+  delete: async (id: string): Promise<ApiResponse<null>> => {
+    const response = await apiClient.delete(`/categories/${id}`)
+    return response.data
   },
-
-  // Delete category (admin only)
-  delete: async (id: string) => {
-    const response = await apiClient.delete<ApiResponse>(`/categories/${id}`);
-    return response.data;
-  },
-};
+}

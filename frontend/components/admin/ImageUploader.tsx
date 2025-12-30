@@ -29,65 +29,51 @@ export default function ImageUploader({
   
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
+  const uploadFile = async (file: File) => {
+  // Validate file
+  if (!file.type.startsWith('image/')) {
+    setError('Please select an image file')
+    return
+  }
 
-    // Validate file
-    if (!file.type.startsWith('image/')) {
-      setError('Please select an image file')
-      return
-    }
+  if (file.size > 5 * 1024 * 1024) {
+    setError('Image size should be less than 5MB')
+    return
+  }
 
-    if (file.size > 5 * 1024 * 1024) { // 5MB
-      setError('Image size should be less than 5MB')
-      return
-    }
+  setUploading(true)
+  setError('')
+  setProgress(0)
 
-    setUploading(true)
-    setError('')
-    setProgress(0)
+  // Preview
+  const reader = new FileReader()
+  reader.onload = (e) => setPreview(e.target?.result as string)
+  reader.readAsDataURL(file)
 
-    // Create preview
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      setPreview(e.target?.result as string)
-    }
-    reader.readAsDataURL(file)
+  const interval = setInterval(() => {
+    setProgress(p => (p >= 90 ? 90 : p + 10))
+  }, 100)
 
-    // Simulate upload progress
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 90) {
-          clearInterval(interval)
-          return 90
-        }
-        return prev + 10
-      })
-    }, 100)
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('altText', altText)
+    formData.append('title', title)
+    formData.append('caption', caption)
 
-    try {
-  const formData = new FormData()
-  formData.append('file', file)
-  formData.append('altText', altText)
-  formData.append('title', title)
-  formData.append('caption', caption)
+    const image = await imageApi.upload(formData)
 
-  const image = await imageApi.upload(formData)
-  // image = { id: UUID, url, ... }
+    clearInterval(interval)
+    setProgress(100)
+    onUploadComplete(image)
 
-  clearInterval(interval)
-  setProgress(100)
-      onUploadComplete(image)
-  // onUploadComplete(image.data.image)
- // ✅ UUID passes validation
-} catch (err) {
-  setError('Upload failed. Please try again.')
-} finally {
-  setUploading(false)
+  } catch {
+    setError('Upload failed. Please try again.')
+  } finally {
+    setUploading(false)
+  }
 }
 
-  }
 
   const handleRemoveImage = () => {
     setPreview(null)
@@ -98,6 +84,10 @@ export default function ImageUploader({
       fileInputRef.current.value = ''
     }
   }
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0]
+  if (file) uploadFile(file)
+}
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
@@ -105,18 +95,13 @@ export default function ImageUploader({
   }
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    
-    const file = e.dataTransfer.files[0]
-    if (file && file.type.startsWith('image/')) {
-      // Create a synthetic event to reuse handleFileSelect
-      const syntheticEvent = {
-        target: { files: [file] }
-      } as React.ChangeEvent<HTMLInputElement>
-      handleFileSelect(syntheticEvent)
-    }
-  }
+  e.preventDefault()
+  e.stopPropagation()
+
+  const file = e.dataTransfer.files[0]
+  if (file) uploadFile(file)
+}
+
 
   return (
     <div className="space-y-4">

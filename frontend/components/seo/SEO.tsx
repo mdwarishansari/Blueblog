@@ -26,7 +26,13 @@ export default function SEO({
   
   const seoTitle = title ? `${title} | ${siteTitle}` : siteTitle;
   const seoDescription = description || siteDescription;
-  const seoImage = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
+  const resolvedOgImage =
+  ogImage ?? process.env.NEXT_PUBLIC_DEFAULT_OG_IMAGE ?? '/og-default.png';
+
+const seoImage = resolvedOgImage.startsWith('http')
+  ? resolvedOgImage
+  : `${siteUrl}${resolvedOgImage}`;
+
   const seoCanonical = canonical ? `${siteUrl}${canonical}` : siteUrl;
 
   return (

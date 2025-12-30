@@ -58,9 +58,14 @@ export default async function CategoryPage({ params }: PageProps) {
         {/* Breadcrumbs */}
         <Breadcrumbs
   items={[
-    { label: category.name, current: true },
+    {
+      label: category.name,
+      href: `/category/${category.slug}`,
+      current: true,
+    },
   ]}
 />
+
 
         {/* Header */}
         <div className="mb-10 text-center">

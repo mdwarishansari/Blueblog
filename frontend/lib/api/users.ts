@@ -2,11 +2,20 @@ import apiClient from './client';
 import { User, ApiResponse } from '@/types';
 
 export const userApi = {
-  // Get all users (admin only)
-  getAll: async (params?: { page?: number; limit?: number; role?: string }) => {
-    const response = await apiClient.get<ApiResponse<User[]>>('/users', { params });
-    return response.data;
-  },
+  getAll: async (params?: any) => {
+  const res = await apiClient.get('/users', { params })
+  return res.data.data as {
+    users: User[]
+    pagination: {
+      page: number
+      limit: number
+      total: number
+      pages: number
+    }
+  }
+},
+
+
 
   // Get user by ID
   getById: async (id: string) => {

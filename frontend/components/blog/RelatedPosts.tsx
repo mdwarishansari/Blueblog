@@ -19,21 +19,21 @@ export default function RelatedPosts({ posts, currentPostId }: RelatedPostsProps
   }
 
   return (
-    <div className="mt-12 pt-8 border-t">
+    <div className="pt-8 mt-12 border-t">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Related Articles</h2>
         <Link
           href="/blog"
-          className="flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium"
+          className="flex items-center gap-2 font-medium text-primary-600 hover:text-primary-700"
         >
           View All
           <FiArrowRight />
         </Link>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {relatedPosts.map((post) => (
-          <BlogCard key={post.id} post={post} variant="default" />
+          <BlogCard key={post.id} post={post} />
         ))}
       </div>
     </div>

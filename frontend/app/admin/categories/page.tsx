@@ -7,16 +7,16 @@ import { categoryApi } from '@/lib/api/categories'
 import { FiPlus, FiEdit, FiTrash2, FiSearch, FiFolder } from 'react-icons/fi'
 import AdminLayout from '@/components/layout/AdminLayout'
 import Loading from '@/components/ui/Loading'
-
-interface Category {
-  id: string
-  name: string
-  slug: string
-  _count?: {
-    posts: number
-  }
-  createdAt: string
-}
+import type { Category } from '@/types'
+// interface Category {
+//   id: string
+//   name: string
+//   slug: string
+//   _count?: {
+//     posts: number
+//   }
+//   createdAt: string
+// }
 
 
 export default function AdminCategoriesPage() {
@@ -51,18 +51,17 @@ export default function AdminCategoriesPage() {
     setLoading(true)
 
     const response = await categoryApi.getAll()
+    setCategories(response.categories ?? [])
 
-const categoriesArray = response?.data?.categories ?? []
 
-setCategories(categoriesArray)
-
-  } catch (error) {
-    console.error('Error fetching categories:', error)
+  } catch (err) {
+    console.error(err)
     setCategories([])
   } finally {
     setLoading(false)
   }
 }
+
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -238,7 +237,8 @@ setCategories(categoriesArray)
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Created</span>
                     <span className="text-gray-500">
-                      {new Date(category.created_at).toLocaleDateString()}
+                      {new Date(category.createdAt).toLocaleDateString()
+}
                     </span>
                   </div>
                 </div>
@@ -295,7 +295,7 @@ setCategories(categoriesArray)
           <div className="card">
             <div className="mb-1 text-2xl font-bold text-gray-900">
               {categories.length
-  ? Math.max(...categories.map(c => c.post_count || 0)): 0}
+  ? Math.max(...categories.map(c => c._count?.posts ?? 0)): 0}
 
             </div>
             <div className="text-sm text-gray-600">Most Posts in a Category</div>

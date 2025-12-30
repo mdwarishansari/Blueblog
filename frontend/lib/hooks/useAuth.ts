@@ -13,9 +13,13 @@ export const useAuth = () => {
   // =========================
   const login = useCallback(
   async (email: string, password: string) => {
-    // authApi.login ALREADY returns { accessToken, refreshToken, user }
-    const { accessToken, refreshToken, user } =
-      await authApi.login({ email, password })
+    const result = await authApi.login({ email, password })
+
+    if (!result) {
+      throw new Error('Login failed: empty response')
+    }
+
+    const { accessToken, refreshToken, user } = result
 
     localStorage.setItem('accessToken', accessToken)
     localStorage.setItem('refreshToken', refreshToken)
@@ -29,21 +33,24 @@ export const useAuth = () => {
 )
 
 
+
   // =========================
   // LOGOUT
   // =========================
   const logout = useCallback(async () => {
-    try {
-      await authApi.logout({
-        refreshToken: localStorage.getItem('refreshToken'),
-      })
-    } catch (_) {}
+  try {
+    const refreshToken = localStorage.getItem('refreshToken')
+    if (refreshToken) {
+      await authApi.logout(refreshToken)
+    }
+  } catch {}
 
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('refreshToken')
-    localStorage.removeItem('user')
-    setUser(null)
-  }, [])
+  localStorage.removeItem('accessToken')
+  localStorage.removeItem('refreshToken')
+  localStorage.removeItem('user')
+  setUser(null)
+}, [])
+
 
   // =========================
   // CHECK AUTH (ON RELOAD)
@@ -56,8 +63,16 @@ export const useAuth = () => {
   }
 
   try {
-    const user = await authApi.getMe()
-    setUser(user)
+    const apiUser = await authApi.getMe()
+
+const normalizedUser = {
+  ...apiUser,
+  profileImage: apiUser.profileImage ?? apiUser.profile_image ?? null,
+}
+
+setUser(normalizedUser)
+localStorage.setItem('user', JSON.stringify(normalizedUser))
+
   } catch {
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')

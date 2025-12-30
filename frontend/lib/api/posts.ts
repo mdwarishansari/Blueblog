@@ -4,16 +4,24 @@ import { Post, ApiResponse } from '@/types';
 export const postApi = {
   // Get all posts (public)
   getAll: async (params?: {
-  page?: number;
-  limit?: number;
-  search?: string;
-  category?: string;
-  author?: string;
-  status?: string;
-  sort?: string;
+  page?: number
+  limit?: number
+  search?: string
+  category?: string
+  author?: string
+  status?: string
+  sort?: string
 }) => {
-  const response = await apiClient.get('/posts', { params });
-  return response.data.data; // 👈 VERY IMPORTANT
+  const res = await apiClient.get('/posts', { params })
+  return res.data.data as {
+    posts: Post[]
+    pagination: {
+      page: number
+      limit: number
+      total: number
+      totalPages: number
+    }
+  }
 },
 
 
@@ -25,15 +33,19 @@ export const postApi = {
 
   // Get single post by ID (ADMIN / EDIT)
 getById: async (id: string) => {
-  const response = await apiClient.get(`/posts/${id}`)
-  return response.data
+  const res = await apiClient.get(`/posts/${id}`)
+  return res.data.data as { post: Post }
 },
+
+
 
   // Create post (admin/writer)
   create: async (postData: Partial<Post>) => {
-    const response = await apiClient.post<ApiResponse<Post>>('/posts', postData);
-    return response.data;
-  },
+  const res = await apiClient.post('/posts', postData)
+  return res.data.data as { post: Post }
+},
+
+
 
   // Update post
   update: async (id: string, postData: Partial<Post>) => {

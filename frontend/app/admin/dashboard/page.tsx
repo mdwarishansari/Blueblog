@@ -8,7 +8,7 @@ import {
   FiEdit,
   FiTrash2,
 } from 'react-icons/fi'
-
+import type { Post } from '@/types'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { postApi } from '@/lib/api/posts'
 import { categoryApi } from '@/lib/api/categories'
@@ -35,7 +35,7 @@ interface DashboardStats {
 export default function DashboardPage() {
   const router = useRouter()
   const { user, isAuthenticated, loading: authLoading } = useAuth()
-
+const [posts, setPosts] = useState<Post[]>([])
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [recentPosts, setRecentPosts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -57,28 +57,34 @@ export default function DashboardPage() {
     setLoading(true)
 
     // 🔐 WRITER DASHBOARD
-    if (user?.role === 'WRITER') {
-      const postsResult = await postApi.getAll({ limit: 1000 })
+if (user?.role === 'WRITER') {
+  const postsResult = await postApi.getAll({ limit: 1000 })
 
-      const posts = postsResult.posts.filter(
-        (p: any) => p.author?.id === user.id
-      )
+  const posts: Post[] = (postsResult.posts ?? []).filter(
+    (p: Post) => p.author?.id === user.id
+  )
 
-      const publishedPosts = posts.filter(p => p.status === 'PUBLISHED').length
-      const draftPosts = posts.filter(p => p.status === 'DRAFT').length
+  const publishedPosts = posts.filter(
+    (p: Post) => p.status === 'PUBLISHED'
+  ).length
 
-      setStats({
-        totalPosts: posts.length,
-        publishedPosts,
-        draftPosts,
-        totalCategories: 0,
-        totalImages: 0,
-        totalUsers: 0,
-      })
+  const draftPosts = posts.filter(
+    (p: Post) => p.status === 'DRAFT'
+  ).length
 
-      setRecentPosts(posts.slice(0, 5))
-      return
-    }
+  setStats({
+    totalPosts: posts.length,
+    publishedPosts,
+    draftPosts,
+    totalCategories: 0,
+    totalImages: 0,
+    totalUsers: 0,
+  })
+
+  setRecentPosts(posts.slice(0, 5))
+  return
+}
+
 
     // 🔐 ADMIN / EDITOR DASHBOARD (UNCHANGED)
     const [
@@ -95,7 +101,8 @@ export default function DashboardPage() {
 
 
       /* ---------- POSTS ---------- */
-      const posts = postsResult?.posts ?? []
+      const posts: Post[] = postsResult?.posts ?? []
+
 
       const publishedPosts = posts.filter(
         (p: any) => p.status === 'PUBLISHED'
@@ -107,7 +114,7 @@ export default function DashboardPage() {
 
       /* ---------- CATEGORIES ---------- */
       const categories =
-        categoriesResult?.data?.categories ?? []
+        categoriesResult?.categories ?? []
 
       /* ---------- IMAGES ---------- */
       const images =
@@ -115,7 +122,7 @@ export default function DashboardPage() {
 
       /* ---------- USERS ---------- */
       const users =
-        usersResult?.data?.users ?? []
+        usersResult?.users ?? []
 
       /* ---------- SET STATS ---------- */
       setStats({
@@ -132,8 +139,8 @@ export default function DashboardPage() {
         [...posts]
           .sort(
             (a, b) =>
-              new Date(b.createdAt).getTime() -
-              new Date(a.createdAt).getTime()
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime()
           )
           .slice(0, 5)
       )

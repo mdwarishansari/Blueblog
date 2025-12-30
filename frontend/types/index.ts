@@ -4,7 +4,11 @@ export interface User {
   email: string;
   role: 'ADMIN' | 'EDITOR' | 'WRITER';
   bio?: string;
-  profile_image?: string;
+  // frontend canonical
+  profileImage?: string | null
+
+  // backend raw (optional)
+  profile_image?: string | null
   created_at: string;
 }
 
@@ -27,13 +31,16 @@ export interface Post {
   banner_image?: Image;
 }
 
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  post_count?: number;
-}
 
+export interface Category {
+  id: string
+  name: string
+  slug: string
+  createdAt: string
+  _count?: {
+    posts: number
+  }
+}
 export interface Image {
   id: string;
   url: string;

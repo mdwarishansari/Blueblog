@@ -10,18 +10,8 @@ import AdminLayout from '@/components/layout/AdminLayout'
 import Loading from '@/components/ui/Loading'
 import { formatDate } from '@/lib/utils/formatDate'
 
-interface Post {
-  id: string
-  title: string
-  slug: string
-  status: 'DRAFT' | 'PUBLISHED'
-  publishedAt: string | null
-  createdAt: string
-  author: {
-    name: string
-  }
-  categories: { name: string }[]
-}
+import type { Post } from '@/types'
+
 
 
 export default function AdminPostsPage() {
@@ -349,10 +339,10 @@ const fetchPosts = async () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
-                      {post.author?.name}
+                      {post.author?.name ?? '—'}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                      {post.publishedAt ? formatDate(post.publishedAt) : 'Not published'}
+                      {post.published_at ? formatDate(post.published_at) : 'Not published'}
                     </td>
                     <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
                       <div className="flex items-center gap-2">

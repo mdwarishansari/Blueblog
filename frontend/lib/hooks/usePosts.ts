@@ -19,24 +19,21 @@ export function usePosts(options: UsePostsOptions = {}) {
   const [pagination, setPagination] = useState<any>(null)
 
   const fetchPosts = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      
-      const response = await postApi.getAll(options)
-      
-      if (response.status === 'success') {
-        setPosts(response.data || [])
-        setPagination(response.pagination || null)
-      } else {
-        setError(response.message || 'Failed to fetch posts')
-      }
-    } catch (err: any) {
-      setError(err.message || 'An error occurred')
-    } finally {
-      setLoading(false)
-    }
-  }, [options])
+  try {
+    setLoading(true)
+    setError(null)
+
+    const result = await postApi.getAll(options)
+
+    setPosts(result.posts)
+    setPagination(result.pagination)
+  } catch (err: any) {
+    setError(err.message || 'Failed to fetch posts')
+  } finally {
+    setLoading(false)
+  }
+}, [options])
+
 
   useEffect(() => {
     fetchPosts()
