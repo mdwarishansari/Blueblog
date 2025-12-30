@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { FiUpload, FiX, FiCheck, FiImage } from 'react-icons/fi'
 import { imageApi } from '@/lib/api/images'
 
@@ -21,6 +21,12 @@ export default function ImageUploader({
 }: ImageUploaderProps) {
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState<string | null>(existingImageUrl || null)
+  useEffect(() => {
+  if (existingImageUrl) {
+    setPreview(existingImageUrl)
+  }
+}, [existingImageUrl])
+
   const [altText, setAltText] = useState(initialAltText)
   const [title, setTitle] = useState(initialTitle)
   const [caption, setCaption] = useState(initialCaption)

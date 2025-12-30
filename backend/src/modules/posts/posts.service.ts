@@ -80,8 +80,13 @@ export class PostsService {
 const isWriter = filters.user?.role === 'WRITER';
 
 // 🔥 STATUS FILTER — FIXED
+// 🔒 WRITER MUST ALWAYS SEE ONLY OWN POSTS
+if (filters.user?.role === 'WRITER') {
+  where.authorId = filters.user.id;
+}
+
+// 🎯 STATUS FILTER (SAFE)
 if (filters.status && filters.status !== 'ALL') {
-  // Explicit filter
   where.status = filters.status;
 } else {
   // ALL status

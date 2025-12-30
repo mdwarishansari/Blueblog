@@ -26,8 +26,7 @@ interface Category {
 export default function EditPostPage() {
   const router = useRouter()
   const params = useParams()
-  const { user } = useAuth() // ✅ FIXED
-
+  const { user } = useAuth() 
   const postId = params?.id as string
   const isEdit = postId !== 'new'
 
