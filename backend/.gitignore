@@ -16,8 +16,9 @@ dist/
 build/
 
 # Prisma
-prisma/migrations/
-!prisma/migrations/.gitkeep
+prisma/migrations/**/migration.sql
+!prisma/migrations/**
+
 
 # Logs
 logs/
