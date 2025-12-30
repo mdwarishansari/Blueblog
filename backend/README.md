@@ -1,5 +1,7 @@
 # 📝 **Blog Platform Backend API Documentation**
 
+Live- https://blueblog-942c.onrender.com
+
 ## 🌟 **Table of Contents**
 
 - [✨ Overview](#-overview)

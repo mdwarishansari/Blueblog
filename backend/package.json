@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Production-grade backend for blogging platform",
   "main": "dist/server.js",
+  "prisma": {
+  "seed": "node dist/prisma/seed.js"
+}
+,
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
@@ -11,7 +15,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:prod": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
-    "prisma:seed": "ts-node prisma/seed.ts",
+    "prisma:seed": "node dist/prisma/seed.js",
     "test": "jest",
     "test:watch": "jest --watch"
   },

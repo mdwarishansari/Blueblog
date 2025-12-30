@@ -15,13 +15,11 @@
     "skipLibCheck": true,
 
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "resolveJsonModule": true,
 
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     "sourceMap": true
   },
-  "include": ["src"],
+  "include": ["src", "prisma"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }
