@@ -11,6 +11,18 @@ export default function Home() {
   const [posts, setPosts] = useState<any[]>([])
   const [categories, setCategories] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  function mapPostForCard(post: any) {
+  return {
+    ...post,
+    banner_image: post.bannerImage
+      ? {
+          url: post.bannerImage.url,
+          alt_text: post.bannerImage.altText,
+        }
+      : null,
+    published_at: post.publishedAt,
+  }
+}
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,8 +36,6 @@ export default function Home() {
 
         const postsJson = await postsRes.json()
         const categoriesJson = await categoriesRes.json()
-
-        // ✅ CORRECT DATA EXTRACTION
         setPosts(postsJson?.data?.posts || [])
         setCategories(categoriesJson?.data?.categories || [])
       } catch (err) {
@@ -63,7 +73,8 @@ export default function Home() {
           {posts.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {posts.map(post => (
-                <BlogCard key={post.id} post={post} />
+                <BlogCard key={post.id} post={mapPostForCard(post)} />
+
               ))}
             </div>
           ) : (

@@ -2,6 +2,18 @@ import { notFound } from 'next/navigation'
 import Breadcrumbs from '@/components/seo/Breadcrumbs'
 import SEO from '@/components/seo/SEO'
 import BlogCard from '@/components/blog/BlogCard'
+function mapPostForCard(post: any) {
+  return {
+    ...post,
+    banner_image: post.bannerImage
+      ? {
+          url: post.bannerImage.url,
+          alt_text: post.bannerImage.altText,
+        }
+      : null,
+    published_at: post.publishedAt,
+  }
+}
 
 interface PageProps {
   params: {
@@ -81,7 +93,8 @@ export default async function CategoryPage({ params }: PageProps) {
         {posts.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {posts.map((post: any) => (
-              <BlogCard key={post.id} post={post} />
+              <BlogCard key={post.id} post={mapPostForCard(post)} />
+
             ))}
           </div>
         ) : (
