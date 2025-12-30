@@ -55,15 +55,7 @@ export default function Header() {
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
-            {/* Search Button */}
-            <button
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="p-2 text-gray-600 hover:text-primary-600"
-            >
-              <FiSearch size={20} />
-            </button>
-
-            {/* Replace the auth section in Header.tsx*/}
+            
 {isAuthenticated ? (
   <div className="flex items-center gap-3">
     <Link

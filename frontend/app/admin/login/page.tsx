@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi'
 import { useAuth } from '@/lib/context/AuthContext'
 import SEO from '@/components/seo/SEO'
+import { FiArrowLeft } from 'react-icons/fi'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -46,6 +47,16 @@ export default function LoginPage() {
       <div className="flex items-center justify-center min-h-screen px-4 bg-gray-50">
         <div className="w-full max-w-md p-8 bg-white border shadow rounded-xl">
           <div className="mb-6 text-center">
+          <div className="mb-4">
+  <Link
+    href="/"
+    className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-primary-600"
+  >
+    <FiArrowLeft />
+    Back to Home
+  </Link>
+</div>
+
             <Link href="/" className="inline-flex items-center gap-2">
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary-600">
                 <span className="text-xl font-bold text-white">B</span>

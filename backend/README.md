@@ -1,56 +1,83 @@
-# 📝 **Blog Platform Backend API Documentation**
+# 📝 BlueBlog – Backend API Documentation
 
-Live- https://blueblog-942c.onrender.com
-
-## 🌟 **Table of Contents**
-
-- [✨ Overview](#-overview)
-- [🚀 Quick Start](#-quick-start)
-- [⚙️ Environment Variables](#️-environment-variables)
-- [🗄️ Database Schema](#️-database-schema)
-- [🔐 Authentication & Authorization](#-authentication--authorization)
-- [📊 API Endpoints – Complete List](#-api-endpoints--complete-list)
-- [📖 API Explanations](#-api-explanations)
-- [📦 Request & Response Format](#-request--response-format)
-- [🧪 Minimal API Testing (Frontend Required)](#-minimal-api-testing-frontend-required)
-- [🐳 Deployment](#-deployment)
-- [🎯 Troubleshooting](#-troubleshooting)
+🌐 **Live API URL**
+👉 **[https://blueblog-942c.onrender.com](https://blueblog-942c.onrender.com)**
 
 ---
 
-## ✨ **Overview**
+## 📌 Overview
 
-A **production-ready, SEO-optimized backend API** for a blogging platform built using:
+**BlueBlog Backend** is a **production-ready REST API** powering a modern blogging platform with **role-based access**, **SEO-friendly content**, and **secure authentication**.
 
-- **Node.js**
-- **Express**
-- **PostgreSQL**
-- **Prisma ORM**
-
-Designed for **high traffic**, **role-based workflows**, and **frontend consumption** (React / Next / Flutter / Android).
-
-### **Key Features**
-
-- JWT authentication (access + refresh tokens)
-- Role-based authorization (ADMIN, EDITOR, WRITER)
-- SEO-friendly blog structure
-- Image upload & optimization using Cloudinary
-- RESTful, predictable APIs
-- Pagination, filtering & search
-- Security middleware (Helmet, Rate Limit)
-- Prisma migrations & seeding
+Built for scalability and clean frontend integration (Next.js, React, Mobile apps).
 
 ---
 
-## 🚀 **Quick Start**
+## 🧠 Tech Stack
 
-### **Prerequisites**
+| Layer      | Technology                    |
+| ---------- | ----------------------------- |
+| Runtime    | Node.js (v18+)                |
+| Framework  | Express.js                    |
+| Database   | PostgreSQL                    |
+| ORM        | Prisma                        |
+| Auth       | JWT (Access + Refresh Tokens) |
+| Media      | Cloudinary                    |
+| Security   | Helmet, Rate Limiting         |
+| Deployment | Render                        |
 
-- Node.js v18+
-- PostgreSQL v14+
-- Cloudinary account
+---
 
-### **Installation**
+## ✨ Core Features
+
+- 🔐 Secure JWT Authentication (Access + Refresh)
+- 👥 Role-Based Authorization
+  (`ADMIN`, `EDITOR`, `WRITER`)
+- 📝 Draft & Publish workflow
+- 🏷️ Category-based blogging
+- 📸 Image upload & management
+- 🔎 Pagination, filtering, search
+- 🧱 Modular, scalable architecture
+- 🔁 Token rotation & refresh handling
+- ⚡ Optimized for frontend consumption
+
+---
+
+## 📂 Project Structure (Backend)
+
+```
+backend/
+├── prisma/
+│   ├── migrations/
+│   ├── schema.prisma
+│   └── seed.ts
+│
+├── src/
+│   ├── config/        # env, auth, cloudinary, db
+│   ├── middleware/   # auth, error, rate-limit
+│   ├── modules/      # auth, posts, users, images, categories
+│   ├── utils/        # helpers, logger, error handler
+│   ├── app.ts
+│   └── server.ts
+│
+├── .env.example
+├── package.json
+└── README.md
+```
+
+---
+
+## 🚀 Quick Start (Local Setup)
+
+### ✅ Prerequisites
+
+- Node.js **v18+**
+- PostgreSQL **v14+**
+- Cloudinary Account
+
+---
+
+### 📦 Installation
 
 ```bash
 cd backend
@@ -58,31 +85,35 @@ npm install
 cp .env.example .env
 ```
 
-### **Database Setup**
+---
 
-```bash
-sudo -u postgres psql
+### 🗄️ Database Setup
+
+```sql
 CREATE DATABASE blogdb;
 CREATE USER bloguser WITH PASSWORD 'your_password';
 GRANT ALL PRIVILEGES ON DATABASE blogdb TO bloguser;
 ALTER USER bloguser CREATEDB;
-\q
 ```
 
-### **Run Prisma**
+---
+
+### 🔄 Prisma Setup
 
 ```bash
 npm run prisma:migrate
 npm run prisma:seed
 ```
 
-### **Start Server**
+---
+
+### ▶ Start Server
 
 ```bash
 npm run dev
 ```
 
-Server URL:
+**Local API URL**
 
 ```
 http://localhost:4000
@@ -90,7 +121,7 @@ http://localhost:4000
 
 ---
 
-## ⚙️ **Environment Variables**
+## ⚙️ Environment Variables
 
 ```env
 NODE_ENV=development
@@ -98,16 +129,16 @@ PORT=4000
 APP_URL=http://localhost:4000
 FRONTEND_URL=http://localhost:3000
 
-DATABASE_URL=postgresql://bloguser:your_password@localhost:5432/blogdb?schema=public
+DATABASE_URL=postgresql://bloguser:password@localhost:5432/blogdb
 
 JWT_ACCESS_SECRET=your_access_secret
 JWT_REFRESH_SECRET=your_refresh_secret
 ACCESS_TOKEN_EXPIRES_IN=15m
 REFRESH_TOKEN_EXPIRES_IN=7d
 
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
+CLOUDINARY_CLOUD_NAME=xxxx
+CLOUDINARY_API_KEY=xxxx
+CLOUDINARY_API_SECRET=xxxx
 
 RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX_REQUESTS=100
@@ -118,48 +149,55 @@ ADMIN_NAME=Blog Administrator
 
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:4000
 
-LOG_LEVEL=info
 DEFAULT_PAGE_LIMIT=12
 MAX_PAGE_LIMIT=50
+LOG_LEVEL=info
 ```
 
 ---
 
-## 🗄️ **Database Schema**
+## 🧬 Database Design
 
-### **Models**
+### 📦 Models
 
-| Model        | Purpose            |
-| ------------ | ------------------ |
-| User         | Platform users     |
-| Post         | Blog posts         |
-| Category     | Post categories    |
-| Image        | Uploaded images    |
-| RefreshToken | JWT refresh tokens |
-
-### **Roles**
-
-- **ADMIN** – full access
-- **EDITOR** – publish/manage posts
-- **WRITER** – create own posts
-
-### **Post Status**
-
-- DRAFT
-- PUBLISHED
+| Model        | Description    |
+| ------------ | -------------- |
+| User         | Platform users |
+| Post         | Blog content   |
+| Category     | Post grouping  |
+| Image        | Uploaded media |
+| RefreshToken | Token rotation |
 
 ---
 
-## 🔐 **Authentication & Authorization**
+### 🧑‍💻 User Roles
 
-### **Auth Flow**
+| Role   | Permissions               |
+| ------ | ------------------------- |
+| ADMIN  | Full system access        |
+| EDITOR | Publish & manage posts    |
+| WRITER | Create & manage own posts |
 
-1. Login → access + refresh token
-2. Access token (15 min)
+---
+
+### 📝 Post Status
+
+- `DRAFT`
+- `PUBLISHED`
+
+---
+
+## 🔐 Authentication & Security
+
+### 🔑 Auth Flow
+
+1. User logs in
+2. Access token issued (15 min)
 3. Refresh token stored in DB
-4. Refresh API issues new tokens
+4. Refresh endpoint rotates tokens
+5. Logout invalidates refresh token
 
-### **Auth Header**
+### 🔒 Protected Routes
 
 ```http
 Authorization: Bearer <access_token>
@@ -167,162 +205,89 @@ Authorization: Bearer <access_token>
 
 ---
 
-# 📊 **API Endpoints – Complete List**
+## 📊 API Endpoints
 
-**Base URL**
-
-```
-/api/v1
-```
-
-### 🔑 Authentication
+### 🔐 Auth
 
 ```
-POST   /auth/login
-POST   /auth/refresh
-POST   /auth/logout
-POST   /auth/change-password
-GET    /auth/me
+POST   /api/v1/auth/login
+POST   /api/v1/auth/refresh
+POST   /api/v1/auth/logout
+POST   /api/v1/auth/change-password
+GET    /api/v1/auth/me
 ```
 
-### 👥 Users
+---
+
+### 👥 Users (ADMIN)
 
 ```
-GET    /users
-POST   /users
-GET    /users/:id
-PUT    /users/:id
-DELETE /users/:id
+GET    /api/v1/users
+POST   /api/v1/users
+GET    /api/v1/users/:id
+PUT    /api/v1/users/:id
+DELETE /api/v1/users/:id
 ```
+
+---
 
 ### 📝 Posts
 
 ```
-GET    /posts
-GET    /posts/slug/:slug
-POST   /posts
-PUT    /posts/:id
-DELETE /posts/:id
-POST   /posts/:id/publish
-POST   /posts/:id/unpublish
-GET    /posts/:id/related
+GET    /api/v1/posts
+GET    /api/v1/posts/slug/:slug
+POST   /api/v1/posts
+PUT    /api/v1/posts/:id
+DELETE /api/v1/posts/:id
+POST   /api/v1/posts/:id/publish
+POST   /api/v1/posts/:id/unpublish
+GET    /api/v1/posts/:id/related
 ```
+
+---
 
 ### 🏷️ Categories
 
 ```
-GET    /categories
-GET    /categories/slug/:slug
-GET    /categories/:slug/posts
-POST   /categories
-PUT    /categories/:id
-DELETE /categories/:id
+GET    /api/v1/categories
+GET    /api/v1/categories/slug/:slug
+GET    /api/v1/categories/:slug/posts
+POST   /api/v1/categories
+PUT    /api/v1/categories/:id
+DELETE /api/v1/categories/:id
 ```
+
+---
 
 ### 📸 Images
 
 ```
-POST   /images/upload
-GET    /images
-GET    /images/:id
-PUT    /images/:id
-DELETE /images/:id
+POST   /api/v1/images/upload
+GET    /api/v1/images
+GET    /api/v1/images/:id
+PUT    /api/v1/images/:id
+DELETE /api/v1/images/:id
 ```
 
 ---
 
-# 📖 **API Explanations**
-
-## 🔑 Authentication APIs
-
-### **POST /auth/login**
-
-Login user using email/password.
-Returns tokens + user profile.
-
-### **POST /auth/refresh**
-
-Generates new access token using refresh token.
-
-### **GET /auth/me**
-
-Returns logged-in user details.
-
-### **POST /auth/change-password**
-
-Change current user password.
-
-### **POST /auth/logout**
-
-Invalidates refresh token.
-
----
-
-## 👥 User APIs
-
-- **GET /users** → paginated list (ADMIN, EDITOR)
-- **POST /users** → create user (ADMIN)
-- **PUT /users/:id** → update user (ADMIN)
-- **DELETE /users/:id** → delete user (ADMIN)
-
----
-
-## 📝 Post APIs
-
-### **GET /posts**
-
-Public posts with pagination, search, filters.
-
-Query params:
+## 🔎 Query Parameters (Posts)
 
 ```
-page, limit, search, category, author, status, sort
+page
+limit
+search
+category
+author
+status
+sort
 ```
-
-### **POST /posts**
-
-Create post (WRITER+)
-
-### **PUT /posts/:id**
-
-Update post (author or EDITOR+)
-
-### **POST /posts/:id/publish**
-
-Publish draft (EDITOR+)
-
-### **GET /posts/slug/:slug**
-
-Public SEO-friendly post fetch.
 
 ---
 
-## 🏷️ Category APIs
+## 📦 API Response Format
 
-- Create / update / delete categories (ADMIN)
-- Fetch posts by category slug (Public)
-
----
-
-## 📸 Image APIs
-
-### **POST /images/upload**
-
-Upload image via `multipart/form-data`.
-
-Fields:
-
-```
-image, altText, title, caption
-```
-
-Used for post banners & content.
-
----
-
-## 📦 **Request & Response Format**
-
-### Success
+### ✅ Success
 
 ```json
 {
@@ -331,22 +296,22 @@ Used for post banners & content.
 }
 ```
 
-### Error
+### ❌ Error
 
 ```json
 {
   "status": "error",
-  "message": "Error message"
+  "message": "Something went wrong"
 }
 ```
 
 ---
 
-## 🧪 **Minimal API Testing (Frontend Required)**
+## 🧪 Minimal Testing Checklist (Frontend)
 
-Frontend **must** test only these:
+Only these endpoints are required to verify backend health:
 
-```text
+```
 GET    /health
 POST   /auth/login
 POST   /auth/refresh
@@ -357,14 +322,16 @@ GET    /posts/slug/:slug
 
 ---
 
-## 🐳 **Deployment**
+## 🚀 Deployment (Render)
 
 ```bash
 npm run build
 npm start
 ```
 
-### Docker
+---
+
+## 🐳 Docker (Optional)
 
 ```dockerfile
 FROM node:18-alpine
@@ -379,34 +346,35 @@ CMD ["npm","start"]
 
 ---
 
-## 🎯 **Troubleshooting**
+## 🛠️ Troubleshooting
 
-### Prisma Reset
+### Reset Prisma
 
 ```bash
 npx prisma migrate reset
 npx prisma migrate dev
 ```
 
-### DB Check
+### Database Access
 
 ```bash
-psql -h localhost -U bloguser -d blogdb
+psql -U bloguser -d blogdb
 ```
 
 ---
 
-## 📄 **License**
+## 📄 License
 
-MIT
+MIT License
 
 ---
 
-## 🙏 **Acknowledgments**
+## 🙌 Acknowledgments
 
 - Express.js
-- Prisma
+- Prisma ORM
 - PostgreSQL
 - Cloudinary
+- Render
 
 ---

@@ -11,11 +11,9 @@ import {
   FiImage,
   FiSettings,
   FiUser,
-  FiBell,
   FiMenu,
   FiX,
   FiLogOut,
-  FiHelpCircle,
 } from 'react-icons/fi'
 
 interface AdminLayoutProps {
@@ -28,100 +26,91 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const { user, logout } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-const navigation = [
-  {
-    name: 'Dashboard',
-    href: '/admin/dashboard',
-    icon: FiHome,
-    roles: ['ADMIN', 'EDITOR', 'WRITER'],
-  },
-  {
-    name: 'Posts',
-    href: '/admin/posts',
-    icon: FiFileText,
-    roles: ['ADMIN', 'EDITOR', 'WRITER'],
-  },
-  {
-    name: 'Categories',
-    href: '/admin/categories',
-    icon: FiFolder,
-    roles: ['ADMIN', 'EDITOR'],
-  },
-  {
-    name: 'Media',
-    href: '/admin/images',
-    icon: FiImage,
-    roles: ['ADMIN'],
-  },
-  {
-    name: 'Users',
-    href: '/admin/users',
-    icon: FiUser,
-    roles: ['ADMIN'],
-  },
-  {
-  name: 'Account',
-  href: '/admin/account',
-  icon: FiSettings,
-  roles: ['ADMIN', 'EDITOR', 'WRITER'],
-},
-
-]
-
-
+  const navigation = [
+    {
+      name: 'Dashboard',
+      href: '/admin/dashboard',
+      icon: FiHome,
+      roles: ['ADMIN', 'EDITOR', 'WRITER'],
+    },
+    {
+      name: 'Posts',
+      href: '/admin/posts',
+      icon: FiFileText,
+      roles: ['ADMIN', 'EDITOR', 'WRITER'],
+    },
+    {
+      name: 'Categories',
+      href: '/admin/categories',
+      icon: FiFolder,
+      roles: ['ADMIN', 'EDITOR'],
+    },
+    {
+      name: 'Media',
+      href: '/admin/images',
+      icon: FiImage,
+      roles: ['ADMIN'],
+    },
+    {
+      name: 'Users',
+      href: '/admin/users',
+      icon: FiUser,
+      roles: ['ADMIN'],
+    },
+    {
+      name: 'Account',
+      href: '/admin/account',
+      icon: FiSettings,
+      roles: ['ADMIN', 'EDITOR', 'WRITER'],
+    },
+  ]
 
   const handleLogout = async () => {
     await logout()
     router.push('/admin/login')
   }
 
-  if (!user) {
-    return null
-  }
+  if (!user) return null
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile sidebar */}
+
+      {/* ================= MOBILE SIDEBAR ================= */}
       <div className="lg:hidden">
-        <div className="fixed inset-0 z-40 flex">
-          {/* Overlay */}
-          {sidebarOpen && (
-            <div
-              className="fixed inset-0 bg-gray-600 bg-opacity-75"
-              onClick={() => setSidebarOpen(false)}
-            />
-          )}
-
-          {/* Sidebar */}
+        {/* Overlay */}
+        {sidebarOpen && (
           <div
-            className={`relative flex-1 flex flex-col max-w-xs w-full bg-white pt-5 pb-4 transform transition-transform ${
-              sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-            }`}
-          >
-            <div className="absolute top-0 right-0 pt-2 -mr-12">
-              <button
-                className="flex items-center justify-center w-10 h-10 ml-1 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-                onClick={() => setSidebarOpen(false)}
-              >
-                <span className="sr-only">Close sidebar</span>
-                <FiX className="w-6 h-6 text-white" />
-              </button>
-            </div>
+            className="fixed inset-0 z-40 bg-black/50"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
 
-            {/* Sidebar content */}
-            <SidebarContent
-              user={user}
-              navigation={navigation}
-              pathname={pathname}
-              onLogout={handleLogout}
-            />
+        {/* Sidebar */}
+        <div
+          className={`fixed inset-y-0 left-0 z-50 w-64 bg-white transform transition-transform duration-300 ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          <div className="flex justify-end p-2">
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="p-2 rounded hover:bg-gray-100"
+            >
+              <FiX size={20} />
+            </button>
           </div>
+
+          <SidebarContent
+            user={user}
+            navigation={navigation}
+            pathname={pathname}
+            onLogout={handleLogout}
+          />
         </div>
       </div>
 
-      {/* Static sidebar for desktop */}
-      <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 lg:overflow-y-auto">
-
+      {/* ================= DESKTOP SIDEBAR ================= */}
+      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col lg:border-r lg:bg-white">
         <SidebarContent
           user={user}
           navigation={navigation}
@@ -130,8 +119,19 @@ const navigation = [
         />
       </div>
 
-      {/* Main content */}
+      {/* ================= MAIN CONTENT ================= */}
       <div className="flex flex-col flex-1 lg:pl-64">
+        {/* Mobile top bar */}
+        <div className="sticky top-0 z-30 flex items-center gap-3 px-4 py-3 bg-white border-b lg:hidden">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 rounded-md hover:bg-gray-100"
+          >
+            <FiMenu size={22} />
+          </button>
+          <span className="text-sm font-semibold">Admin Panel</span>
+        </div>
+
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           {children}
         </main>
@@ -140,6 +140,8 @@ const navigation = [
   )
 }
 
+/* ================= SIDEBAR CONTENT ================= */
+
 interface SidebarContentProps {
   user: any
   navigation: any[]
@@ -147,7 +149,12 @@ interface SidebarContentProps {
   onLogout: () => void
 }
 
-function SidebarContent({ user, navigation, pathname, onLogout }: SidebarContentProps) {
+function SidebarContent({
+  user,
+  navigation,
+  pathname,
+  onLogout,
+}: SidebarContentProps) {
   return (
     <>
       {/* Logo */}
@@ -162,7 +169,7 @@ function SidebarContent({ user, navigation, pathname, onLogout }: SidebarContent
         </Link>
       </div>
 
-      {/* User profile */}
+      {/* User */}
       <div className="px-4 mb-8">
         <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
           <img
@@ -183,41 +190,38 @@ function SidebarContent({ user, navigation, pathname, onLogout }: SidebarContent
       {/* Navigation */}
       <nav className="flex-1 px-2 space-y-1">
         {navigation
-  .filter(item => item.roles.includes(user.role))
-  .map((item) => {
+          .filter(item => item.roles.includes(user.role))
+          .map(item => {
+            const Icon = item.icon
+            const isActive =
+              pathname === item.href ||
+              pathname.startsWith(`${item.href}/`)
 
-          const Icon = item.icon
-          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
-          
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
-                isActive
-                  ? 'bg-primary-50 text-primary-700'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              <Icon
-                className={`mr-3 flex-shrink-0 h-5 w-5 ${
-                  isActive ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-500'
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`group flex items-center px-3 py-3 text-sm font-medium rounded-lg ${
+                  isActive
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'text-gray-700 hover:bg-gray-100'
                 }`}
-              />
-              {item.name}
-              {item.name === 'Posts' && (
-                <span className="px-2 py-1 ml-auto text-xs font-medium rounded bg-primary-100 text-primary-800">
-                  
-                </span>
-              )}
-            </Link>
-          )
-        })}
+              >
+                <Icon
+                  className={`mr-3 h-5 w-5 ${
+                    isActive
+                      ? 'text-primary-600'
+                      : 'text-gray-400 group-hover:text-gray-500'
+                  }`}
+                />
+                {item.name}
+              </Link>
+            )
+          })}
       </nav>
 
-      {/* Bottom section */}
-      <div className="px-4 py-4 space-y-3 border-t">
-        
+      {/* Logout */}
+      <div className="px-4 py-4 border-t">
         <button
           onClick={onLogout}
           className="flex items-center w-full px-3 py-2 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50"
@@ -227,7 +231,7 @@ function SidebarContent({ user, navigation, pathname, onLogout }: SidebarContent
         </button>
       </div>
 
-      {/* Version info */}
+      {/* Version */}
       <div className="px-4 py-3 border-t">
         <p className="text-xs text-gray-500">v1.0.0 • Admin Panel</p>
       </div>
