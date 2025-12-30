@@ -1,6 +1,6 @@
 // frontend/lib/api/auth.ts
 import apiClient from './client'
-import { ApiResponse, User } from '@/types'
+import { User } from '@/types'
 
 export interface LoginCredentials {
   email: string
@@ -14,42 +14,26 @@ export interface LoginResponse {
 }
 
 export const authApi = {
-  // LOGIN (ONLY ENTRY POINT)
-  login: async (credentials: LoginCredentials) => {
-    const res = await apiClient.post<ApiResponse<LoginResponse>>(
-      '/auth/login',
-      credentials
-    )
-    return res.data.data
+  login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
+    const res = await apiClient.post('/auth/login', credentials)
+    // res is already response.data
+    return res.data
   },
 
-  // CURRENT USER
-  getMe: async () => {
-  const res = await apiClient.get<ApiResponse<{ user: User }>>('/auth/me')
+  getMe: async (): Promise<User> => {
+    const res = await apiClient.get('/auth/me')
+    return res.data.user
+  },
 
-  if (!res.data.data) {
-    throw new Error('Auth response missing user data')
-  }
-
-  return res.data.data.user
-},
-
-
-  // LOGOUT (REQUIRES REFRESH TOKEN)
   logout: async (refreshToken: string) => {
     await apiClient.post('/auth/logout', { refreshToken })
   },
 
-  // REFRESH TOKEN
   refreshToken: async (refreshToken: string) => {
-    const res = await apiClient.post<
-      ApiResponse<{ accessToken: string; refreshToken: string }>
-    >('/auth/refresh', { refreshToken })
-
-    return res.data.data
+    const res = await apiClient.post('/auth/refresh', { refreshToken })
+    return res.data
   },
 
-  // CHANGE PASSWORD (AUTHENTICATED)
   changePassword: async (data: {
     currentPassword: string
     newPassword: string
