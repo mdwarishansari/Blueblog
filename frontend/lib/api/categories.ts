@@ -7,7 +7,7 @@ export const categoryApi = {
   // =========================
   getAll: async () => {
   const res = await apiClient.get('/categories')
-  return res.data.data as {
+  return res.data as {
     categories: Category[]
     pagination: {
       page: number

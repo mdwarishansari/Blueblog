@@ -4,7 +4,7 @@ import { User, ApiResponse } from '@/types';
 export const userApi = {
   getAll: async (params?: any) => {
   const res = await apiClient.get('/users', { params })
-  return res.data.data as {
+  return res.data as {
     users: User[]
     pagination: {
       page: number

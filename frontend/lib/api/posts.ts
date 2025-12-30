@@ -13,7 +13,7 @@ export const postApi = {
   sort?: string
 }) => {
   const res = await apiClient.get('/posts', { params })
-  return res.data.data as {
+  return res.data as {
     posts: Post[]
     pagination: {
       page: number
@@ -34,7 +34,7 @@ export const postApi = {
   // Get single post by ID (ADMIN / EDIT)
 getById: async (id: string) => {
   const res = await apiClient.get(`/posts/${id}`)
-  return res.data.data as { post: Post }
+  return res.data as { post: Post }
 },
 
 
@@ -42,7 +42,7 @@ getById: async (id: string) => {
   // Create post (admin/writer)
   create: async (postData: Partial<Post>) => {
   const res = await apiClient.post('/posts', postData)
-  return res.data.data as { post: Post }
+  return res.data as { post: Post }
 },
 
 
