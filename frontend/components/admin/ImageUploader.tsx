@@ -73,13 +73,16 @@ const effectivePreview = preview ?? existingImageUrl ?? null
 
   const image = await imageApi.upload(formData)
 
-  clearInterval(interval)
-  setProgress(100)
+clearInterval(interval)
+setProgress(100)
 
-  onUploadComplete({
-    id: image.id,
-    url: image.url,
-  })
+// 🔥 strict + safe
+onUploadComplete({
+  id: image.id,
+  url: image.url,
+})
+
+
 } catch (err) {
   console.error(err)
   setError('Upload failed. Please try again.')
