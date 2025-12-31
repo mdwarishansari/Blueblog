@@ -1,5 +1,6 @@
 'use client'
 export const dynamic = 'force-dynamic'
+// export const revalidate = 0
 
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
@@ -27,8 +28,10 @@ interface Category {
 export default function EditPostPage() {
   const router = useRouter()
   const params = useParams()
-  const { user } = useAuth() 
-  const postId = params?.id as string
+const postId = params?.id
+
+if (!postId) return null
+
   const isEdit = postId !== 'new'
 
   const [saving, setSaving] = useState(false)

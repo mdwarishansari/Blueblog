@@ -5,6 +5,7 @@ cloudinary.config({
   cloud_name: config.cloudinary.cloudName,
   api_key: config.cloudinary.apiKey,
   api_secret: config.cloudinary.apiSecret,
+  timeout: 120000, 
 })
 
 // export const uploadToCloudinary = (
@@ -46,7 +47,7 @@ cloudinary.config({
 //   })
 // }
 
-export const uploadToCloudinary = async (
+export const uploadToCloudinary = (
   file: Express.Multer.File,
   folder = 'blog'
 ): Promise<{
@@ -56,23 +57,34 @@ export const uploadToCloudinary = async (
   height: number
   format: string
 }> => {
-  const result = await cloudinary.uploader.upload(
-    `data:${file.mimetype};base64,${file.buffer.toString('base64')}`,
-    {
-      folder,
-      resource_type: 'image',
-      // 🔥 NO TRANSFORMATION HERE
-    }
-  )
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        resource_type: 'image',
+        eager: [],           // IMPORTANT
+        invalidate: false,
+      },
+      (error, result) => {
+        if (error || !result) {
+          console.error('Cloudinary error:', error)
+          return reject(error || new Error('Upload failed'))
+        }
 
-  return {
-    url: result.secure_url,
-    public_id: result.public_id,
-    width: result.width,
-    height: result.height,
-    format: result.format,
-  }
+        resolve({
+          url: result.secure_url,
+          public_id: result.public_id,
+          width: result.width,
+          height: result.height,
+          format: result.format,
+        })
+      }
+    )
+
+    uploadStream.end(file.buffer)
+  })
 }
+
 
 
 export const deleteFromCloudinary = async (publicId: string): Promise<void> => {
