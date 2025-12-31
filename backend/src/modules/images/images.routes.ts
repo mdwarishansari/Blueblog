@@ -41,7 +41,7 @@ router.use(authenticate);
 router.post(
   '/upload',
   authorize('ADMIN', 'EDITOR', 'WRITER'),
-  upload.single('file'),     // ✅ FIRST
+  upload.single('file'),    
   uploadImage
   
 )

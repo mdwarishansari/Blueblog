@@ -36,17 +36,16 @@ export const updateProfileSchema = z.object({
 
 const app = express();
 
-// Security middleware
+app.set('trust proxy', 1); 
+
 app.use(helmet());
 
-// CORS
 app.use(cors({
   origin: config.allowedOrigins,
   credentials: true
 }));
 
-// Rate limiting
-app.use(generalRateLimiter);
+app.use(generalRateLimiter); 
 
 // Body parsers
 app.use(express.json({ limit: '10mb' }));
