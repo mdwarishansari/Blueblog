@@ -72,9 +72,8 @@ const effectivePreview = preview ?? existingImageUrl ?? null
   formData.append('caption', caption)
 
   const res = await imageApi.upload(formData)
+const image = await imageApi.upload(formData)
 
-  // 👇 TEMP SAFE CAST (NO TYPE BREAK)
-  const image = (res as any).data.image
 
   clearInterval(interval)
   setProgress(100)
