@@ -71,9 +71,7 @@ const effectivePreview = preview ?? existingImageUrl ?? null
   formData.append('title', title)
   formData.append('caption', caption)
 
-  const res = await imageApi.upload(formData)
-const image = await imageApi.upload(formData)
-
+  const image = await imageApi.upload(formData)
 
   clearInterval(interval)
   setProgress(100)
@@ -82,11 +80,13 @@ const image = await imageApi.upload(formData)
     id: image.id,
     url: image.url,
   })
-} catch {
+} catch (err) {
+  console.error(err)
   setError('Upload failed. Please try again.')
 } finally {
   setUploading(false)
 }
+
 
 }
 

@@ -67,7 +67,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const handleLogout = async () => {
     await logout()
-    router.push('/admin/login')
+    router.push('/')
   }
 
   if (!user) return null
