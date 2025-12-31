@@ -26,8 +26,11 @@ interface Category {
 /* ------------------------------------------------------------------ */
 
 export default function EditPostPage() {
+  
   const router = useRouter()
   const params = useParams()
+  const { user } = useAuth()
+
 const postId = params?.id
 
 if (!postId) return null
