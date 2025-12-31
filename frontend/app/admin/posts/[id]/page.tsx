@@ -30,8 +30,10 @@ export default function EditPostPage() {
   const router = useRouter()
   const params = useParams()
   const { user } = useAuth()
+const postId = Array.isArray(params?.id)
+  ? params.id[0]
+  : params?.id
 
-const postId = params?.id
 
 if (!postId) return null
 
