@@ -6,7 +6,7 @@ export const imageApi = {
     const res = await apiClient.post('/images/upload', formData)
 
     // res = { status, data }
-    return res.data.image
+    return res.data.data.image
   },
 
   getAll: async (params?: { page?: number; limit?: number }) => {
