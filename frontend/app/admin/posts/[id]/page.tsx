@@ -84,8 +84,9 @@ export default function EditPostPage() {
           seo_title: post.seo_title || '',
 seo_description: post.seo_description || '',
 canonical_url: post.canonical_url || '',
-banner_image_id: post.banner_image?.id || '',
-banner_image_url: post.banner_image?.url || '',
+banner_image_id: post.bannerImage?.id || '',
+banner_image_url: post.bannerImage?.url || '',
+
 
           category_ids: post.categories?.map((c: any) => c.id) || [],
         })
@@ -256,15 +257,17 @@ banner_image_url: post.banner_image?.url || '',
             <div className="p-4 border rounded-xl">
               <h3 className="mb-2 font-semibold">Featured Image</h3>
               <ImageUploader
-                existingImageUrl={formData.banner_image_url || null}
-                onUploadComplete={img =>
-                  setFormData(p => ({
-                    ...p,
-                    banner_image_id: img.id,
-                    banner_image_url: img.url,
-                  }))
-                }
-              />
+  // key={formData.banner_image_url || 'no-image'}  
+  existingImageUrl={formData.banner_image_url || null}
+  onUploadComplete={img =>
+    setFormData(p => ({
+      ...p,
+      banner_image_id: img.id,
+      banner_image_url: img.url,
+    }))
+  }
+/>
+
             </div>
 
             {/* CATEGORIES */}

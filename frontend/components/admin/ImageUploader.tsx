@@ -20,12 +20,16 @@ export default function ImageUploader({
   caption: initialCaption = '',
 }: ImageUploaderProps) {
   const [uploading, setUploading] = useState(false)
-  const [preview, setPreview] = useState<string | null>(existingImageUrl || null)
-  useEffect(() => {
-  if (existingImageUrl) {
-    setPreview(existingImageUrl)
-  }
-}, [existingImageUrl])
+  const [preview, setPreview] = useState<string | null>(null)
+  
+//   useEffect(() => {
+//   if (existingImageUrl && !uploading) {
+//     setPreview(existingImageUrl)
+//   }
+// }, [existingImageUrl])
+
+const effectivePreview = preview ?? existingImageUrl ?? null
+
 
   const [altText, setAltText] = useState(initialAltText)
   const [title, setTitle] = useState(initialTitle)
@@ -128,7 +132,8 @@ export default function ImageUploader({
   </div>
 )}
 
-        {!preview ? (
+        {!effectivePreview ? (
+
           <div
             className="p-8 text-center transition-colors border-2 border-gray-300 border-dashed cursor-pointer rounded-xl hover:border-primary-500"
             onClick={() => fileInputRef.current?.click()}
@@ -162,10 +167,11 @@ export default function ImageUploader({
         ) : (
           <div className="relative overflow-hidden border rounded-xl">
             <img
-              src={preview}
-              alt="Preview"
-              className="object-cover w-full h-64"
-            />
+  src={effectivePreview}
+  alt="Preview"
+  className="object-cover w-full h-64"
+/>
+
             
             <div className="absolute flex gap-2 top-3 right-3">
               <button
@@ -205,7 +211,7 @@ export default function ImageUploader({
         )}
       </div>
 
-      {preview && (
+      {effectivePreview && (
         <div className="p-4 space-y-4 rounded-lg bg-gray-50">
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700">

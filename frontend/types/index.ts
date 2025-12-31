@@ -28,7 +28,8 @@ export interface Post {
   created_at: string;
   author?: User;
   categories?: Category[];
-  banner_image?: Image;
+  bannerImage?: Image;
+
 }
 
 

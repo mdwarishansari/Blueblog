@@ -1,327 +1,351 @@
-🌐 BlueBlog – Frontend (Next.js)
+# 🌐 **BlueBlog – Frontend (Next.js)**
 
-🚀 Live Website
-👉 https://blueblog-frpq.vercel.app
+A **production-ready**, SEO-optimized blogging platform frontend built with **Next.js App Router**, designed for **real-world usage**, not demos.
 
-🔗 Backend API
-👉 https://blueblog-942c.onrender.com/api/v1
+---
 
-📌 Overview
+## 🚀 Live Links
 
-BlueBlog Frontend is a modern, SEO-optimized blogging platform UI built with Next.js App Router.
-It consumes a production-ready REST API and provides:
+- 🌍 **Frontend (Vercel)**
+  👉 [https://blueblog-frpq.vercel.app](https://blueblog-frpq.vercel.app)
 
-Public blog experience
+- 🔗 **Backend API (Render)**
+  👉 [https://blueblog-942c.onrender.com/api/v1](https://blueblog-942c.onrender.com/api/v1)
 
-Role-based admin dashboard
+---
 
-SEO, sitemap & robots support
+## 📌 Overview
 
-Clean, responsive UI
+**BlueBlog Frontend** delivers a modern blogging experience with a clean UI, strong SEO foundation, and a fully role-aware admin dashboard.
 
-Secure authentication flow
+It consumes a **production REST API** and provides:
 
-This frontend is designed for real production usage, not demo-only UI.
+- 🌍 Public blog experience
+- 🧑‍💼 Role-based admin dashboard
+- 🔐 Secure authentication flow
+- 📈 SEO, sitemap & robots support
+- 🎯 Clean, responsive UI
 
-🧠 Tech Stack
-Layer Technology
-Framework Next.js 14 (App Router)
-Language TypeScript
-Styling Tailwind CSS
-State React Context + Hooks
-Auth JWT (via Backend API)
-SEO Metadata API + Custom SEO
-Deployment Vercel
-✨ Key Features
-🌍 Public Website
+> This project is built for **real deployment**, not as a UI-only prototype.
 
-SEO-friendly blog pages
+---
 
-Category-based browsing
+## 🧠 Tech Stack
 
-Author pages
+| Layer      | Technology                |
+| ---------- | ------------------------- |
+| Framework  | Next.js 14 (App Router)   |
+| Language   | TypeScript                |
+| Styling    | Tailwind CSS              |
+| State      | React Context + Hooks     |
+| Auth       | JWT (via Backend API)     |
+| SEO        | Metadata API + Custom SEO |
+| Deployment | Vercel                    |
 
-Responsive design
+---
 
-Breadcrumb navigation
+## ✨ Key Features
 
-Sitemap & robots.txt
+### 🌍 Public Website
 
-🔐 Authentication
+- SEO-friendly blog pages
+- Category-based browsing
+- Author pages
+- Responsive design
+- Breadcrumb navigation
+- Sitemap & robots.txt
 
-Secure login
+---
 
-Token-based auth
+### 🔐 Authentication
 
-Role-aware UI rendering
+- Secure login flow
+- Token-based authentication
+- Role-aware UI rendering
+- Protected admin routes
 
-Protected admin routes
+---
 
-🧑‍💼 Admin Dashboard
+### 🧑‍💼 Admin Dashboard
 
-Role-based sidebar
+- Role-based sidebar
+- Post management (CRUD)
+- Category management
+- Media (image) manager
+- User management (**Admin only**)
 
-Post management (CRUD)
+---
 
-Category management
+### 📈 SEO & Performance
 
-Media (image) manager
+- Dynamic `<title>` & meta tags
+- OpenGraph & Twitter cards
+- Sitemap generation
+- Robots rules
+- Clean URLs (`/blog/[slug]`)
 
-User management (Admin only)
+---
 
-📈 SEO & Performance
+## 📂 Project Structure
 
-Dynamic <title> & meta tags
-
-OpenGraph & Twitter cards
-
-Sitemap generation
-
-Robots rules
-
-Clean URLs (/blog/[slug])
-""
-📂 Project Structure
+```
 frontend/
-├── app/ # App Router pages
-│ ├── admin/ # Admin panel
-│ ├── blog/ # Blog pages
-│ ├── category/ # Category pages
-│ ├── author/ # Author pages
-│ ├── api/ # sitemap & robots
-│ ├── layout.tsx # Root layout
-│ └── page.tsx # Home page
+├── app/                     # App Router pages
+│   ├── admin/               # Admin panel
+│   ├── blog/                # Blog pages
+│   ├── category/            # Category pages
+│   ├── author/              # Author pages
+│   ├── api/                 # sitemap & robots
+│   ├── layout.tsx           # Root layout
+│   └── page.tsx             # Home page
 │
 ├── components/
-│ ├── admin/ # Admin components
-│ ├── blog/ # Blog UI components
-│ ├── guards/ # Route guards
-│ ├── home/ # Home sections
-│ ├── layout/ # Header, Footer, AdminLayout
-│ ├── seo/ # SEO & Breadcrumbs
-│ └── ui/ # Reusable UI
+│   ├── admin/               # Admin components
+│   ├── blog/                # Blog UI components
+│   ├── guards/              # Route guards
+│   ├── home/                # Home sections
+│   ├── layout/              # Header, Footer, AdminLayout
+│   ├── seo/                 # SEO & Breadcrumbs
+│   └── ui/                  # Reusable UI
 │
 ├── lib/
-│ ├── api/ # API clients
-│ ├── context/ # AuthContext
-│ ├── hooks/ # Custom hooks
-│ └── utils/ # Helpers
+│   ├── api/                 # API clients
+│   ├── context/             # AuthContext
+│   ├── hooks/               # Custom hooks
+│   └── utils/               # Helpers
 │
-├── public/ # Static assets
-├── types/ # TypeScript types
+├── public/                  # Static assets
+├── types/                   # TypeScript types
 └── README.md
-""
-🚀 Getting Started (Local)
-✅ Prerequisites
+```
 
-Node.js v18+
+---
 
-Backend API running
+## 🚀 Getting Started (Local)
 
-📦 Installation
+### ✅ Prerequisites
+
+- Node.js **v18+**
+- Backend API running
+
+---
+
+### 📦 Installation
+
+```bash
 cd frontend
 npm install
+```
 
-⚙️ Environment Variables
+---
 
-Create .env.local:
+### ⚙️ Environment Variables
 
+Create **`.env.local`**:
+
+```env
 # Backend API
-
 NEXT_PUBLIC_API_URL=http://localhost:4000/api/v1
 
 # Site Configuration
-
 NEXT_PUBLIC_SITE_NAME="BlueBlog"
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 NEXT_PUBLIC_SITE_DESCRIPTION="A modern, SEO-optimized blogging platform"
 
 # SEO Defaults
-
 NEXT_PUBLIC_DEFAULT_OG_IMAGE=/og-default.png
 NEXT_PUBLIC_TWITTER_HANDLE=@techblog
 
 # Admin
-
 NEXT_PUBLIC_ADMIN_PATH=/admin
+```
 
-▶ Run Development Server
+---
+
+### ▶ Run Development Server
+
+```bash
 npm run dev
+```
 
 Visit:
+👉 [http://localhost:3000](http://localhost:3000)
 
-http://localhost:3000
+---
 
-🔐 Authentication Flow
+## 🔐 Authentication Flow
 
-User logs in (/admin/login)
+1. User logs in at `/admin/login`
+2. Backend returns **JWT access token**
+3. Token stored via **AuthContext**
+4. Routes protected using guards:
+   - `AdminPage`
+   - `PublicPage`
 
-Backend returns access token
+5. UI renders based on **user role**
 
-Token stored via AuthContext
+---
 
-Protected routes guarded using:
+## 🛡️ Route Guards
 
-AdminPage
+| Guard      | Purpose              |
+| ---------- | -------------------- |
+| AdminPage  | Protect admin routes |
+| PublicPage | Public-only pages    |
 
-PublicPage
+Usage example:
 
-Role-based UI rendering
-
-🛡️ Route Guards
-Guard Purpose
-AdminPage Protect admin routes
-PublicPage Public-only pages
-
-Used in pages like:
-
+```tsx
 <AdminPage>
   <AdminLayout>{children}</AdminLayout>
 </AdminPage>
+```
 
-🧩 Admin Roles
-Role Access
-ADMIN Full access
-EDITOR Posts & categories
-WRITER Own posts only
+---
 
-Sidebar auto-filters items based on role.
+## 🧩 Admin Roles
 
-📝 Blog System
-Pages
+| Role   | Access             |
+| ------ | ------------------ |
+| ADMIN  | Full access        |
+| EDITOR | Posts & categories |
+| WRITER | Own posts only     |
 
-/ – Home
+📌 Sidebar automatically filters items based on role.
 
-/blog – Blog listing
+---
 
-/blog/[slug] – Post page
+## 📝 Blog System
 
-/category/[slug] – Category posts
+### Pages
 
-/author/[slug] – Author posts
+- `/` – Home
+- `/blog` – Blog listing
+- `/blog/[slug]` – Post page
+- `/category/[slug]` – Category posts
+- `/author/[slug]` – Author posts
 
-Cards & Images
+---
 
-Unified BlogCard component
+### Cards & Images
 
-Fallback images supported
+- Unified `BlogCard` component
+- Fallback images supported
+- SEO-friendly image rendering
 
-SEO-friendly image rendering
+---
 
-📸 Media Handling
+## 📸 Media Handling
 
-Image upload via admin
-
-Uses backend /images API
-
-Preview + metadata
+- Image upload via admin panel
+- Uses backend `/images` API
+- Preview + metadata support
 
 Used for:
 
-Post banners
+- Post banners
+- SEO previews
 
-SEO previews
+📌 **Note:** Image preview consistency fix is pending (final task).
 
-(Image preview issue scheduled for final fix)
+---
 
-🧠 SEO Implementation
-🔍 SEO Component
+## 🧠 SEO Implementation
 
-Located at:
+### 🔍 SEO Component
 
-components/seo/SEO.tsx
+**Location:** `components/seo/SEO.tsx`
 
 Supports:
 
-Title
+- Title
+- Description
+- Canonical
+- OpenGraph
+- Twitter cards
+- JSON-LD schema
 
-Description
+---
 
-Canonical
+### 🧭 Breadcrumbs
 
-OpenGraph
+**Location:** `components/seo/Breadcrumbs.tsx`
+Automatically generates navigation hierarchy.
 
-Twitter cards
+---
 
-JSON-LD schema
+### 🤖 Robots & Sitemap
 
-🧭 Breadcrumbs
-components/seo/Breadcrumbs.tsx
+#### `robots.txt`
 
-Auto-generated navigation hierarchy.
+`/app/api/robots/route.ts`
 
-🤖 Robots & Sitemap
-robots.txt
-/app/api/robots/route.ts
+- Disallows admin routes
+- Allows public content
+- Bot-specific rules
 
-Disallows admin
+#### `sitemap.xml`
 
-Allows public content
-
-Bot-specific rules
-
-sitemap.xml
-/app/api/sitemap/route.ts
-
+`/app/api/sitemap/route.ts`
 Includes:
 
-Home
+- Home
+- Blog
+- Categories
+- Posts
 
-Blog
+---
 
-Categories
-
-Posts
-
-📦 API Integration
+## 📦 API Integration
 
 All API calls are centralized in:
 
+```
 lib/api/
+```
 
-Example:
+Examples:
 
-postApi.getAll()
-categoryApi.getAll()
-imageApi.upload()
+```ts
+postApi.getAll();
+categoryApi.getAll();
+imageApi.upload();
+```
 
-Uses Axios instance with interceptors.
+- Axios instance with interceptors
+- Token injection & error handling
 
-🎨 UI & Styling
+---
 
-Tailwind CSS
+## 🎨 UI & Styling
 
-Responsive (mobile-first)
+- Tailwind CSS
+- Mobile-first responsive design
+- Light content with dark footer
+- Sticky header
+- Accessible buttons & inputs
 
-Dark footer / light content
+---
 
-Sticky header
+## 🚀 Production Build
 
-Accessible buttons & inputs
-
-🚀 Production Build
+```bash
 npm run build
 npm start
+```
 
-🧪 Known Pending Task
+---
 
-📸 Image preview consistency across pages
-(Already identified – final fix pending)
+## 📄 License
 
-Everything else is complete & stable.
+**MIT License**
 
-📄 License
+---
 
-MIT License
+## 🙌 Credits
 
-🙌 Credits
-
-Next.js
-
-Tailwind CSS
-
-React Icons
-
-Vercel
-
-PostgreSQL Backend
+- Next.js
+- Tailwind CSS
+- React Icons
+- Vercel
+- PostgreSQL Backend

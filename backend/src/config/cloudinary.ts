@@ -7,7 +7,46 @@ cloudinary.config({
   api_secret: config.cloudinary.apiSecret,
 })
 
-export const uploadToCloudinary = (
+// export const uploadToCloudinary = (
+//   file: Express.Multer.File,
+//   folder = 'blog'
+// ): Promise<{
+//   url: string
+//   public_id: string
+//   width: number
+//   height: number
+//   format: string
+// }> => {
+//   return new Promise((resolve, reject) => {
+//     const stream = cloudinary.uploader.upload_stream(
+//   {
+//     folder,
+//     resource_type: 'image',
+//     transformation: [
+//       { width: 1200, height: 630, crop: 'limit', quality: 'auto' },
+//     ],
+//   },
+//   (error, result) => {
+//     if (error || !result) {
+//       return reject(error || new Error('Upload failed'))
+//     }
+//     resolve({
+//       url: result.secure_url,
+//       public_id: result.public_id,
+//       width: result.width,
+//       height: result.height,
+//       format: result.format,
+//     })
+//   }
+// )
+
+// stream.on('error', reject)
+// stream.end(file.buffer)
+
+//   })
+// }
+
+export const uploadToCloudinary = async (
   file: Express.Multer.File,
   folder = 'blog'
 ): Promise<{
@@ -17,34 +56,22 @@ export const uploadToCloudinary = (
   height: number
   format: string
 }> => {
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        folder,
-        resource_type: 'image',
-        timeout: 120000, // ✅ IMPORTANT
-        transformation: [
-          { width: 1200, height: 630, crop: 'limit', quality: 'auto' },
-        ],
-      },
-      (error, result) => {
-        if (error || !result) {
-          console.error('Cloudinary upload failed:', error)
-          return reject(error || new Error('Upload failed'))
-        }
+  const result = await cloudinary.uploader.upload(
+    `data:${file.mimetype};base64,${file.buffer.toString('base64')}`,
+    {
+      folder,
+      resource_type: 'image',
+      // 🔥 NO TRANSFORMATION HERE
+    }
+  )
 
-        resolve({
-          url: result.secure_url,
-          public_id: result.public_id,
-          width: result.width,
-          height: result.height,
-          format: result.format,
-        })
-      }
-    )
-
-    stream.end(file.buffer)
-  })
+  return {
+    url: result.secure_url,
+    public_id: result.public_id,
+    width: result.width,
+    height: result.height,
+    format: result.format,
+  }
 }
 
 
