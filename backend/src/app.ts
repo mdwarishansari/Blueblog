@@ -6,6 +6,7 @@ import { requestLogger } from './utils/logger';
 import { errorHandler } from './middleware/error.middleware';
 import { generalRateLimiter } from './middleware/rateLimiter.middleware';
 
+
 // Import routes
 import authRoutes from './modules/auth/auth.routes';
 import userRoutes from './modules/users/users.routes';
@@ -16,6 +17,8 @@ import { z } from 'zod';
 import meRoutes from './modules/me/me.routes';
 import settingsRoutes from './modules/settings/settings.routes';
 
+//
+import 'dotenv/config';
 
 
 export const changePasswordSchema = z.object({
@@ -36,7 +39,8 @@ export const updateProfileSchema = z.object({
 
 const app = express();
 
-app.set('trust proxy', 1); 
+// app.set('trust proxy', 1); 
+app.set('trust proxy', true);
 
 app.use(helmet());
 
