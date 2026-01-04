@@ -1,0 +1,33 @@
+import { LRUCache } from 'lru-cache'
+
+interface RateLimitOptions {
+  interval: number
+  uniqueTokenPerInterval: number
+}
+
+interface RateLimitResult {
+  check: (limit: number, token: string) => Promise<void>
+}
+
+export default function rateLimit(options: RateLimitOptions): RateLimitResult {
+  const tokenCache = new LRUCache({
+    max: options.uniqueTokenPerInterval || 500,
+    ttl: options.interval || 60000,
+  })
+
+  return {
+    check: (limit, token) =>
+      new Promise<void>((resolve, reject) => {
+        const tokenCount = (tokenCache.get(token) as number[]) || [0]
+        if (tokenCount[0] === 0) {
+          tokenCache.set(token, tokenCount)
+        }
+        tokenCount[0] += 1
+
+        const currentUsage = tokenCount[0]
+        const isRateLimited = currentUsage >= limit
+
+        return isRateLimited ? reject(new Error('Rate limit exceeded')) : resolve()
+      }),
+  }
+}
