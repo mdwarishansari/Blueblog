@@ -7,7 +7,9 @@ import { Eye, Edit, Trash2, MoreVertical, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Post, User, Category, Image as ImageType } from '@prisma/client'
 import { formatDateTime } from '@/lib/utils'
-import { getOptimizedImageUrl } from '@/lib/cloudinary'
+// import { getOptimizedImageUrl } from '@/lib/cloudinary'
+import { getOptimizedImageUrl } from '@/lib/cloudinary.utils'
+
 
 interface PostTableProps {
   posts: (Post & {
@@ -20,6 +22,20 @@ interface PostTableProps {
 
 export default function PostTable({ posts, user }: PostTableProps) {
   const [selectedRows, setSelectedRows] = useState<string[]>([])
+  const selectedPosts = posts.filter(p => selectedRows.includes(p.id))
+
+const hasDraft = selectedPosts.some(p => p.status === 'DRAFT')
+const hasPublished = selectedPosts.some(p => p.status === 'PUBLISHED')
+
+const canPublish =
+  (user.role === 'ADMIN' || user.role === 'EDITOR') &&
+  hasDraft &&
+  !hasPublished
+
+const canUnpublish =
+  (user.role === 'ADMIN' || user.role === 'EDITOR') &&
+  hasPublished &&
+  !hasDraft
 
   const handleSelectAll = () => {
     if (selectedRows.length === posts.length) {
@@ -49,8 +65,66 @@ export default function PostTable({ posts, user }: PostTableProps) {
     return false
   }
 
+  const deleteSingle = async (id: string) => {
+  if (!window.confirm('Delete this post?')) return
+
+  await fetch(`/api/admin/posts/${id}`, { method: 'DELETE' })
+  window.location.reload()
+}
+
+const runBulk = async (action: 'DELETE' | 'PUBLISH' | 'DRAFT') => {
+  await fetch('/api/admin/posts/bulk', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ids: selectedRows,
+      action,
+    }),
+  })
+
+  setSelectedRows([])
+  window.location.reload()
+}
+
+
   return (
     <div className="overflow-x-auto">
+    {selectedRows.length > 0 && (
+  <div className="sticky top-0 z-10 mb-4 flex items-center justify-between rounded-xl border bg-white px-4 py-3 shadow-sm">
+
+    <span className="text-sm text-gray-700">
+      {selectedRows.length} selected
+    </span>
+
+    <div className="flex gap-2">
+      {/* DELETE — always allowed */}
+      <Button
+  variant="destructive"
+  size="sm"
+  onClick={() => runBulk('DELETE')}
+>
+  Delete
+</Button>
+
+
+      {/* PUBLISH */}
+      {canPublish && (
+  <Button size="sm" onClick={() => runBulk('PUBLISH')}>
+    Publish
+  </Button>
+)}
+
+{canUnpublish && (
+  <Button variant="outline" size="sm" onClick={() => runBulk('DRAFT')}>
+    Move to Draft
+  </Button>
+
+      )}
+    </div>
+  </div>
+)}
+
+
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
@@ -180,16 +254,13 @@ export default function PostTable({ posts, user }: PostTableProps) {
                     )}
                     {canDelete(post) && (
                       <button
-                        className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600"
-                        title="Delete"
-                        onClick={() => {
-                          if (confirm('Are you sure you want to delete this post?')) {
-                            // Delete logic here
-                          }
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+  className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600"
+  title="Delete"
+  onClick={() => deleteSingle(post.id)}
+>
+  <Trash2 className="h-4 w-4" />
+</button>
+
                     )}
                   </div>
                 </td>

@@ -52,10 +52,22 @@ export default function PostEditorPage({ params }: PostEditorProps) {
   })
 
   const isNewPost = params.id === 'new'
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false)
 
   useEffect(() => {
     fetchData()
-  }, [])
+  if (!slugEdited) {
+    setPost(p => ({
+      ...p,
+      slug: p.title
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/--+/g, '-'),
+    }))
+  }
+}, [post.title])
 
   const fetchData = async () => {
     try {

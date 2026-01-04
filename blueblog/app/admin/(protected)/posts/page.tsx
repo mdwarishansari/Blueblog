@@ -1,39 +1,40 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { Plus, Search, Filter, MoreVertical, Eye, Edit, Trash2 } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
 import { requireAuth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { formatDateTime } from '@/lib/utils'
 import PostTable from '@/components/PostTable'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { Plus, Search, Filter } from 'lucide-react'
 
 export default async function AdminPostsPage({
   searchParams,
 }: {
-  searchParams: { page?: string; status?: string; search?: string }
+  searchParams: Promise<{ page?: string; status?: string; search?: string }>
 }) {
   const user = await requireAuth()
-  
-  const page = parseInt(searchParams.page || '1')
+  const params = await searchParams
+
+  const page = Math.max(1, parseInt(params.page ?? '1'))
   const limit = 20
   const skip = (page - 1) * limit
 
+  const status =
+    params.status === 'PUBLISHED' || params.status === 'DRAFT'
+      ? params.status
+      : undefined
+
   const where: any = {}
-  
-  if (searchParams.status) {
-    where.status = searchParams.status
-  }
-  
-  if (searchParams.search) {
+
+  if (status) where.status = status
+
+  if (params.search) {
     where.OR = [
-      { title: { contains: searchParams.search, mode: 'insensitive' } },
-      { excerpt: { contains: searchParams.search, mode: 'insensitive' } },
-      { slug: { contains: searchParams.search, mode: 'insensitive' } },
+      { title: { contains: params.search, mode: 'insensitive' } },
+      { slug: { contains: params.search, mode: 'insensitive' } },
     ]
   }
 
-  // Writers can only see their own posts
+  // WRITER: only own posts
   if (user.role === 'WRITER') {
     where.authorId = user.id
   }
@@ -42,13 +43,7 @@ export default async function AdminPostsPage({
     prisma.post.findMany({
       where,
       include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
+        author: { select: { id: true, name: true, email: true } },
         bannerImage: true,
         categories: true,
       },
@@ -66,9 +61,10 @@ export default async function AdminPostsPage({
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Posts</h1>
-          <p className="text-gray-600">Manage your blog posts</p>
+          <h1 className="text-2xl font-bold">Posts</h1>
+          <p className="text-muted-foreground">Manage blog posts</p>
         </div>
+
         <Link href="/admin/posts/new">
           <Button className="gap-2">
             <Plus className="h-4 w-4" />
@@ -77,124 +73,76 @@ export default async function AdminPostsPage({
         </Link>
       </div>
 
-      {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border bg-white p-4">
-          <div className="text-sm font-medium text-gray-600">Total Posts</div>
-          <div className="mt-1 text-2xl font-bold text-gray-900">{total}</div>
-        </div>
-        <div className="rounded-xl border bg-white p-4">
-          <div className="text-sm font-medium text-gray-600">Published</div>
-          <div className="mt-1 text-2xl font-bold text-green-600">
-            {posts.filter(p => p.status === 'PUBLISHED').length}
-          </div>
-        </div>
-        <div className="rounded-xl border bg-white p-4">
-          <div className="text-sm font-medium text-gray-600">Drafts</div>
-          <div className="mt-1 text-2xl font-bold text-yellow-600">
-            {posts.filter(p => p.status === 'DRAFT').length}
-          </div>
-        </div>
-        <div className="rounded-xl border bg-white p-4">
-          <div className="text-sm font-medium text-gray-600">This Month</div>
-          <div className="mt-1 text-2xl font-bold text-primary-600">
-            {posts.filter(p => {
-              const postDate = new Date(p.createdAt)
-              const now = new Date()
-              return postDate.getMonth() === now.getMonth() && 
-                     postDate.getFullYear() === now.getFullYear()
-            }).length}
-          </div>
-        </div>
-      </div>
-
       {/* Filters */}
-      <div className="rounded-xl border bg-white p-4">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <Input
-                placeholder="Search posts..."
-                className="pl-10"
-                defaultValue={searchParams.search}
-              />
-            </div>
+      <div className="rounded-xl border bg-white p-4 space-y-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search posts…"
+              className="pl-10"
+              defaultValue={params.search}
+            />
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" className="gap-2">
-              <Filter className="h-4 w-4" />
-              Filter
-            </Button>
-            <Button variant="outline">Reset</Button>
-          </div>
+          
         </div>
 
-        {/* Status Filters */}
-        <div className="mt-4 flex gap-2">
-          <Link
-            href="/admin/posts"
-            className={`rounded-lg px-4 py-2 text-sm font-medium ${
-              !searchParams.status
-                ? 'bg-primary-100 text-primary-700'
-                : 'text-gray-700 hover:bg-gray-100'
-            }`}
-          >
-            All
-          </Link>
-          <Link
-            href="/admin/posts?status=PUBLISHED"
-            className={`rounded-lg px-4 py-2 text-sm font-medium ${
-              searchParams.status === 'PUBLISHED'
-                ? 'bg-green-100 text-green-700'
-                : 'text-gray-700 hover:bg-gray-100'
-            }`}
-          >
-            Published
-          </Link>
-          <Link
-            href="/admin/posts?status=DRAFT"
-            className={`rounded-lg px-4 py-2 text-sm font-medium ${
-              searchParams.status === 'DRAFT'
-                ? 'bg-yellow-100 text-yellow-700'
-                : 'text-gray-700 hover:bg-gray-100'
-            }`}
-          >
-            Drafts
-          </Link>
+        {/* Status tabs */}
+        <div className="flex gap-2">
+          {[
+            { label: 'All', href: '/admin/posts', active: !status },
+            {
+              label: 'Published',
+              href: '/admin/posts?status=PUBLISHED',
+              active: status === 'PUBLISHED',
+            },
+            {
+              label: 'Drafts',
+              href: '/admin/posts?status=DRAFT',
+              active: status === 'DRAFT',
+            },
+          ].map(tab => (
+            <Link
+              key={tab.label}
+              href={tab.href}
+              className={`rounded-lg px-4 py-2 text-sm font-medium ${
+                tab.active
+                  ? 'bg-primary-100 text-primary-700'
+                  : 'hover:bg-muted'
+              }`}
+            >
+              {tab.label}
+            </Link>
+          ))}
         </div>
       </div>
 
-      {/* Posts Table */}
-      <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+      {/* Table */}
+      <div className="rounded-xl border bg-white overflow-hidden">
         <PostTable posts={posts} user={user} />
       </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t bg-white px-6 py-4">
-          <div className="text-sm text-gray-700">
-            Showing <span className="font-medium">{skip + 1}</span> to{' '}
-            <span className="font-medium">{Math.min(skip + limit, total)}</span> of{' '}
-            <span className="font-medium">{total}</span> results
-          </div>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Showing {skip + 1} – {Math.min(skip + limit, total)} of {total}
+          </p>
           <div className="flex gap-2">
             <Link
-              href={`/admin/posts?page=${Math.max(1, page - 1)}`}
-              className={`rounded-lg border px-4 py-2 text-sm font-medium ${
-                page === 1
-                  ? 'cursor-not-allowed border-gray-200 text-gray-400'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+              href={`/admin/posts?page=${page - 1}`}
+              aria-disabled={page === 1}
+              className={`px-4 py-2 border rounded ${
+                page === 1 && 'pointer-events-none opacity-50'
               }`}
             >
               Previous
             </Link>
             <Link
-              href={`/admin/posts?page=${Math.min(totalPages, page + 1)}`}
-              className={`rounded-lg border px-4 py-2 text-sm font-medium ${
-                page === totalPages
-                  ? 'cursor-not-allowed border-gray-200 text-gray-400'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+              href={`/admin/posts?page=${page + 1}`}
+              aria-disabled={page === totalPages}
+              className={`px-4 py-2 border rounded ${
+                page === totalPages && 'pointer-events-none opacity-50'
               }`}
             >
               Next

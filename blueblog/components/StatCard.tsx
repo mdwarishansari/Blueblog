@@ -25,15 +25,17 @@ export default function StatCard({
   trend,
   color = 'primary',
 }: StatCardProps) {
+  if (!Icon) return null // 🛡️ safety guard
+
   return (
-    <div className="rounded-xl border bg-white p-6 shadow-sm transition-all hover:shadow-md">
+    <div className="rounded-xl border bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-600">{title}</p>
           <p className="mt-2 text-3xl font-bold text-gray-900">{value}</p>
           {trend && (
             <p className="mt-1 text-sm text-green-600">
-              <span className="font-medium">{trend}</span> from last month
+              {trend}
             </p>
           )}
         </div>

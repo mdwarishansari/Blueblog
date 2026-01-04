@@ -5,6 +5,7 @@ import { Menu, Bell, Search, User } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { User as UserType } from '@prisma/client'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 interface AdminHeaderProps {
   user: Pick<UserType, 'name' | 'role'>
@@ -14,7 +15,7 @@ export default function AdminHeader({ user }: AdminHeaderProps) {
   const [showSearch, setShowSearch] = useState(false)
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-white px-4 py-3 shadow-sm lg:px-6">
+    <header className="bg-background text-foreground border-b mt-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           {/* Mobile Menu Button */}
@@ -23,7 +24,7 @@ export default function AdminHeader({ user }: AdminHeaderProps) {
           </Button>
 
           {/* Search */}
-          <div className="hidden md:block relative w-64">
+          <div className="hidden md:block relative w-64 ml-5 pb-2">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <Input
               placeholder="Search..."
@@ -42,7 +43,7 @@ export default function AdminHeader({ user }: AdminHeaderProps) {
           >
             <Search className="h-5 w-5" />
           </Button>
-
+      <ThemeToggle />
           {/* Notifications */}
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />

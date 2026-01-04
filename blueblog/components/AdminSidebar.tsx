@@ -49,7 +49,7 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
       {/* Mobile Overlay */}
       {isCollapsed && (
         <div 
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          className="fixed inset-0 z-40 bg-background lg:hidden"
           onClick={() => setIsCollapsed(false)}
         />
       )}
@@ -62,7 +62,7 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
           x: isCollapsed ? '-16rem' : '0',
         }}
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex flex-col border-r bg-white shadow-lg transition-all duration-300 lg:relative lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-50 flex flex-col border-r bg-background shadow-lg transition-all duration-300 lg:relative lg:translate-x-0',
           isCollapsed ? 'lg:w-20' : 'lg:w-64'
         )}
       >
@@ -70,15 +70,15 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
         <div className="flex h-16 items-center justify-between border-b px-4">
           {!isCollapsed && (
             <Link href="/admin/dashboard" className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary-600 to-primary-400" />
+              <div className="h-8 w-8 rounded-lg bg-background from-primary-600 to-primary-400" />
               <span className="text-xl font-bold text-gray-900">BlueBlog</span>
-              <span className="rounded-full bg-primary-100 px-2 py-1 text-xs font-medium text-primary-800">
+              <span className="rounded-full bg-background px-2 py-1 text-xs font-medium text-primary-800">
                 Admin
               </span>
             </Link>
           )}
           {isCollapsed && (
-            <div className="mx-auto h-8 w-8 rounded-lg bg-gradient-to-br from-primary-600 to-primary-400" />
+            <div className="mx-auto h-8 w-8 rounded-lg bg-background from-primary-600 to-primary-400" />
           )}
           <Button
             variant="ghost"
@@ -99,11 +99,12 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  'flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
-                  isActive
-                    ? 'bg-primary-50 text-primary-600'
-                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
-                )}
+  'flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
+  isActive
+    ? 'bg-primary/10 text-primary'
+    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+)}
+
                 title={isCollapsed ? item.name : undefined}
               >
                 <item.icon className={cn('h-5 w-5', isCollapsed ? 'mx-auto' : 'mr-3')} />
@@ -117,7 +118,7 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
         <div className="border-t p-4">
           {!isCollapsed ? (
             <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary-600 to-primary-400" />
+              <div className="h-10 w-10 rounded-full bg-background from-primary-600 to-primary-400" />
               <div className="flex-1 overflow-hidden">
                 <p className="truncate text-sm font-medium text-gray-900">{user.name}</p>
                 <p className="truncate text-xs text-gray-500">{user.email}</p>
@@ -126,7 +127,7 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
             </div>
           ) : (
             <div className="flex justify-center">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary-600 to-primary-400" />
+              <div className="h-10 w-10 rounded-full bg-background from-primary-600 to-primary-400" />
             </div>
           )}
 

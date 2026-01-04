@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
-import { uploadImage } from '@/lib/cloudinary'
+import { uploadImage } from '@/lib/cloudinary.upload'
+
 import { requireAuth } from '@/lib/auth'
 
 const uploadSchema = z.object({
