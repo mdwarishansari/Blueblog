@@ -4,25 +4,33 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Folder, 
-  Image, 
-  Users, 
-  Settings, 
+import {
+  LayoutDashboard,
+  FileText,
+  Folder,
+  Image,
+  Users,
+  Settings,
   MessageSquare,
   User,
   ChevronLeft,
   ChevronRight,
-  LogOut
+  LogOut,
 } from 'lucide-react'
-import { User as UserType } from '@prisma/client'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 
 interface AdminSidebarProps {
-  user: Pick<UserType, 'name' | 'email' | 'role' | 'profileImage'>
+  user: {
+    name: string
+    email: string
+    role: 'ADMIN' | 'EDITOR' | 'WRITER'
+    profileImage?: string | null
+  }
+  settings: {
+    site_name?: string
+    site_logo?: string
+  }
 }
 
 const navigation = [
@@ -36,118 +44,92 @@ const navigation = [
   { name: 'Account', href: '/admin/account', icon: User, roles: ['ADMIN', 'EDITOR', 'WRITER'] },
 ]
 
-export default function AdminSidebar({ user }: AdminSidebarProps) {
+export default function AdminSidebar({ user, settings }: AdminSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const pathname = usePathname()
 
-  const filteredNavigation = navigation.filter(item => 
+  const filteredNavigation = navigation.filter(item =>
     item.roles.includes(user.role)
   )
 
   return (
-    <>
-      {/* Mobile Overlay */}
-      {isCollapsed && (
-        <div 
-          className="fixed inset-0 z-40 bg-background lg:hidden"
-          onClick={() => setIsCollapsed(false)}
-        />
+    <motion.aside
+      initial={false}
+      animate={{ width: isCollapsed ? '5rem' : '16rem' }}
+      className={cn(
+        'fixed inset-y-0 left-0 z-50 flex flex-col border-r bg-background shadow-lg lg:relative',
+        isCollapsed ? 'lg:w-20' : 'lg:w-64'
       )}
-
-      {/* Sidebar */}
-      <motion.aside
-        initial={false}
-        animate={{ 
-          width: isCollapsed ? '5rem' : '16rem',
-          x: isCollapsed ? '-16rem' : '0',
-        }}
-        className={cn(
-          'fixed inset-y-0 left-0 z-50 flex flex-col border-r bg-background shadow-lg transition-all duration-300 lg:relative lg:translate-x-0',
-          isCollapsed ? 'lg:w-20' : 'lg:w-64'
+    >
+      {/* LOGO */}
+      <div className="flex h-16 items-center justify-between border-b px-4">
+        {!isCollapsed && (
+          <Link href="/admin/dashboard" className="flex items-center gap-2">
+            <img
+              src={settings.site_logo || '/logo-placeholder.png'}
+              alt="Site Logo"
+              className="h-8 w-8 object-contain"
+            />
+            <span className="text-lg font-bold truncate">
+              {settings.site_name || 'Site'}
+            </span>
+          </Link>
         )}
-      >
-        {/* Logo */}
-        <div className="flex h-16 items-center justify-between border-b px-4">
-          {!isCollapsed && (
-            <Link href="/admin/dashboard" className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-lg bg-background from-primary-600 to-primary-400" />
-              <span className="text-xl font-bold text-gray-900">BlueBlog</span>
-              <span className="rounded-full bg-background px-2 py-1 text-xs font-medium text-primary-800">
-                Admin
-              </span>
-            </Link>
-          )}
-          {isCollapsed && (
-            <div className="mx-auto h-8 w-8 rounded-lg bg-background from-primary-600 to-primary-400" />
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="hidden lg:inline-flex"
-          >
-            {isCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
-          </Button>
-        </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-          {filteredNavigation.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-  'flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
-  isActive
-    ? 'bg-primary/10 text-primary'
-    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-)}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="hidden lg:inline-flex"
+        >
+          {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
+        </Button>
+      </div>
 
-                title={isCollapsed ? item.name : undefined}
-              >
-                <item.icon className={cn('h-5 w-5', isCollapsed ? 'mx-auto' : 'mr-3')} />
-                {!isCollapsed && <span>{item.name}</span>}
-              </Link>
-            )
-          })}
-        </nav>
-
-        {/* User Profile */}
-        <div className="border-t p-4">
-          {!isCollapsed ? (
-            <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 rounded-full bg-background from-primary-600 to-primary-400" />
-              <div className="flex-1 overflow-hidden">
-                <p className="truncate text-sm font-medium text-gray-900">{user.name}</p>
-                <p className="truncate text-xs text-gray-500">{user.email}</p>
-                <p className="mt-1 text-xs font-medium text-primary-600">{user.role}</p>
-              </div>
-            </div>
-          ) : (
-            <div className="flex justify-center">
-              <div className="h-10 w-10 rounded-full bg-background from-primary-600 to-primary-400" />
-            </div>
-          )}
-
-          {/* Logout Button */}
-          <form action="/api/auth/logout" method="POST" className={cn('mt-4', isCollapsed && 'flex justify-center')}>
-            <Button
-              type="submit"
-              variant="ghost"
-              size={isCollapsed ? "icon" : "default"}
+      {/* NAV */}
+      <nav className="flex-1 space-y-1 overflow-y-auto p-4">
+        {filteredNavigation.map(item => {
+          const active = pathname.startsWith(item.href)
+          return (
+            <Link
+              key={item.name}
+              href={item.href}
               className={cn(
-                'w-full justify-start text-gray-700 hover:bg-red-50 hover:text-red-600',
-                isCollapsed && 'justify-center'
+                'flex items-center rounded-lg px-3 py-2.5 text-sm font-medium',
+                active
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-muted-foreground hover:bg-muted'
               )}
             >
-              <LogOut className={cn('h-5 w-5', !isCollapsed && 'mr-2')} />
-              {!isCollapsed && 'Logout'}
-            </Button>
-          </form>
+              <item.icon className="h-5 w-5 mr-3" />
+              {!isCollapsed && item.name}
+            </Link>
+          )
+        })}
+      </nav>
+
+      {/* USER */}
+      <div className="border-t p-4">
+        <div className="flex items-center gap-3">
+          <img
+            src={user.profileImage || '/avatars/default.png'}
+            className="h-10 w-10 rounded-full object-cover border"
+          />
+          {!isCollapsed && (
+            <div className="overflow-hidden">
+              <p className="truncate text-sm font-medium">{user.name}</p>
+              <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+              <p className="text-xs text-primary">{user.role}</p>
+            </div>
+          )}
         </div>
-      </motion.aside>
-    </>
+
+        <form action="/api/auth/logout" method="POST" className="mt-4">
+          <Button variant="ghost" className="w-full justify-start text-red-600">
+            <LogOut className="mr-2 h-5 w-5" /> Logout
+          </Button>
+        </form>
+      </div>
+    </motion.aside>
   )
 }

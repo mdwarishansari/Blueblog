@@ -1,80 +1,76 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 
-const settingsSchema = z.object({
-  site_name: z.string().min(1, 'Site name is required'),
-  site_description: z.string().optional(),
-  contact_email: z.string().email('Invalid email').optional(),
-  social_links: z.record(z.string()).optional(),
-  footer_text: z.string().optional(),
-  feature_flags: z.record(z.any()).optional(),
-})
-
-export async function GET(request: NextRequest) {
+/* ---------------- GET SETTINGS ---------------- */
+export async function GET() {
   try {
-    await requireAuth(['ADMIN'])
-    
-    const settings = await prisma.setting.findMany()
-    
-    // Convert to key-value object
-    const settingsObj: Record<string, any> = {}
-    settings.forEach(setting => {
-      try {
-        settingsObj[setting.key] = JSON.parse(setting.value)
-      } catch {
-        settingsObj[setting.key] = setting.value
+    await requireAuth()
+
+    const rows = await prisma.setting.findMany()
+
+    const settings = {
+      site_name: '',
+      site_description: '',
+      contact_email: '',
+      footer_text: '',
+      social_links: {},
+    }
+
+    for (const row of rows) {
+      if (row.key === 'social_links') {
+        try {
+          settings.social_links = JSON.parse(row.value)
+        } catch {
+          settings.social_links = {}
+        }
+      } else {
+        ;(settings as any)[row.key] = row.value
       }
-    })
-    
-    return NextResponse.json(settingsObj)
-  } catch (error: any) {
-    console.error('Get settings error:', error)
+    }
+
+    return NextResponse.json(settings)
+  } catch (e) {
+    console.error(e)
     return NextResponse.json(
-      { message: error.message || 'Failed to fetch settings' },
+      { message: 'Failed to load settings' },
       { status: 500 }
     )
   }
 }
 
-export async function PUT(request: NextRequest) {
+/* ---------------- UPDATE SETTINGS ---------------- */
+export async function PUT(req: NextRequest) {
   try {
-    await requireAuth(['ADMIN'])
-    
-    const body = await request.json()
-    const data = settingsSchema.parse(body)
-    
-    const updates = Object.entries(data).map(([key, value]) => {
-      return prisma.setting.upsert({
-        where: { key },
-        update: {
-          value: typeof value === 'object' ? JSON.stringify(value) : String(value),
-        },
-        create: {
-          key,
-          value: typeof value === 'object' ? JSON.stringify(value) : String(value),
-        },
-      })
-    })
-    
-    await prisma.$transaction(updates)
-    
-    return NextResponse.json({
-      message: 'Settings updated successfully',
-    })
-  } catch (error) {
-    console.error('Update settings error:', error)
-    
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { message: 'Validation error', errors: error.errors },
-        { status: 400 }
-      )
+    const user = await requireAuth()
+    if (user.role !== 'ADMIN') {
+      return NextResponse.json({ message: 'Forbidden' }, { status: 403 })
     }
-    
+
+    const body = await req.json()
+
+    const entries: Array<[string, string]> = [
+      ['site_name', body.site_name || ''],
+      ['site_description', body.site_description || ''],
+      ['contact_email', body.contact_email || ''],
+      ['footer_text', body.footer_text || ''],
+      ['site_logo', body.site_logo || ''], 
+      ['social_links', JSON.stringify(body.social_links || {})],
+    ]
+
+    for (const [key, value] of entries) {
+      await prisma.setting.upsert({
+        where: { key },
+        update: { value },
+        create: { key, value },
+      })
+    }
+
+    return NextResponse.json({ message: 'Settings saved successfully' })
+  } catch (e) {
+    console.error(e)
     return NextResponse.json(
-      { message: 'Failed to update settings' },
+      { message: 'Failed to save settings' },
       { status: 500 }
     )
   }

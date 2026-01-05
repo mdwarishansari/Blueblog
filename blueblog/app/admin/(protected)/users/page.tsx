@@ -12,6 +12,7 @@ interface UserData {
   name: string
   email: string
   role: string
+  profileImage?: string | null
   createdAt: string
   _count: {
     posts: number
@@ -184,9 +185,20 @@ export default function AdminUsersPage() {
                 <tr key={user.id} className="hover:bg-gray-50">
                   <td className="whitespace-nowrap px-6 py-4">
                     <div className="flex items-center">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary-600 to-primary-400 text-white">
-                        <UserIcon className="h-5 w-5" />
-                      </div>
+<div className="h-10 w-10 overflow-hidden rounded-full bg-gray-100">
+  {user.profileImage ? (
+    <img
+      src={user.profileImage}
+      alt={user.name}
+      className="h-full w-full object-cover"
+    />
+  ) : (
+    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary-600 to-primary-400 text-white">
+      <UserIcon className="h-5 w-5" />
+    </div>
+  )}
+</div>
+
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">
                           {user.name}
@@ -279,7 +291,6 @@ export default function AdminUsersPage() {
             >
               <option value="WRITER">Writer</option>
               <option value="EDITOR">Editor</option>
-              <option value="ADMIN">Admin</option>
             </select>
           </div>
           

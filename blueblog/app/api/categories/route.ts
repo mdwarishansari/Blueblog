@@ -9,33 +9,14 @@ const categorySchema = z.object({
 })
 
 // Get all categories (public)
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url)
-    const withPosts = searchParams.get('withPosts') === 'true'
-
     const categories = await prisma.category.findMany({
       include: {
         image: true,
-        ...(withPosts && {
-          posts: {
-            where: {
-              status: 'PUBLISHED',
-              publishedAt: { lte: new Date() },
-            },
-            take: 5,
-            orderBy: { publishedAt: 'desc' },
-            include: {
-              author: {
-                select: {
-                  id: true,
-                  name: true,
-                  profileImage: true,
-                },
-              },
-            },
-          },
-        }),
+        _count: {
+          select: { posts: true },
+        },
       },
       orderBy: { name: 'asc' },
     })

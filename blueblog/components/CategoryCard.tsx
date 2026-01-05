@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Folder, ChevronRight } from 'lucide-react'
 import { Category, Image as ImageType } from '@prisma/client'
-import { getOptimizedImageUrl } from '@/lib/cloudinary'
+import { getOptimizedImageUrl } from '@/lib/cloudinary.utils'
 
 interface CategoryCardProps {
   category: Category & {

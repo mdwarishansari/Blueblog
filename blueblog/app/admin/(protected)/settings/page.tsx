@@ -11,6 +11,7 @@ interface SiteSettings {
   site_description: string
   contact_email: string
   footer_text: string
+  site_logo?: string
   social_links: {
     twitter?: string
     facebook?: string
@@ -27,6 +28,7 @@ export default function AdminSettingsPage() {
     site_description: '',
     contact_email: '',
     footer_text: '',
+    site_logo: '',
     social_links: {}
   })
 
@@ -48,6 +50,31 @@ export default function AdminSettingsPage() {
       setLoading(false)
     }
   }
+
+  const uploadLogo = async (file: File) => {
+  // instant preview
+  const localPreview = URL.createObjectURL(file)
+  setSettings(s => ({ ...s, site_logo: localPreview }))
+
+  const form = new FormData()
+  form.append('file', file)
+
+  const res = await fetch('/api/upload/cloudinary', {
+    method: 'POST',
+    body: form,
+  })
+
+  const data = await res.json()
+
+  if (!res.ok || !data.image?.url) {
+    toast.error('Logo upload failed')
+    return
+  }
+
+  // replace preview with real url
+  setSettings(s => ({ ...s, site_logo: data.image.url }))
+}
+
 
   const handleSave = async () => {
     setSaving(true)
@@ -99,6 +126,33 @@ export default function AdminSettingsPage() {
               <p className="text-sm text-gray-600">Basic site configuration</p>
             </div>
           </div>
+
+          <div>
+  <label className="block text-sm font-medium text-gray-700">
+    Site Logo
+  </label>
+
+  <div className="flex items-center gap-4 mt-2">
+    <img
+      src={settings.site_logo || '/logo-placeholder.png'}
+      alt="Site Logo"
+      className="h-16 w-16 rounded-lg border object-contain bg-white"
+    />
+
+    <label className="cursor-pointer text-sm text-primary-600">
+      Change Logo
+      <input
+        type="file"
+        hidden
+        accept="image/*"
+        onChange={e =>
+          e.target.files && uploadLogo(e.target.files[0])
+        }
+      />
+    </label>
+  </div>
+</div>
+
 
           <div className="space-y-4">
             <div>

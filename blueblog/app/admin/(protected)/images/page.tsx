@@ -96,9 +96,11 @@ export default function AdminImagesPage() {
     if (!confirm('Are you sure you want to delete this image?')) return
 
     try {
-      const response = await fetch(`/api/admin/images/${id}`, {
-        method: 'DELETE',
-      })
+      const response = await fetch(`/api/images/${id}`, {
+  method: 'DELETE',
+})
+
+
 
       const data = await response.json()
 

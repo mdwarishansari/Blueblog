@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { Calendar, User, Tag } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { Post, User as UserType, Category, Image as ImageType } from '@prisma/client'
-import { getOptimizedImageUrl } from '@/lib/cloudinary'
+import { getOptimizedImageUrl } from '@/lib/cloudinary.utils'
 
 interface PostCardProps {
   post: Post & {

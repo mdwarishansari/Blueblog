@@ -38,3 +38,11 @@
     display: none;
   }
 }
+
+/* .footer-link {
+  @apply text-muted-foreground hover:text-primary transition-colors;
+}
+
+.social-icon {
+  @apply h-5 w-5 text-muted-foreground hover:text-primary transition-colors;
+} */

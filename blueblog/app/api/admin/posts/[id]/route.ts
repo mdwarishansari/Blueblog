@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
+import { z } from 'zod'
 
 const postSchema = z.object({
   title: z.string().min(1),
@@ -17,19 +17,18 @@ const postSchema = z.object({
   categoryIds: z.array(z.string()).optional(),
 })
 
-/* ------------------------------------------------------------------ */
-/* GET (ADMIN ONLY — NO PUBLISHED FILTER)                              */
-/* ------------------------------------------------------------------ */
+/* ---------------- GET (ADMIN) ---------------- */
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  ctx: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await ctx.params
     const user = await requireAuth()
 
     const post = await prisma.post.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         categories: true,
         bannerImage: true,
@@ -40,7 +39,6 @@ export async function GET(
       return NextResponse.json({ message: 'Post not found' }, { status: 404 })
     }
 
-    // Writers can edit only their own posts
     if (user.role === 'WRITER' && post.authorId !== user.id) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 })
     }
@@ -55,22 +53,23 @@ export async function GET(
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* PUT                                                                */
-/* ------------------------------------------------------------------ */
+/* ---------------- PUT (ADMIN) ---------------- */
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  ctx: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await ctx.params
+    await requireAuth()
+
     const body = await req.json()
     const data = postSchema.parse(body)
 
     const existing = await prisma.post.findFirst({
       where: {
         slug: data.slug,
-        id: { not: params.id },
+        id: { not: id },
       },
     })
 
@@ -82,7 +81,7 @@ export async function PUT(
     }
 
     const post = await prisma.post.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title: data.title,
         slug: data.slug,

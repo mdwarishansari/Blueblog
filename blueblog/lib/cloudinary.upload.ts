@@ -1,5 +1,5 @@
 // lib/cloudinary.upload.ts
-import cloudinary from './cloudinary.server'
+import cloudinary from './cloudinary'
 
 export interface UploadResult {
   url: string
@@ -25,6 +25,7 @@ export async function uploadImage(
       },
       (error, result) => {
         if (error || !result) return reject(error)
+
         resolve({
           url: result.secure_url,
           publicId: result.public_id,

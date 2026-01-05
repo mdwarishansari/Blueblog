@@ -1,363 +1,239 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import toast from 'react-hot-toast'
-import { Save, Eye, Image as ImageIcon } from 'lucide-react'
-
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Category, Image as ImageType, UserRole } from '@prisma/client'
+import { Category, UserRole } from '@prisma/client'
 
 const Editor = dynamic(() => import('@/components/Editor'), { ssr: false })
 
-/* ----------------------------- TYPES ----------------------------- */
-
-interface PostData {
-  title: string
-  slug: string
-  excerpt: string
-  content: string
-  bannerImageId: string | null
-  seoTitle: string
-  seoDescription: string
-  canonicalUrl: string
-  categoryIds: string[]
-}
-
-/* ----------------------------- HELPERS ---------------------------- */
-
-const slugify = (value: string) =>
-  value
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/--+/g, '-')
-
-/* ------------------------------ PAGE ------------------------------ */
+const slugify = (v: string) =>
+  v.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-')
 
 export default function NewPostPage() {
-  const router = useRouter()
+  const userRole: UserRole = 'ADMIN'
+  const canPublish = userRole !== 'WRITER'
+const [postId, setPostId] = useState<string | null>(null)
 
-  // ⚠️ TEMP: replace with real user from auth context
-  const userRole: UserRole = 'ADMIN' // WRITER | EDITOR | ADMIN
-const [slugTouched, setSlugTouched] = useState(false)
-
-  const canPublish = userRole === 'ADMIN' || userRole === 'EDITOR'
-
-  const [loading, setLoading] = useState(true)
+  const [slugTouched, setSlugTouched] = useState(false)
+  const [categories, setCategories] = useState<Category[]>([])
+  const [image, setImage] = useState<any>(null)
   const [saving, setSaving] = useState(false)
 
-  const [categories, setCategories] = useState<Category[]>([])
-  const [images, setImages] = useState<ImageType[]>([])
-
-  const [post, setPost] = useState<PostData>({
+  const [post, setPost] = useState<any>({
     title: '',
     slug: '',
     excerpt: '',
-    content: '',
-    bannerImageId: null,
+    content: { type: 'doc', content: [] },
+    categoryIds: [],
     seoTitle: '',
     seoDescription: '',
     canonicalUrl: '',
-    categoryIds: [],
   })
-useEffect(() => {
-  if (!slugTouched && post.title) {
-    setPost(p => ({ ...p, slug: slugify(p.title) }))
-  }
-}, [post.title, slugTouched])
 
-  /* --------------------------- LOAD META --------------------------- */
-
+  /** Slug auto-gen (single source of truth) */
   useEffect(() => {
-    const load = async () => {
-      try {
-        const [cRes, iRes] = await Promise.all([
-          fetch('/api/categories'),
-          fetch('/api/upload/cloudinary'),
-        ])
-
-        if (cRes.ok) setCategories(await cRes.json())
-        if (iRes.ok) setImages((await iRes.json()).images ?? [])
-      } catch {
-        toast.error('Failed to load editor data')
-      } finally {
-        setLoading(false)
-      }
+    if (!slugTouched && post.title) {
+      setPost((p: any) => ({ ...p, slug: slugify(p.title) }))
     }
+  }, [post.title, slugTouched])
 
-    load()
+  /** Load categories */
+  useEffect(() => {
+    fetch('/api/categories').then(r => r.json()).then(setCategories)
   }, [])
 
-  /* --------------------------- AUTO SLUG --------------------------- */
-
-  useEffect(() => {
-    if (!post.slug && post.title) {
-      setPost(p => ({ ...p, slug: slugify(p.title) }))
-    }
-  }, [post.title])
-
-  /* --------------------------- SEO SCORE --------------------------- */
-
+  /** SEO score (realistic) */
   const seoScore = useMemo(() => {
-    let score = 0
-    if (post.seoTitle.length >= 40) score += 40
-    if (post.seoDescription.length >= 120) score += 40
-    if (post.slug.length > 0) score += 20
-    return score
+    let s = 0
+    if (post.seoTitle.length >= 40 && post.seoTitle.length <= 60) s += 40
+    if (post.seoDescription.length >= 120 && post.seoDescription.length <= 160) s += 40
+    if (post.slug) s += 20
+    return s
   }, [post])
 
-  /* --------------------------- SAVE --------------------------- */
+  async function uploadImage(file: File) {
+    const fd = new FormData()
+    fd.append('file', file)
 
-  const savePost = async (publish: boolean) => {
-    setSaving(true)
-    try {
-      const res = await fetch('/api/admin/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...post,
-          slug: post.slug || slugify(post.title),
-          status: publish ? 'PUBLISHED' : 'DRAFT',
-          publishedAt: publish ? new Date().toISOString() : null,
-        }),
-      })
+    const res = await fetch('/api/upload/cloudinary', { method: 'POST', body: fd })
+    const data = await res.json()
 
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.message)
-
-      toast.success(publish ? 'Post published 🎉' : 'Draft saved')
-      router.push(`/admin/posts/${data.post.id}`)
-    } catch (e: any) {
-      toast.error(e.message || 'Failed to save post')
-    } finally {
-      setSaving(false)
-    }
+    if (!res.ok) throw new Error(data.message)
+    setImage(data.image)
   }
 
-  /* --------------------------- UI --------------------------- */
+  async function save(publish: boolean) {
+  setSaving(true)
 
-  if (loading) {
-    return <div className="flex h-64 items-center justify-center">Loading editor…</div>
+  const url = postId
+    ? `/api/admin/posts/${postId}`
+    : '/api/admin/posts'
+
+  const method = postId ? 'PUT' : 'POST'
+
+  const res = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ...post,
+      bannerImageId: image?.id || null,
+      status: publish ? 'PUBLISHED' : 'DRAFT',
+      publishedAt: publish ? new Date().toISOString() : undefined,
+
+    }),
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    toast.error(data.message || 'Failed to save post')
+  } else {
+    toast.success(publish ? 'Post published' : 'Draft saved')
+
+    // 🔥 IMPORTANT: store postId after first save
+    if (!res.ok) {
+  toast.error(data.message || 'Failed to save post')
+} else {
+  toast.success(publish ? 'Post published' : 'Draft saved')
+
+  // store postId after first save
+  if (!postId) {
+    setPostId(data.post.id)
   }
 
-  const selectedImage = images.find(i => i.id === post.bannerImageId)
+  // 🔥 SAVE IMAGE METADATA
+  if (image?.id) {
+    await fetch(`/api/images/${image.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        altText: image.altText,
+        title: image.title,
+        caption: image.caption,
+      }),
+    })
+  }
+}
+
+  }
+
+  setSaving(false)
+}
+
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Create New Post</h1>
-          <p className="text-gray-600">Draft or publish based on your role</p>
-        </div>
+    <div className="grid gap-6 lg:grid-cols-3">
+      {/* MAIN */}
+      <div className="lg:col-span-2 space-y-4">
+        <Input
+          placeholder="Post title"
+          value={post.title}
+          onChange={e => setPost({ ...post, title: e.target.value })}
+        />
 
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            loading={saving}
-            onClick={() => savePost(false)}
-          >
-            <Save className="h-4 w-4 mr-2" />
-            Save Draft
-          </Button>
+        <Input
+          placeholder="post-slug"
+          value={post.slug}
+          onChange={e => {
+            setSlugTouched(true)
+            setPost({ ...post, slug: slugify(e.target.value) })
+          }}
+        />
 
-          {canPublish && (
-            <Button loading={saving} onClick={() => savePost(true)}>
-              <Eye className="h-4 w-4 mr-2" />
-              Publish
-            </Button>
-          )}
-        </div>
+        <textarea
+          placeholder="Short excerpt"
+          value={post.excerpt}
+          onChange={e => setPost({ ...post, excerpt: e.target.value })}
+          className="w-full rounded border p-2 bg-background"
+        />
+
+        <Editor value={post.content} onChange={v => setPost({ ...post, content: v })} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* MAIN */}
-        <div className="lg:col-span-2 space-y-6">
-          <Input
-            placeholder="Post title"
-            value={post.title}
-            onChange={e => setPost({ ...post, title: e.target.value })}
-            className="text-2xl font-bold"
+      {/* SIDEBAR */}
+      <div className="space-y-6">
+        {/* Image */}
+        <div className="rounded border p-4">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={e => e.target.files && uploadImage(e.target.files[0])}
           />
 
-          <Input
-  placeholder="post-slug"
-  value={post.slug}
-  onChange={e => {
-    setSlugTouched(true)
-    setPost({ ...post, slug: slugify(e.target.value) })
-  }}
-/>
-
-
-          <textarea
-            rows={3}
-            placeholder="Short excerpt (used in SEO & previews)"
-            value={post.excerpt}
-            onChange={e => setPost({ ...post, excerpt: e.target.value })}
-            className="w-full rounded-lg border px-3 py-2"
-          />
-
-          <Editor
-            value={post.content}
-            onChange={content => setPost({ ...post, content })}
-          />
-        </div>
-
-        {/* SIDEBAR */}
-        <div className="space-y-6">
-          {/* IMAGE */}
-          <div className="rounded-xl border bg-white p-6">
-            <h3 className="font-semibold mb-3 flex items-center gap-2">
-              <ImageIcon className="h-4 w-4" />
-              Featured Image
-            </h3>
-
-            {selectedImage && (
-              <img
-                src={selectedImage.url}
-                className="mb-3 rounded-lg"
-                alt={selectedImage.altText || ''}
-              />
-            )}
-{selectedImage && (
+          {image && (
   <>
+    <img src={image.url} className="rounded mt-2" />
+
     <Input
-      placeholder="Image title"
-      value={selectedImage.title || ''}
-      onChange={e =>
-        setImages(imgs =>
-          imgs.map(i =>
-            i.id === selectedImage.id
-              ? { ...i, title: e.target.value }
-              : i
-          )
-        )
-      }
+      placeholder="Alt text (SEO – very important)"
+      value={image.altText || ''}
+      onChange={e => setImage({ ...image, altText: e.target.value })}
     />
 
     <Input
-      placeholder="Alt text (SEO)"
-      value={selectedImage.altText || ''}
-      onChange={e =>
-        setImages(imgs =>
-          imgs.map(i =>
-            i.id === selectedImage.id
-              ? { ...i, altText: e.target.value }
-              : i
-          )
-        )
-      }
+      placeholder="Image title"
+      value={image.title || ''}
+      onChange={e => setImage({ ...image, title: e.target.value })}
+    />
+
+    <textarea
+      placeholder="Image caption (optional)"
+      value={image.caption || ''}
+      onChange={e => setImage({ ...image, caption: e.target.value })}
+      className="w-full rounded border p-2 bg-background"
+      rows={2}
     />
   </>
 )}
 
-            <select
-              className="w-full rounded border px-2 py-2"
-              value={post.bannerImageId || ''}
-              onChange={e =>
-                setPost({ ...post, bannerImageId: e.target.value || null })
-              }
-            >
-              <option value="">Select image</option>
-              {images.map(img => (
-                <option key={img.id} value={img.id}>
-                  {img.title || img.url.split('/').pop()}
-                </option>
-              ))}
-            </select>
-            <input
-  type="file"
-  accept="image/*"
-  onChange={async e => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    const form = new FormData()
-    form.append('file', file)
-
-    const res = await fetch('/api/upload/cloudinary', {
-      method: 'POST',
-      body: form,
-    })
-
-    const data = await res.json()
-    if (!res.ok) {
-      toast.error(data.message || 'Upload failed')
-      return
-    }
-
-    setImages(prev => [data.image, ...prev])
-    setPost(p => ({ ...p, bannerImageId: data.image.id }))
-    toast.success('Image uploaded')
-  }}
-/>
-
-          </div>
-
-          {/* CATEGORIES */}
-          <div className="rounded-xl border bg-white p-6">
-            <h3 className="font-semibold mb-3">Categories</h3>
-            {categories.map(cat => (
-              <label key={cat.id} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={post.categoryIds.includes(cat.id)}
-                  onChange={e =>
-                    setPost(p => ({
-                      ...p,
-                      categoryIds: e.target.checked
-                        ? [...p.categoryIds, cat.id]
-                        : p.categoryIds.filter(id => id !== cat.id),
-                    }))
-                  }
-                />
-                {cat.name}
-              </label>
-            ))}
-          </div>
-
-          {/* SEO */}
-          <div className="rounded-xl border bg-white p-6 space-y-3">
-            <h3 className="font-semibold">SEO</h3>
-
-            <div className="h-2 rounded bg-gray-200 overflow-hidden">
-              <div
-                className="h-full bg-green-500"
-                style={{ width: `${seoScore}%` }}
-              />
-            </div>
-            <p className="text-xs text-gray-500">SEO score: {seoScore}/100</p>
-
-            <Input
-              placeholder="SEO title (40–60 chars)"
-              value={post.seoTitle}
-              onChange={e => setPost({ ...post, seoTitle: e.target.value })}
-            />
-
-            <textarea
-              rows={3}
-              placeholder="SEO description (120–160 chars)"
-              value={post.seoDescription}
-              onChange={e =>
-                setPost({ ...post, seoDescription: e.target.value })
-              }
-              className="w-full rounded-lg border px-3 py-2"
-            />
-
-            <Input
-              placeholder="Canonical URL (optional)"
-              value={post.canonicalUrl}
-              onChange={e =>
-                setPost({ ...post, canonicalUrl: e.target.value })
-              }
-            />
-          </div>
         </div>
+
+        {/* Categories */}
+        <div className="rounded border p-4">
+          {categories.map(c => (
+            <label key={c.id} className="flex gap-2">
+              <input
+                type="checkbox"
+                checked={post.categoryIds.includes(c.id)}
+                onChange={e =>
+                  setPost((p: any) => ({
+                    ...p,
+                    categoryIds: e.target.checked
+                      ? [...p.categoryIds, c.id]
+                      : p.categoryIds.filter((x: string) => x !== c.id),
+                  }))
+                }
+              />
+              {c.name}
+            </label>
+          ))}
+        </div>
+
+        {/* SEO */}
+        <div className="rounded border p-4 space-y-2">
+          <div className="h-2 bg-muted rounded">
+            <div className="h-full bg-green-500" style={{ width: `${seoScore}%` }} />
+          </div>
+
+          <Input
+            placeholder="SEO title"
+            value={post.seoTitle}
+            onChange={e => setPost({ ...post, seoTitle: e.target.value })}
+          />
+
+          <textarea
+            placeholder="SEO description"
+            value={post.seoDescription}
+            onChange={e => setPost({ ...post, seoDescription: e.target.value })}
+            className="w-full rounded border p-2 bg-background"
+          />
+        </div>
+
+        <Button onClick={() => save(false)} loading={saving}>Save Draft</Button>
+        {canPublish && <Button onClick={() => save(true)}>Publish</Button>}
       </div>
     </div>
   )
