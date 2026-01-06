@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import rateLimit from '@/lib/rate-limit'
 
+
 const contactSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
@@ -18,7 +19,11 @@ const limiter = rateLimit({
 /* ---------------- PUBLIC: SEND MESSAGE ---------------- */
 export async function POST(request: NextRequest) {
   try {
-    const ip = request.ip ?? '127.0.0.1'
+    const ip =
+  request.headers.get('x-forwarded-for') ??
+  request.headers.get('x-real-ip') ??
+  '127.0.0.1'
+
     await limiter.check(5, ip)
 
     const body = await request.json()
@@ -29,7 +34,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'Message sent' })
   } catch (e) {
     if (e instanceof z.ZodError) {
-      return NextResponse.json({ message: e.errors[0].message }, { status: 400 })
+      return NextResponse.json(
+  { message: e.issues.at(0)?.message ?? 'Invalid input' },
+  { status: 400 }
+)
+
     }
     return NextResponse.json({ message: 'Failed to send message' }, { status: 500 })
   }

@@ -13,8 +13,11 @@ export async function GET() {
         : row.value
   }
 
+  const siteName = settings['site_name'] ?? 'BlueBlog'
+  const siteLogo = settings['site_logo'] ?? null
+
   return NextResponse.json({
-    siteName: settings.site_name || 'BlueBlog',
-    siteLogo: settings.site_logo || null,
+    siteName,
+    siteLogo,
   })
 }

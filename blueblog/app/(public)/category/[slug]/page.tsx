@@ -52,12 +52,14 @@ export async function generateMetadata(
   const category = await getCategory(slug)
   if (!category) return generateSEO()
 
-  return generateSEO({
-    title: category.name,
-    description: `Browse posts in ${category.name}`,
-    image: category.image?.url,
-    url: `/category/${category.slug}`,
-  })
+  const image = category.image?.url
+
+return generateSEO({
+  title: category.name,
+  description: `Browse posts in ${category.name}`,
+  url: `/category/${category.slug}`,
+  ...(image ? { image } : {}),
+})
 }
 
 /* ---------------- PAGE ---------------- */

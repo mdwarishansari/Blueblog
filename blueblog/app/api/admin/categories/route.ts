@@ -6,7 +6,7 @@ import { requireAuth } from '@/lib/auth'
 const schema = z.object({
   name: z.string().min(1),
   slug: z.string().min(1),
-  imageId: z.string().optional().nullable(),
+  imageId: z.string().nullable().optional(),
 })
 
 /* -------- CREATE -------- */
@@ -26,7 +26,13 @@ export async function POST(req: NextRequest) {
   }
 
   const category = await prisma.category.create({
-    data: body,
+    data: {
+      name: body.name,
+      slug: body.slug,
+      ...(body.imageId !== undefined && {
+        imageId: body.imageId,
+      }),
+    },
     include: {
       image: true,
       _count: { select: { posts: true } },

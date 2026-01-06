@@ -9,7 +9,7 @@ import {
   clearAuthCookies 
 } from '@/lib/auth'
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const cookieStore = await cookies()
     const refreshToken = cookieStore.get('refresh_token')?.value
@@ -82,7 +82,8 @@ export async function POST(request: NextRequest) {
       message: 'Token refreshed',
     })
 
-    await setAuthCookies(newAccessToken, newRefreshToken)
+    setAuthCookies(response, newAccessToken, newRefreshToken)
+
 
     return response
   } catch (error) {

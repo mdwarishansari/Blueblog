@@ -331,7 +331,11 @@ export default function AdminCategoriesPage() {
               accept="image/*"
               hidden
               disabled={uploading}
-              onChange={e => e.target.files && uploadImage(e.target.files[0])}
+              onChange={e => {
+  const file = e.currentTarget.files?.[0]
+  if (file) uploadImage(file)
+}}
+
             />
           </label>
 

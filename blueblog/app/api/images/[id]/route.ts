@@ -7,7 +7,7 @@ import { deleteFromCloudinary } from '@/lib/cloudinary.server'
 /* DELETE IMAGE (ADMIN ONLY)                                           */
 /* ------------------------------------------------------------------ */
 export async function DELETE(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

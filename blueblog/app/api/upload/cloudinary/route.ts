@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { uploadImage } from '@/lib/cloudinary.upload'
-
+import { Prisma } from '@prisma/client'
 import { requireAuth } from '@/lib/auth'
 
-const uploadSchema = z.object({
-  altText: z.string().optional(),
-  title: z.string().optional(),
-  caption: z.string().optional(),
-})
+// const uploadSchema = z.object({
+//   altText: z.string().optional(),
+//   title: z.string().optional(),
+//   caption: z.string().optional(),
+// })
 
 export async function POST(request: NextRequest) {
   try {
@@ -61,13 +61,14 @@ export async function POST(request: NextRequest) {
     // Store image metadata in database
     const image = await prisma.image.create({
       data: {
-        url: uploadResult.url,
-        altText: altText || undefined,
-        title: title || undefined,
-        caption: caption || undefined,
-        width: uploadResult.width,
-        height: uploadResult.height,
-      },
+  url: uploadResult.url,
+  ...(altText && { altText }),
+  ...(title && { title }),
+  ...(caption && { caption }),
+  width: uploadResult.width,
+  height: uploadResult.height,
+},
+
     })
 
     return NextResponse.json({
@@ -87,7 +88,7 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { message: 'Validation error', errors: error.errors },
+        { message: 'Validation error', errors: error.issues },
         { status: 400 }
       )
     }
@@ -116,15 +117,31 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || ''
     const skip = (page - 1) * limit
 
-    const where = search
-      ? {
-          OR: [
-            { altText: { contains: search, mode: 'insensitive' } },
-            { title: { contains: search, mode: 'insensitive' } },
-            { caption: { contains: search, mode: 'insensitive' } },
-          ],
-        }
-      : {}
+    const where: Prisma.ImageWhereInput = search
+  ? {
+      OR: [
+        {
+          altText: {
+            contains: search,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+        {
+          title: {
+            contains: search,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+        {
+          caption: {
+            contains: search,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+      ],
+    }
+  : {}
+
 
     const [images, total] = await Promise.all([
       prisma.image.findMany({

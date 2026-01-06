@@ -13,18 +13,20 @@ const postSchema = z.object({
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
   canonicalUrl: z.string().optional(),
-  publishedAt: z.string().optional().transform(v => (v ? new Date(v) : null)),
+  publishedAt: z
+    .string()
+    .optional()
+    .transform(v => (v ? new Date(v) : null)),
   categoryIds: z.array(z.string()).optional(),
 })
 
-/* ---------------- GET (ADMIN) ---------------- */
-
+/* ---------------- GET ---------------- */
 export async function GET(
   _req: NextRequest,
-  ctx: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await ctx.params
+    const { id } = await params
     const user = await requireAuth()
 
     const post = await prisma.post.findUnique({
@@ -53,14 +55,13 @@ export async function GET(
   }
 }
 
-/* ---------------- PUT (ADMIN) ---------------- */
-
+/* ---------------- PUT ---------------- */
 export async function PUT(
   req: NextRequest,
-  ctx: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await ctx.params
+    const { id } = await params
     await requireAuth()
 
     const body = await req.json()
@@ -81,28 +82,39 @@ export async function PUT(
     }
 
     const post = await prisma.post.update({
-      where: { id },
-      data: {
-        title: data.title,
-        slug: data.slug,
-        excerpt: data.excerpt,
-        content: data.content,
-        bannerImageId: data.bannerImageId,
-        seoTitle: data.seoTitle,
-        seoDescription: data.seoDescription,
-        canonicalUrl: data.canonicalUrl,
-        status: data.status,
-        publishedAt: data.publishedAt,
-        categories: {
-          set: [],
-          connect: data.categoryIds?.map(id => ({ id })) || [],
-        },
-      },
-      include: {
-        categories: true,
-        bannerImage: true,
-      },
-    })
+  where: { id },
+  data: {
+    title: data.title,
+    slug: data.slug,
+    content: data.content,
+    status: data.status,
+
+    ...(data.excerpt !== undefined && { excerpt: data.excerpt }),
+    ...(data.bannerImageId !== undefined && {
+      bannerImageId: data.bannerImageId,
+    }),
+    ...(data.seoTitle !== undefined && { seoTitle: data.seoTitle }),
+    ...(data.seoDescription !== undefined && {
+      seoDescription: data.seoDescription,
+    }),
+    ...(data.canonicalUrl !== undefined && {
+      canonicalUrl: data.canonicalUrl,
+    }),
+    ...(data.publishedAt !== undefined && {
+      publishedAt: data.publishedAt,
+    }),
+
+    categories: {
+      set: [],
+      connect: data.categoryIds?.map(cid => ({ id: cid })) ?? [],
+    },
+  },
+  include: {
+    categories: true,
+    bannerImage: true,
+  },
+})
+
 
     return NextResponse.json({ post })
   } catch (e) {
@@ -117,10 +129,10 @@ export async function PUT(
 /* ---------------- DELETE ---------------- */
 export async function DELETE(
   _req: NextRequest,
-  ctx: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await ctx.params
+    const { id } = await params
     const user = await requireAuth()
 
     const post = await prisma.post.findUnique({
@@ -132,7 +144,6 @@ export async function DELETE(
       return NextResponse.json({ message: 'Post not found' }, { status: 404 })
     }
 
-    // WRITER: can delete only own post
     if (user.role === 'WRITER' && post.authorId !== user.id) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 })
     }

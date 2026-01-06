@@ -13,23 +13,26 @@ const postSchema = z.object({
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
   canonicalUrl: z.string().optional(),
-  publishedAt: z.string().optional().transform(v => (v ? new Date(v) : null)),
+  publishedAt: z
+    .string()
+    .optional()
+    .transform(v => (v ? new Date(v) : null)),
   categoryIds: z.array(z.string()).optional(),
 })
 
 /* ------------------------------------------------------------------ */
-/* GET (ADMIN ONLY — NO PUBLISHED FILTER)                              */
+/* GET (ADMIN / EDITOR / WRITER OWN POST)                              */
 /* ------------------------------------------------------------------ */
-
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const user = await requireAuth()
 
     const post = await prisma.post.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         categories: true,
         bannerImage: true,
@@ -40,7 +43,6 @@ export async function GET(
       return NextResponse.json({ message: 'Post not found' }, { status: 404 })
     }
 
-    // Writers can edit only their own posts
     if (user.role === 'WRITER' && post.authorId !== user.id) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 })
     }
@@ -58,19 +60,21 @@ export async function GET(
 /* ------------------------------------------------------------------ */
 /* PUT                                                                */
 /* ------------------------------------------------------------------ */
-
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+    await requireAuth()
+
     const body = await req.json()
     const data = postSchema.parse(body)
 
     const existing = await prisma.post.findFirst({
       where: {
         slug: data.slug,
-        id: { not: params.id },
+        id: { not: id },
       },
     })
 
@@ -82,28 +86,35 @@ export async function PUT(
     }
 
     const post = await prisma.post.update({
-      where: { id: params.id },
-      data: {
-        title: data.title,
-        slug: data.slug,
-        excerpt: data.excerpt,
-        content: data.content,
-        bannerImageId: data.bannerImageId,
-        seoTitle: data.seoTitle,
-        seoDescription: data.seoDescription,
-        canonicalUrl: data.canonicalUrl,
-        status: data.status,
-        publishedAt: data.publishedAt,
-        categories: {
-          set: [],
-          connect: data.categoryIds?.map(id => ({ id })) || [],
-        },
-      },
-      include: {
-        categories: true,
-        bannerImage: true,
-      },
-    })
+  where: { id },
+  data: {
+    title: data.title,
+    slug: data.slug,
+    content: data.content,
+    status: data.status,
+
+    ...(data.excerpt && { excerpt: data.excerpt }),
+    ...(data.bannerImageId !== undefined && {
+      bannerImageId: data.bannerImageId,
+    }),
+    ...(data.seoTitle && { seoTitle: data.seoTitle }),
+    ...(data.seoDescription && {
+      seoDescription: data.seoDescription,
+    }),
+    ...(data.canonicalUrl && { canonicalUrl: data.canonicalUrl }),
+    ...(data.publishedAt && { publishedAt: data.publishedAt }),
+
+    categories: {
+      set: [],
+      connect: data.categoryIds?.map(cid => ({ id: cid })) ?? [],
+    },
+  },
+  include: {
+    categories: true,
+    bannerImage: true,
+  },
+})
+
 
     return NextResponse.json({ post })
   } catch (e) {

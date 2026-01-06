@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { Upload as UploadIcon, X, Image as ImageIcon } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { getOptimizedImageUrl } from '@/lib/cloudinary'
+
 
 interface UploadProps {
   onUploadComplete: (image: any) => void
@@ -79,10 +79,11 @@ export default function Upload({
         {preview && (
           <div className="relative overflow-hidden rounded-lg border">
             <img
-              src={getOptimizedImageUrl(preview, 400, 300)}
-              alt="Preview"
-              className="h-48 w-full object-cover"
-            />
+  src={preview}
+  alt="Preview"
+  className="h-48 w-full object-cover"
+/>
+
             <button
               type="button"
               onClick={handleRemove}

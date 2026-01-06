@@ -161,7 +161,13 @@ const [postId, setPostId] = useState<string | null>(null)
           <input
             type="file"
             accept="image/*"
-            onChange={e => e.target.files && uploadImage(e.target.files[0])}
+            onChange={e => {
+  const file = e.target.files?.[0]
+  if (file) {
+    uploadImage(file)
+  }
+}}
+
           />
 
           {image && (

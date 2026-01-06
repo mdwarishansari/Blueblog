@@ -4,7 +4,9 @@ import { prisma } from '@/lib/prisma'
 import PostCard from '@/components/PostCard'
 import CategoryCard from '@/components/CategoryCard'
 import { Button } from '@/components/ui/Button'
-const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || 'BlueBlog'
+const SITE_NAME =
+  process.env['NEXT_PUBLIC_SITE_NAME'] ?? 'BlueBlog'
+
 
 async function getFeaturedPosts() {
   return prisma.post.findMany({

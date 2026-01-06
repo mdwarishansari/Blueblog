@@ -125,28 +125,39 @@ export async function POST(request: NextRequest) {
 
     // Create post
     const post = await prisma.post.create({
-      data: {
-        title: data.title,
-        slug: data.slug,
-        excerpt: data.excerpt,
-        content: data.content,
-        bannerImageId: data.bannerImageId,
-        authorId: user.id,
-        seoTitle: data.seoTitle,
-        seoDescription: data.seoDescription,
-        canonicalUrl: data.canonicalUrl,
-        status: data.status,
-        publishedAt: data.publishedAt,
-        categories: {
-          connect: data.categoryIds?.map(id => ({ id })) || [],
-        },
-      },
-      include: {
-        author: true,
-        bannerImage: true,
-        categories: true,
-      },
-    })
+  data: {
+    title: data.title,
+    slug: data.slug,
+    content: data.content,
+    authorId: user.id,
+    status: data.status,
+
+    ...(data.excerpt !== undefined && { excerpt: data.excerpt }),
+    ...(data.bannerImageId !== undefined && {
+      bannerImageId: data.bannerImageId,
+    }),
+    ...(data.seoTitle !== undefined && { seoTitle: data.seoTitle }),
+    ...(data.seoDescription !== undefined && {
+      seoDescription: data.seoDescription,
+    }),
+    ...(data.canonicalUrl !== undefined && {
+      canonicalUrl: data.canonicalUrl,
+    }),
+    ...(data.publishedAt !== undefined && {
+      publishedAt: data.publishedAt,
+    }),
+
+    categories: {
+      connect: data.categoryIds?.map(id => ({ id })) ?? [],
+    },
+  },
+  include: {
+    author: true,
+    bannerImage: true,
+    categories: true,
+  },
+})
+
 
     return NextResponse.json({
       message: 'Post created successfully',
@@ -156,11 +167,12 @@ export async function POST(request: NextRequest) {
     console.error('Create post error:', error)
 
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { message: 'Validation error', errors: error.errors },
-        { status: 400 }
-      )
-    }
+  return NextResponse.json(
+    { message: 'Validation error', issues: error.issues },
+    { status: 400 }
+  )
+}
+
 
     return NextResponse.json(
       { message: 'Failed to create post' },

@@ -25,7 +25,7 @@ export default function AdminImagesPage() {
   const [search, setSearch] = useState('')
   const [uploading, setUploading] = useState(false)
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
-  const [selectedImage, setSelectedImage] = useState<ImageData | null>(null)
+  // const [selectedImage, setSelectedImage] = useState<ImageData | null>(null)
   const [uploadForm, setUploadForm] = useState({
     altText: '',
     title: '',

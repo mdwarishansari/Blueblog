@@ -31,7 +31,8 @@ export default function Editor({ value, onChange, className }: EditorProps) {
 
     const current = editor.getJSON()
     if (JSON.stringify(current) !== JSON.stringify(value)) {
-      editor.commands.setContent(value, false)
+      editor.commands.setContent(value, { emitUpdate: false })
+
     }
   }, [value, editor])
 

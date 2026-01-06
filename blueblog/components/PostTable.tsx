@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Eye, Edit, Trash2, MoreVertical, ExternalLink } from 'lucide-react'
+import { Eye, Edit, Trash2, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Post, User, Category, Image as ImageType } from '@prisma/client'
 import { formatDateTime } from '@/lib/utils'

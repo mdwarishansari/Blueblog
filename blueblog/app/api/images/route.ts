@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
+import { Prisma } from '@prisma/client'
 
+/* -------------------- SCHEMA -------------------- */
 const imageSchema = z.object({
   url: z.string().url('Invalid URL'),
   altText: z.string().optional(),
@@ -12,20 +14,37 @@ const imageSchema = z.object({
   height: z.number().optional(),
 })
 
+/* -------------------- GET IMAGES -------------------- */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '50')
-    const search = searchParams.get('search') || ''
+
+    const page = Number(searchParams.get('page') ?? 1)
+    const limit = Number(searchParams.get('limit') ?? 50)
+    const search = searchParams.get('search') ?? ''
     const skip = (page - 1) * limit
 
     const where = search
       ? {
           OR: [
-            { altText: { contains: search, mode: 'insensitive' } },
-            { title: { contains: search, mode: 'insensitive' } },
-            { caption: { contains: search, mode: 'insensitive' } },
+            {
+              altText: {
+                contains: search,
+                mode: Prisma.QueryMode.insensitive,
+              },
+            },
+            {
+              title: {
+                contains: search,
+                mode: Prisma.QueryMode.insensitive,
+              },
+            },
+            {
+              caption: {
+                contains: search,
+                mode: Prisma.QueryMode.insensitive,
+              },
+            },
           ],
         }
       : {}
@@ -58,6 +77,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
+/* -------------------- CREATE IMAGE -------------------- */
 export async function POST(request: NextRequest) {
   try {
     await requireAuth(['ADMIN', 'EDITOR'])
@@ -68,11 +88,11 @@ export async function POST(request: NextRequest) {
     const image = await prisma.image.create({
       data: {
         url: data.url,
-        altText: data.altText,
-        title: data.title,
-        caption: data.caption,
-        width: data.width,
-        height: data.height,
+        ...(data.altText && { altText: data.altText }),
+        ...(data.title && { title: data.title }),
+        ...(data.caption && { caption: data.caption }),
+        ...(data.width && { width: data.width }),
+        ...(data.height && { height: data.height }),
       },
     })
 
@@ -85,7 +105,7 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { message: 'Validation error', errors: error.errors },
+        { message: 'Validation error', errors: error.issues },
         { status: 400 }
       )
     }

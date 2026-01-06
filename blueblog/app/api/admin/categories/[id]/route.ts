@@ -20,7 +20,14 @@ export async function PUT(
 
   const category = await prisma.category.update({
     where: { id },
-    data: body,
+    data: {
+  name: body.name,
+  slug: body.slug,
+  ...(body.imageId !== undefined && {
+    imageId: body.imageId,
+  }),
+},
+
     include: {
       image: true,
       _count: { select: { posts: true } },

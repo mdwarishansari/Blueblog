@@ -2,6 +2,17 @@
 import cloudinary from './cloudinary'
 
 export async function deleteFromCloudinary(url: string) {
-  const publicId = url.split('/').pop()!.split('.')[0]
+  if (!url) return
+
+  const parts = url.split('/')
+  const filename = parts[parts.length - 1]
+  if (!filename) return
+
+  const dotIndex = filename.lastIndexOf('.')
+  const publicId =
+    dotIndex !== -1 ? filename.slice(0, dotIndex) : filename
+
+  if (!publicId) return
+
   await cloudinary.uploader.destroy(publicId)
 }

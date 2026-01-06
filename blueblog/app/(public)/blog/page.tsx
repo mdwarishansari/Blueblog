@@ -8,6 +8,7 @@ import PostCardSkeleton from '@/components/PostCardSkeleton'
 import CategoryFilter from '@/components/CategoryFilter'
 import { generateSEO } from '@/lib/seo'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 
 export const metadata: Metadata = generateSEO({
   title: 'Blog',
@@ -15,23 +16,35 @@ export const metadata: Metadata = generateSEO({
 })
 
 async function getPosts(categorySlug?: string, q?: string) {
+  const where: Prisma.PostWhereInput = {
+    status: 'PUBLISHED',
+    publishedAt: { lte: new Date() },
+  }
 
-  const where = {
-  status: 'PUBLISHED' as const,
-  publishedAt: { lte: new Date() },
-  ...(categorySlug && {
-    categories: { some: { slug: categorySlug } },
-  }),
-  ...(q && {
-    OR: [
-      { title: { contains: q, mode: 'insensitive' } },
-      { excerpt: { contains: q, mode: 'insensitive' } },
-    ],
-  }),
-}
+  if (categorySlug) {
+    where.categories = {
+      some: { slug: categorySlug },
+    }
+  }
 
+  if (q) {
+    where.OR = [
+      {
+        title: {
+          contains: q,
+          mode: Prisma.QueryMode.insensitive,
+        },
+      },
+      {
+        excerpt: {
+          contains: q,
+          mode: Prisma.QueryMode.insensitive,
+        },
+      },
+    ]
+  }
 
-  return await prisma.post.findMany({
+  return prisma.post.findMany({
     where,
     include: {
       author: {
@@ -49,6 +62,7 @@ async function getPosts(categorySlug?: string, q?: string) {
     },
   })
 }
+
 
 async function getCategories() {
   return await prisma.category.findMany({
@@ -176,10 +190,11 @@ export default async function BlogPage({
                     </div>
                     <h3 className="mb-2 text-xl font-semibold text-gray-900">No posts found</h3>
                     <p className="text-gray-600">
-                      {searchParams.category
-                        ? `No published posts in "${searchParams.category}" category yet.`
-                        : 'No published posts available yet.'
-                      }
+                      {params.category
+  ? `No published posts in "${params.category}" category yet.`
+  : 'No published posts available yet.'
+}
+
                     </p>
                   </div>
                 </div>

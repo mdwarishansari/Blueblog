@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { User, Mail, Lock, Save, Image as ImageIcon } from 'lucide-react'
+import { Lock, Save, Image as ImageIcon } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import toast from 'react-hot-toast'
@@ -87,30 +87,37 @@ const uploadImage = async (file: File) => {
   }
 
   /* -------- CHANGE PASSWORD -------- */
-  const changePassword = async () => {
-    if (password.newPassword !== password.confirmPassword) {
-      return toast.error('Passwords do not match')
-    }
-
-    setLoading(true)
-    try {
-      const res = await fetch('/api/admin/account/password', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(password),
-      })
-
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.message)
-
-      toast.success('Password updated')
-      setPassword({ currentPassword: '', newPassword: '', confirmPassword: '' })
-    } catch (e: any) {
-      toast.error(e.message)
-    } finally {
-      setLoading(false)
-    }
+const changePassword = async (): Promise<void> => {
+  if (password.newPassword !== password.confirmPassword) {
+    toast.error('Passwords do not match')
+    return
   }
+
+  setLoading(true)
+  try {
+    const res = await fetch('/api/admin/account/password', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(password),
+    })
+
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.message)
+
+    toast.success('Password updated')
+    setPassword({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    })
+  } catch (e: any) {
+    toast.error(e.message)
+  } finally {
+    setLoading(false)
+  }
+}
+
+
 
   return (
     <div className="space-y-10 max-w-3xl">
@@ -131,11 +138,15 @@ const uploadImage = async (file: File) => {
             <ImageIcon className="h-4 w-4" />
             Change photo
             <input
-              type="file"
-              hidden
-              accept="image/*"
-              onChange={e => e.target.files && uploadImage(e.target.files[0])}
-            />
+  type="file"
+  hidden
+  accept="image/*"
+  onChange={e => {
+    const file = e.currentTarget.files?.[0]
+    if (file) uploadImage(file)
+  }}
+/>
+
           </label>
         </div>
 

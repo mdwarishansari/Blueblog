@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import PostTable from '@/components/PostTable'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Plus, Search, Filter } from 'lucide-react'
+import { Plus, Search} from 'lucide-react'
 
 export default async function AdminPostsPage({
   searchParams,

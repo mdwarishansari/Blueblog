@@ -12,6 +12,9 @@ interface SEOProps {
   tags?: string[]
 }
 
+/* ------------------------------------------------------------------ */
+/* SEO METADATA                                                        */
+/* ------------------------------------------------------------------ */
 export function generateSEO({
   title,
   description,
@@ -23,16 +26,26 @@ export function generateSEO({
   author,
   tags = [],
 }: SEOProps = {}): Metadata {
-  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || 'BlueBlog'
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-  const defaultDescription = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'A modern, SEO-optimized blogging platform'
-  const defaultImage = `${siteUrl}${process.env.NEXT_PUBLIC_DEFAULT_OG_IMAGE || '/og-default.png'}`
-  const twitterHandle = process.env.NEXT_PUBLIC_TWITTER_HANDLE || '@techblog'
+  const siteName =
+    process.env['NEXT_PUBLIC_SITE_NAME'] ?? 'BlueBlog'
+
+  const siteUrl =
+    process.env['NEXT_PUBLIC_SITE_URL'] ?? 'http://localhost:3000'
+
+  const defaultDescription =
+    process.env['NEXT_PUBLIC_SITE_DESCRIPTION'] ??
+    'A modern, SEO-optimized blogging platform'
+
+  const defaultOgImage =
+    process.env['NEXT_PUBLIC_DEFAULT_OG_IMAGE'] ?? '/og-default.png'
+
+  const twitterHandle =
+    process.env['NEXT_PUBLIC_TWITTER_HANDLE'] ?? '@techblog'
 
   const seoTitle = title ? `${title} | ${siteName}` : siteName
-  const seoDescription = description || defaultDescription
-  const seoImage = image || defaultImage
-  const seoUrl = url || siteUrl
+  const seoDescription = description ?? defaultDescription
+  const seoImage = image ?? `${siteUrl}${defaultOgImage}`
+  const seoUrl = url ?? siteUrl
 
   return {
     title: seoTitle,
@@ -82,6 +95,9 @@ export function generateSEO({
   }
 }
 
+/* ------------------------------------------------------------------ */
+/* JSON-LD STRUCTURED DATA                                             */
+/* ------------------------------------------------------------------ */
 export function generateJSONLD({
   title,
   description,
@@ -104,18 +120,24 @@ export function generateJSONLD({
     url?: string
   }
 }) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-  const defaultImage = `${siteUrl}${process.env.NEXT_PUBLIC_DEFAULT_OG_IMAGE || '/og-default.png'}`
+  const siteUrl =
+    process.env['NEXT_PUBLIC_SITE_URL'] ?? 'http://localhost:3000'
+
+  const defaultOgImage =
+    process.env['NEXT_PUBLIC_DEFAULT_OG_IMAGE'] ?? '/og-default.png'
+
+  const siteName =
+    process.env['NEXT_PUBLIC_SITE_NAME'] ?? 'BlueBlog'
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': type,
     headline: title,
-    description: description,
-    image: image || defaultImage,
-    url: url,
+    description,
+    image: image ?? `${siteUrl}${defaultOgImage}`,
+    url,
     datePublished: publishedTime,
-    dateModified: modifiedTime || publishedTime,
+    dateModified: modifiedTime ?? publishedTime,
     author: author && {
       '@type': 'Person',
       name: author.name,
@@ -123,7 +145,7 @@ export function generateJSONLD({
     },
     publisher: {
       '@type': 'Organization',
-      name: process.env.NEXT_PUBLIC_SITE_NAME || 'BlueBlog',
+      name: siteName,
       logo: {
         '@type': 'ImageObject',
         url: `${siteUrl}/logo.png`,

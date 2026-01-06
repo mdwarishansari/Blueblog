@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Save, Globe, Mail, Link as LinkIcon, Settings as SettingsIcon } from 'lucide-react'
+import { Save, Globe, Link as LinkIcon, Settings as SettingsIcon } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import toast from 'react-hot-toast'
@@ -145,9 +145,13 @@ export default function AdminSettingsPage() {
         type="file"
         hidden
         accept="image/*"
-        onChange={e =>
-          e.target.files && uploadLogo(e.target.files[0])
-        }
+        onChange={e => {
+  const file = e.target.files?.[0]
+  if (file) {
+    uploadLogo(file)
+  }
+}}
+
       />
     </label>
   </div>

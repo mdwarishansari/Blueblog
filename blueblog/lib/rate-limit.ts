@@ -10,24 +10,25 @@ interface RateLimitResult {
 }
 
 export default function rateLimit(options: RateLimitOptions): RateLimitResult {
-  const tokenCache = new LRUCache({
+  const tokenCache = new LRUCache<string, number>({
     max: options.uniqueTokenPerInterval || 500,
     ttl: options.interval || 60000,
   })
 
   return {
-    check: (limit, token) =>
+    check: (limit: number, token: string) =>
       new Promise<void>((resolve, reject) => {
-        const tokenCount = (tokenCache.get(token) as number[]) || [0]
-        if (tokenCount[0] === 0) {
-          tokenCache.set(token, tokenCount)
+        // Always get a number
+        const currentUsage = tokenCache.get(token) ?? 0
+        const nextUsage = currentUsage + 1
+
+        tokenCache.set(token, nextUsage)
+
+        if (nextUsage > limit) {
+          reject(new Error('Rate limit exceeded'))
+        } else {
+          resolve()
         }
-        tokenCount[0] += 1
-
-        const currentUsage = tokenCount[0]
-        const isRateLimited = currentUsage >= limit
-
-        return isRateLimited ? reject(new Error('Rate limit exceeded')) : resolve()
       }),
   }
 }

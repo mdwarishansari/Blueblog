@@ -71,9 +71,10 @@ const pathname = headersList.get('x-pathname') || ''
           profileImage: user.profileImage,
         }}
         settings={{
-          site_name: settings.site_name,
-          site_logo: settings.site_logo,
-        }}
+  site_name: settings['site_name'],
+  site_logo: settings['site_logo'],
+}}
+
       />
 
       <div className="flex flex-1 flex-col">
@@ -84,8 +85,9 @@ const pathname = headersList.get('x-pathname') || ''
             role: user.role,
             profileImage: user.profileImage,
           }}
-          siteName={settings.site_name}
-          siteLogo={settings.site_logo}
+          siteName={settings['site_name']}
+siteLogo={settings['site_logo']}
+
         />
 
         <main className="flex-1 overflow-y-auto p-6">{children}</main>

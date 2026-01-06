@@ -51,10 +51,11 @@ export async function POST(request: NextRequest) {
 
     const category = await prisma.category.create({
       data: {
-        name: data.name,
-        slug: data.slug,
-        imageId: data.imageId,
-      },
+  name: data.name,
+  slug: data.slug,
+  ...(data.imageId && { imageId: data.imageId }),
+},
+
       include: {
         image: true,
       },
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { message: 'Validation error', errors: error.errors },
+        { message: 'Validation error', errors: error.issues },
         { status: 400 }
       )
     }

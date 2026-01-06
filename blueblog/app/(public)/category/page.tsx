@@ -1,8 +1,7 @@
-import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+
 import { prisma } from '@/lib/prisma'
 import CategoryCard from '@/components/CategoryCard'
-import { Button } from '@/components/ui/Button'
+
 import { generateSEO } from '@/lib/seo'
 import { Metadata } from 'next'
 

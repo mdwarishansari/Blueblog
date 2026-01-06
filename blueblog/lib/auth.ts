@@ -1,39 +1,60 @@
-import jwt from 'jsonwebtoken'
+import jwt, { Secret, SignOptions } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { prisma } from './prisma'
 import bcrypt from 'bcryptjs'
 import { UserRole } from '@prisma/client'
 
+/* ------------------------------------------------------------------ */
+/* TYPES                                                              */
+/* ------------------------------------------------------------------ */
 export interface TokenPayload {
   userId: string
   email: string
   role: UserRole
 }
 
+/* ------------------------------------------------------------------ */
+/* PASSWORD HELPERS                                                    */
+/* ------------------------------------------------------------------ */
 export async function hashPassword(password: string): Promise<string> {
-  return await bcrypt.hash(password, 12)
+  return bcrypt.hash(password, 12)
 }
 
-export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
-  return await bcrypt.compare(password, hashedPassword)
+export async function verifyPassword(
+  password: string,
+  hashedPassword: string
+): Promise<boolean> {
+  return bcrypt.compare(password, hashedPassword)
 }
+
+/* ------------------------------------------------------------------ */
+/* JWT HELPERS                                                         */
+/* ------------------------------------------------------------------ */
+const ACCESS_SECRET = process.env['JWT_ACCESS_SECRET'] as Secret
+const REFRESH_SECRET = process.env['JWT_REFRESH_SECRET']as Secret
+
+const ACCESS_EXPIRES_IN =
+  (process.env['ACCESS_TOKEN_EXPIRES_IN'] as SignOptions['expiresIn']) || '1d'
+
+const REFRESH_EXPIRES_IN =
+  (process.env['REFRESH_TOKEN_EXPIRES_IN'] as SignOptions['expiresIn']) || '7d'
 
 export function signAccessToken(payload: TokenPayload): string {
-  return jwt.sign(payload, process.env.JWT_ACCESS_SECRET!, {
-    expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN || '1d',
+  return jwt.sign(payload, ACCESS_SECRET, {
+    expiresIn: ACCESS_EXPIRES_IN,
   })
 }
 
 export function signRefreshToken(payload: TokenPayload): string {
-  return jwt.sign(payload, process.env.JWT_REFRESH_SECRET!, {
-    expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d',
+  return jwt.sign(payload, REFRESH_SECRET, {
+    expiresIn: REFRESH_EXPIRES_IN,
   })
 }
 
 export function verifyAccessToken(token: string): TokenPayload | null {
   try {
-    return jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as TokenPayload
+    return jwt.verify(token, ACCESS_SECRET) as TokenPayload
   } catch {
     return null
   }
@@ -41,13 +62,15 @@ export function verifyAccessToken(token: string): TokenPayload | null {
 
 export function verifyRefreshToken(token: string): TokenPayload | null {
   try {
-    return jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as TokenPayload
+    return jwt.verify(token, REFRESH_SECRET) as TokenPayload
   } catch {
     return null
   }
 }
 
-
+/* ------------------------------------------------------------------ */
+/* COOKIE HELPERS                                                      */
+/* ------------------------------------------------------------------ */
 export function setAuthCookies(
   response: NextResponse,
   accessToken: string,
@@ -57,34 +80,37 @@ export function setAuthCookies(
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
   })
 
   response.cookies.set('refresh_token', refreshToken, {
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
   })
 }
 
 export async function clearAuthCookies() {
-  const cookieStore = await cookies()
-  
-  cookieStore.delete('access_token')
-  cookieStore.delete('refresh_token')
+  const store = await cookies()
+  store.delete('access_token')
+  store.delete('refresh_token')
 }
 
+
+/* ------------------------------------------------------------------ */
+/* AUTH HELPERS                                                        */
+/* ------------------------------------------------------------------ */
 export async function getCurrentUser() {
-  const cookieStore = await cookies()
-  const accessToken = cookieStore.get('access_token')?.value
-  
+  const store = await cookies()
+  const accessToken = store.get('access_token')?.value
+
   if (!accessToken) return null
-  
+
   const payload = verifyAccessToken(accessToken)
   if (!payload) return null
-  
-  const user = await prisma.user.findUnique({
+
+  return prisma.user.findUnique({
     where: { id: payload.userId },
     select: {
       id: true,
@@ -96,40 +122,46 @@ export async function getCurrentUser() {
       createdAt: true,
     },
   })
-  
-  return user
 }
 
-export async function requireAuth(role?: UserRole) {
+export async function requireAuth(allowedRoles?: UserRole[]) {
   const user = await getCurrentUser()
-  
+
   if (!user) {
     throw new Error('Unauthorized')
   }
-  
-  if (role && user.role !== role && user.role !== 'ADMIN') {
-    if (role === 'EDITOR' && user.role !== 'EDITOR') {
-      throw new Error('Forbidden')
-    }
+
+  if (!allowedRoles) {
+    return user
   }
-  
+
+  if (user.role === 'ADMIN') {
+    return user
+  }
+
+  if (!allowedRoles.includes(user.role)) {
+    throw new Error('Forbidden')
+  }
+
   return user
 }
 
+/* ------------------------------------------------------------------ */
+/* REFRESH TOKEN ROTATION                                              */
+/* ------------------------------------------------------------------ */
 export async function rotateRefreshToken(oldRefreshToken: string) {
   const payload = verifyRefreshToken(oldRefreshToken)
   if (!payload) return null
-  
-  // Delete old refresh token
+
   await prisma.refreshToken.deleteMany({
     where: { token: oldRefreshToken },
   })
-  
-  // Create new refresh token
+
   const newRefreshToken = signRefreshToken(payload)
+
   const expiresAt = new Date()
-  expiresAt.setDate(expiresAt.getDate() + 7) // 7 days
-  
+  expiresAt.setDate(expiresAt.getDate() + 7)
+
   await prisma.refreshToken.create({
     data: {
       token: newRefreshToken,
@@ -137,6 +169,6 @@ export async function rotateRefreshToken(oldRefreshToken: string) {
       userId: payload.userId,
     },
   })
-  
+
   return newRefreshToken
 }

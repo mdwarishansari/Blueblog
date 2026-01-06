@@ -29,11 +29,12 @@ const toastColors = {
 
 export function Toast({ type, message, onClose, duration = 5000 }: ToastProps) {
   useEffect(() => {
-    if (duration) {
-      const timer = setTimeout(onClose, duration)
-      return () => clearTimeout(timer)
-    }
-  }, [duration, onClose])
+  if (!duration) return
+
+  const timer = setTimeout(onClose, duration)
+  return () => clearTimeout(timer)
+}, [duration, onClose])
+
 
   const Icon = toastIcons[type]
 

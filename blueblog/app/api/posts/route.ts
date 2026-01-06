@@ -1,33 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 
-const postSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  slug: z.string().min(1, 'Slug is required'),
-  excerpt: z.string().optional(),
-  content: z.any(),
-  bannerImageId: z.string().optional(),
-  categories: z.array(z.string()).optional(),
-  seoTitle: z.string().optional(),
-  seoDescription: z.string().optional(),
-  canonicalUrl: z.string().optional(),
-  status: z.enum(['DRAFT', 'PUBLISHED']).default('DRAFT'),
-})
-
-// Public endpoint to get published posts
+/* ---------------- PUBLIC: GET PUBLISHED POSTS ---------------- */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '12')
+
+    const page = Number(searchParams.get('page') ?? 1)
+    const limit = Number(searchParams.get('limit') ?? 12)
     const category = searchParams.get('category')
-    const search = searchParams.get('search') || ''
+    const search = searchParams.get('search') ?? ''
     const skip = (page - 1) * limit
 
-    const where = {
+    const where: Prisma.PostWhereInput = {
       status: 'PUBLISHED',
       publishedAt: { lte: new Date() },
+
       ...(category && {
         categories: {
           some: {
@@ -35,10 +24,21 @@ export async function GET(request: NextRequest) {
           },
         },
       }),
+
       ...(search && {
         OR: [
-          { title: { contains: search, mode: 'insensitive' } },
-          { excerpt: { contains: search, mode: 'insensitive' } },
+          {
+            title: {
+              contains: search,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+          {
+            excerpt: {
+              contains: search,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
         ],
       }),
     }

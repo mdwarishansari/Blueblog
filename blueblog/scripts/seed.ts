@@ -8,9 +8,9 @@ async function main() {
 
   /* ---------------- ADMIN (CREATE ONCE) ---------------- */
 
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@blog.com'
-  const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@123'
-  const adminName = process.env.ADMIN_NAME || 'Blog Administrator'
+  const adminEmail = process.env['ADMIN_EMAIL'] || 'admin@blog.com'
+  const adminPassword = process.env['ADMIN_PASSWORD'] || 'Admin@123'
+  const adminName = process.env['ADMIN_NAME'] || 'Blog Administrator'
 
   const existingAdmin = await prisma.user.findFirst({
     where: { role: UserRole.ADMIN },
@@ -109,12 +109,12 @@ async function main() {
   const settings = [
     {
       key: 'site_name',
-      value: process.env.NEXT_PUBLIC_SITE_NAME || 'BlueBlog',
+      value: process.env['NEXT_PUBLIC_SITE_NAME'] || 'BlueBlog',
     },
     {
       key: 'site_description',
       value:
-        process.env.NEXT_PUBLIC_SITE_DESCRIPTION ||
+        process.env['NEXT_PUBLIC_SITE_DESCRIPTION'] ||
         'A modern, SEO-optimized blogging platform',
     },
     {
