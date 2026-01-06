@@ -41,7 +41,14 @@ export default async function Footer() {
           {/* Brand */}
           <div>
             <Link href="/" className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary-600 to-primary-400" />
+              {settings.site_logo && (
+  <img
+    src={settings.site_logo}
+    alt="Site logo"
+    className="h-8 w-8 object-contain"
+  />
+)}
+
               <span className="text-xl font-bold text-gray-900">
                 {settings.site_name}
               </span>

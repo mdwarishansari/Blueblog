@@ -11,6 +11,9 @@ import { ThemeToggle } from '@/components/theme-toggle'
 export default function Header() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [siteName, setSiteName] = useState('BlueBlog')
+  const [siteLogo, setSiteLogo] = useState<string | null>(null)
+
   const pathname = usePathname()
 
   useEffect(() => {
@@ -19,10 +22,20 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // 🔥 FETCH SITE SETTINGS
+  useEffect(() => {
+    fetch('/api/public/settings')
+      .then(r => r.json())
+      .then(data => {
+        setSiteName(data.siteName)
+        setSiteLogo(data.siteLogo)
+      })
+  }, [])
+
   const nav = [
     { name: 'Home', href: '/' },
     { name: 'Blog', href: '/blog' },
-    {name: 'Categories', href: '/category' },
+    { name: 'Categories', href: '/category' },
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ]
@@ -37,15 +50,22 @@ export default function Header() {
     >
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-md bg-gradient-to-br from-primary to-secondary" />
+
+          {/* LOGO + NAME */}
+          <Link href="/" className="flex items-center gap-3">
+            {siteLogo && (
+              <img
+                src={siteLogo}
+                alt="Site logo"
+                className="h-8 w-8 object-contain"
+              />
+            )}
             <span className="text-xl font-bold">
-              {process.env.NEXT_PUBLIC_SITE_NAME ?? 'BlueBlog'}
+              {siteName}
             </span>
           </Link>
 
-          {/* Desktop Nav */}
+          {/* DESKTOP NAV */}
           <nav className="hidden md:flex items-center gap-1">
             {nav.map(item => (
               <Link
@@ -63,7 +83,7 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* Actions */}
+          {/* ACTIONS */}
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon">
               <Search className="h-5 w-5" />
@@ -87,7 +107,7 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* MOBILE MENU */}
       <AnimatePresence>
         {open && (
           <motion.div
