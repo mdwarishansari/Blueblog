@@ -13,7 +13,8 @@ const slugify = (v: string) =>
   v.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-')
 
 export default function NewPostPage() {
-  const userRole: UserRole = 'ADMIN'
+  const userRole: UserRole = 'WRITER'
+
   const canPublish = userRole !== 'WRITER'
 const [postId, setPostId] = useState<string | null>(null)
 

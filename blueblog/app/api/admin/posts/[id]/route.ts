@@ -113,3 +113,38 @@ export async function PUT(
     )
   }
 }
+
+/* ---------------- DELETE ---------------- */
+export async function DELETE(
+  _req: NextRequest,
+  ctx: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await ctx.params
+    const user = await requireAuth()
+
+    const post = await prisma.post.findUnique({
+      where: { id },
+      select: { authorId: true },
+    })
+
+    if (!post) {
+      return NextResponse.json({ message: 'Post not found' }, { status: 404 })
+    }
+
+    // WRITER: can delete only own post
+    if (user.role === 'WRITER' && post.authorId !== user.id) {
+      return NextResponse.json({ message: 'Forbidden' }, { status: 403 })
+    }
+
+    await prisma.post.delete({ where: { id } })
+
+    return NextResponse.json({ success: true })
+  } catch (e) {
+    console.error(e)
+    return NextResponse.json(
+      { message: 'Failed to delete post' },
+      { status: 500 }
+    )
+  }
+}

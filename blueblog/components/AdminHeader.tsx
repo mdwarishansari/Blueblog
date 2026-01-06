@@ -16,6 +16,11 @@ export default function AdminHeader({
   siteName,
   siteLogo,
 }: AdminHeaderProps) {
+  const avatar =
+    user.profileImage && user.profileImage.trim() !== ''
+      ? user.profileImage
+      : '/avatars/default.png'
+
   return (
     <header className="flex h-16 items-center justify-between border-b px-6 bg-background">
       {/* LEFT */}
@@ -38,8 +43,10 @@ export default function AdminHeader({
 
         <div className="flex items-center gap-2">
           <img
-            src={user.profileImage || '/avatars/default.png'}
-            className="h-8 w-8 rounded-full object-cover"
+            src={avatar}
+            alt="User avatar"
+            className="h-8 w-8 rounded-full object-cover border"
+            referrerPolicy="no-referrer"
           />
           <div className="text-right">
             <p className="text-sm font-medium">{user.name}</p>

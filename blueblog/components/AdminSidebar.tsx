@@ -33,12 +33,13 @@ interface AdminSidebarProps {
   }
 }
 
+/* 🔐 FINAL ROLE-BASED NAV */
 const navigation = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard, roles: ['ADMIN', 'EDITOR', 'WRITER'] },
   { name: 'Posts', href: '/admin/posts', icon: FileText, roles: ['ADMIN', 'EDITOR', 'WRITER'] },
   { name: 'Categories', href: '/admin/categories', icon: Folder, roles: ['ADMIN', 'EDITOR'] },
-  { name: 'Media', href: '/admin/images', icon: Image, roles: ['ADMIN', 'EDITOR', 'WRITER'] },
-  { name: 'Messages', href: '/admin/messages', icon: MessageSquare, roles: ['ADMIN', 'EDITOR'] },
+  { name: 'Media', href: '/admin/images', icon: Image, roles: ['ADMIN'] },
+  { name: 'Messages', href: '/admin/messages', icon: MessageSquare, roles: ['ADMIN'] },
   { name: 'Users', href: '/admin/users', icon: Users, roles: ['ADMIN'] },
   { name: 'Settings', href: '/admin/settings', icon: Settings, roles: ['ADMIN'] },
   { name: 'Account', href: '/admin/account', icon: User, roles: ['ADMIN', 'EDITOR', 'WRITER'] },
@@ -47,6 +48,11 @@ const navigation = [
 export default function AdminSidebar({ user, settings }: AdminSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const pathname = usePathname()
+
+  const avatar =
+    user.profileImage && user.profileImage.trim() !== ''
+      ? user.profileImage
+      : '/avatars/default.png'
 
   const filteredNavigation = navigation.filter(item =>
     item.roles.includes(user.role)
@@ -112,8 +118,10 @@ export default function AdminSidebar({ user, settings }: AdminSidebarProps) {
       <div className="border-t p-4">
         <div className="flex items-center gap-3">
           <img
-            src={user.profileImage || '/avatars/default.png'}
+            src={avatar}
+            alt="User avatar"
             className="h-10 w-10 rounded-full object-cover border"
+            referrerPolicy="no-referrer"
           />
           {!isCollapsed && (
             <div className="overflow-hidden">

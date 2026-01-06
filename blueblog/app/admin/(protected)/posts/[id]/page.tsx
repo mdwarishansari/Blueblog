@@ -19,7 +19,8 @@ const slugify = (v: string) =>
 export default function EditPostPage({ params }: PageProps) {
   const { id } = use(params)
 
-  const userRole: UserRole = 'ADMIN'
+  const userRole: UserRole = 'WRITER'
+
   const canPublish = userRole !== 'WRITER'
 
   const [slugTouched, setSlugTouched] = useState(false)
