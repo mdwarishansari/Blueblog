@@ -22,6 +22,7 @@ export default function Header() {
   const nav = [
     { name: 'Home', href: '/' },
     { name: 'Blog', href: '/blog' },
+    {name: 'Categories', href: '/category' },
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ]

@@ -73,11 +73,12 @@ async function getCategories() {
 export default async function BlogPage({
   searchParams,
 }: {
-  searchParams: { category?: string; q?: string }
-
+  searchParams: Promise<{ category?: string; q?: string }>
 }) {
+  const params = await searchParams
+
   const [posts, categories] = await Promise.all([
-  getPosts(searchParams.category, searchParams.q),
+  getPosts(params.category, params.q),
   getCategories(),
 ])
 
@@ -100,13 +101,12 @@ export default async function BlogPage({
     <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
     <Input
       name="q"
-      defaultValue={searchParams.q}
+      defaultValue={params.q}
       placeholder="Search articles..."
       className="pl-12"
     />
   </div>
 </form>
-
           </div>
         </div>
       </section>
@@ -150,10 +150,8 @@ export default async function BlogPage({
             <div className="lg:col-span-3">
               <div className="mb-8 flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {searchParams.category 
-                    ? `Posts in "${searchParams.category}"`
-                    : 'Latest Articles'
-                  }
+                  {params.category ? `Posts in "${params.category}"` : 'Latest Articles'}
+
                   <span className="ml-2 text-primary-600">({posts.length})</span>
                 </h2>
               </div>

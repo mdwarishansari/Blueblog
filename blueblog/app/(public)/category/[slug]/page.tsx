@@ -4,10 +4,10 @@ import Image from 'next/image'
 import { prisma } from '@/lib/prisma'
 import PostCard from '@/components/PostCard'
 import { generateSEO } from '@/lib/seo'
-import { getOptimizedImageUrl } from '@/lib/cloudinary'
 
+/* ---------------- DATA ---------------- */
 async function getCategory(slug: string) {
-  return await prisma.category.findUnique({
+  return prisma.category.findUnique({
     where: { slug },
     include: {
       image: true,
@@ -43,104 +43,76 @@ async function getCategory(slug: string) {
   })
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const category = await getCategory(params.slug)
-  
-  if (!category) {
-    return generateSEO()
-  }
+/* ---------------- SEO ---------------- */
+export async function generateMetadata(
+  props: { params: Promise<{ slug: string }> }
+): Promise<Metadata> {
+  const { slug } = await props.params
 
-  const imageUrl = category.image?.url
-    ? getOptimizedImageUrl(category.image.url, 1200, 630)
-    : undefined
+  const category = await getCategory(slug)
+  if (!category) return generateSEO()
 
   return generateSEO({
     title: category.name,
-    description: `Browse all posts in ${category.name}`,
-    image: imageUrl,
+    description: `Browse posts in ${category.name}`,
+    image: category.image?.url,
     url: `/category/${category.slug}`,
   })
 }
 
-export async function generateStaticParams() {
-  const categories = await prisma.category.findMany({
-    select: { slug: true },
-  })
-  
-  return categories.map((category) => ({
-    slug: category.slug,
-  }))
-}
+/* ---------------- PAGE ---------------- */
+export default async function CategoryPage(
+  props: { params: Promise<{ slug: string }> }
+) {
+  const { slug } = await props.params
 
-export default async function CategoryPage({ params }: { params: { slug: string } }) {
-  const category = await getCategory(params.slug)
-  
-  if (!category) {
-    notFound()
-  }
-
-  const imageUrl = category.image?.url
-    ? getOptimizedImageUrl(category.image.url, 1200, 400)
-    : null
+  const category = await getCategory(slug)
+  if (!category) notFound()
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        {imageUrl && (
+      {/* HERO */}
+      <section className="relative">
+        {category.image?.url ? (
           <div className="absolute inset-0">
             <Image
-              src={imageUrl}
-              alt={category.image?.altText || category.name}
+              src={category.image.url}
+              alt={category.image.altText || category.name}
               fill
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0 bg-black/50" />
           </div>
-        )}
-        {!imageUrl && (
+        ) : (
           <div className="absolute inset-0 bg-gradient-to-r from-primary-600 to-primary-400" />
         )}
-        
-        <div className="relative py-20">
-          <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-3xl text-center text-white">
-              <h1 className="mb-4 text-4xl font-bold sm:text-5xl">
-                {category.name}
-              </h1>
-              <p className="text-xl opacity-90">
-                {category._count.posts} articles in this category
-              </p>
-            </div>
-          </div>
+
+        <div className="relative py-20 text-center text-white">
+          <h1 className="text-4xl font-bold">{category.name}</h1>
+          <p className="mt-2 opacity-90">
+            {category._count.posts} published posts
+          </p>
         </div>
       </section>
 
-      {/* Posts */}
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          {category.posts.length > 0 ? (
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {category.posts.map((post) => (
-                <PostCard key={post.id} post={post} />
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-2xl border-2 border-dashed border-gray-200 bg-white p-12 text-center">
-              <div className="mx-auto max-w-md">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-                  <span className="text-2xl">📝</span>
-                </div>
-                <h3 className="mb-2 text-xl font-semibold text-gray-900">
-                  No posts yet in {category.name}
-                </h3>
-                <p className="text-gray-600">
-                  Check back soon for articles in this category.
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
+      {/* POSTS */}
+      <section className="container mx-auto px-4 py-14">
+        {category.posts.length > 0 ? (
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {category.posts.map(post => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-dashed bg-white p-12 text-center">
+            <h3 className="text-xl font-semibold">
+              No posts in {category.name}
+            </h3>
+            <p className="mt-2 text-gray-600">
+              Posts will appear here once published.
+            </p>
+          </div>
+        )}
       </section>
     </div>
   )
