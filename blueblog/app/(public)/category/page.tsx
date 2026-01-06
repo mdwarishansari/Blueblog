@@ -3,12 +3,13 @@ import { prisma } from '@/lib/prisma'
 import CategoryCard from '@/components/CategoryCard'
 
 import { generateSEO } from '@/lib/seo'
-import { Metadata } from 'next'
 
-export const metadata: Metadata = generateSEO({
-  title: 'Categories',
-  description: 'Browse all blog categories',
+export const metadata = generateSEO({
+  title: 'Blog',
+  description: 'Read the latest articles, tutorials, and insights.',
+  url: '/blog',
 })
+
 
 async function getCategories() {
   return prisma.category.findMany({

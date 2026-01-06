@@ -4,6 +4,14 @@ import { prisma } from '@/lib/prisma'
 import PostCard from '@/components/PostCard'
 import CategoryCard from '@/components/CategoryCard'
 import { Button } from '@/components/ui/Button'
+import { generateSEO } from '@/lib/seo'
+
+export const metadata = generateSEO({
+  title: 'Home',
+  description: 'A modern, SEO-optimized blogging platform',
+  url: '/',
+})
+
 const SITE_NAME =
   process.env['NEXT_PUBLIC_SITE_NAME'] ?? 'BlueBlog'
 

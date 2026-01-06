@@ -1,12 +1,15 @@
-import { Metadata } from 'next'
+
 import { Users, Target, Award, Globe } from 'lucide-react'
-import { generateSEO } from '@/lib/seo'
+
 import { prisma } from '@/lib/prisma'
 import TeamMember from '@/components/TeamMember'
 
-export const metadata: Metadata = generateSEO({
+import { generateSEO } from '@/lib/seo'
+
+export const metadata = generateSEO({
   title: 'About Us',
-  description: 'Learn more about BlueBlog and our mission',
+  description: 'Learn more about BlueBlog, our mission, and our team.',
+  url: '/about',
 })
 
 async function getTeamMembers() {

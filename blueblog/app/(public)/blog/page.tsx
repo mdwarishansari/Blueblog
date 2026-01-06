@@ -1,5 +1,4 @@
 import { Suspense } from 'react'
-import { Metadata } from 'next'
 import { Search, Filter } from 'lucide-react'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -10,9 +9,10 @@ import { generateSEO } from '@/lib/seo'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
 
-export const metadata: Metadata = generateSEO({
+export const metadata = generateSEO({
   title: 'Blog',
-  description: 'Browse our latest articles and blog posts',
+  description: 'Read the latest articles, tutorials, and insights.',
+  url: '/blog',
 })
 
 async function getPosts(categorySlug?: string, q?: string) {
