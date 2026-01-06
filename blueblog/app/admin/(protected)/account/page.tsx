@@ -5,15 +5,20 @@ import { User, Mail, Lock, Save, Image as ImageIcon } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import toast from 'react-hot-toast'
+import { useRouter } from 'next/navigation'
 
 export default function AccountPage() {
   const [loading, setLoading] = useState(false)
   const [profile, setProfile] = useState({
-    name: '',
-    email: '',
-    bio: '',
-    profileImage: '',
-  })
+  name: '',
+  email: '',
+  bio: '',
+  profileImage: '', // CLOUDINARY URL ONLY
+})
+
+const [previewImage, setPreviewImage] = useState<string | null>(null)
+
+const router = useRouter()
 
   const [password, setPassword] = useState({
     currentPassword: '',
@@ -29,10 +34,13 @@ export default function AccountPage() {
   }, [])
 
   /* -------- IMAGE UPLOAD -------- */
-  const uploadImage = async (file: File) => {
-  // 1️⃣ instant local preview
-  const localUrl = URL.createObjectURL(file)
-  setProfile(p => ({ ...p, profileImage: localUrl }))
+const uploadImage = async (file: File) => {
+  // 1️⃣ SAFE preview (base64, never revoked)
+  const reader = new FileReader()
+  reader.onload = () => {
+    setPreviewImage(reader.result as string)
+  }
+  reader.readAsDataURL(file)
 
   // 2️⃣ upload to cloudinary
   const form = new FormData()
@@ -44,14 +52,16 @@ export default function AccountPage() {
   })
 
   const data = await res.json()
-  if (!res.ok || !data.url) {
+
+  if (!res.ok || !data.image?.url) {
     toast.error('Image upload failed')
     return
   }
 
-  // 3️⃣ replace preview with real CDN url
+  // 3️⃣ store only cloudinary URL
   setProfile(p => ({ ...p, profileImage: data.image.url }))
 }
+
 
 
   /* -------- SAVE PROFILE -------- */
@@ -68,6 +78,7 @@ export default function AccountPage() {
       if (!res.ok) throw new Error(data.message)
 
       toast.success('Profile updated')
+      router.refresh()
     } catch (e: any) {
       toast.error(e.message)
     } finally {
@@ -111,9 +122,11 @@ export default function AccountPage() {
 
         <div className="flex items-center gap-4">
           <img
-            src={profile.profileImage || '/avatars/default.png'}
-            className="h-20 w-20 rounded-full object-cover"
-          />
+  key={previewImage || profile.profileImage || 'avatar'}
+  src={previewImage || profile.profileImage || undefined}
+  className="h-20 w-20 rounded-full object-cover border"
+/>
+
           <label className="cursor-pointer text-sm text-primary-600 flex items-center gap-2">
             <ImageIcon className="h-4 w-4" />
             Change photo
