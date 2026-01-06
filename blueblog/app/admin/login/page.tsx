@@ -119,7 +119,7 @@ export default function AdminLogin() {
                 />
                 <span className="ml-2 text-sm text-gray-600">Remember me</span>
               </label>
-              <a href="#" className="text-sm font-medium text-primary-600 hover:text-primary-500">
+              <a href="/contact" className="text-sm font-medium text-primary-600 hover:text-primary-500">
                 Forgot password?
               </a>
             </div>
