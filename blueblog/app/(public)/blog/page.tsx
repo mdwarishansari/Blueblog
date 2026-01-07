@@ -1,7 +1,5 @@
-import { Suspense } from 'react'
 import { Search, Filter } from 'lucide-react'
 import PostCard from '@/components/PostCard'
-import PostCardSkeleton from '@/components/skeletons/PostCardSkeleton'
 import CategoryFilter from '@/components/CategoryFilter'
 import { generateSEO } from '@/lib/seo'
 import { prisma } from '@/lib/prisma'
@@ -14,6 +12,9 @@ export const metadata = generateSEO({
   url: '/blog',
 })
 
+/* -------------------------------------
+   DATA
+------------------------------------- */
 async function getPosts(categorySlug?: string, q?: string) {
   const where: Prisma.PostWhereInput = {
     status: 'PUBLISHED',
@@ -80,6 +81,9 @@ async function getCategories() {
   })
 }
 
+/* -------------------------------------
+   PAGE
+------------------------------------- */
 export default async function BlogPage({
   searchParams,
 }: {
@@ -96,7 +100,7 @@ export default async function BlogPage({
     <div className="min-h-screen bg-bg">
 
       {/* ===============================
-         HERO (NO SHADOW, CLEAN)
+         HERO
       =============================== */}
       <section className="bg-bg py-20">
         <div className="container">
@@ -138,7 +142,6 @@ export default async function BlogPage({
 
             {/* Posts */}
             <main className="lg:col-span-3">
-
               <div className="mb-10">
                 <h2 className="text-2xl font-bold text-fg">
                   {params.category
@@ -153,15 +156,9 @@ export default async function BlogPage({
 
               {posts.length > 0 ? (
                 <div className="grid gap-8 md:grid-cols-2">
-                  <Suspense
-                    fallback={Array.from({ length: 6 }).map((_, i) => (
-                      <PostCardSkeleton key={i} />
-                    ))}
-                  >
-                    {posts.map(post => (
-                      <PostCard key={post.id} post={post} />
-                    ))}
-                  </Suspense>
+                  {posts.map(post => (
+                    <PostCard key={post.id} post={post} />
+                  ))}
                 </div>
               ) : (
                 <div className="rounded-2xl border border-dashed border-slate-300 bg-card p-14 text-center">
@@ -182,8 +179,8 @@ export default async function BlogPage({
                   </div>
                 </div>
               )}
-
             </main>
+
           </div>
         </div>
       </section>
