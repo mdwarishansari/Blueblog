@@ -8,7 +8,7 @@ import CategoryFilter from '@/components/CategoryFilter'
 import { generateSEO } from '@/lib/seo'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
-
+import BlogSearchInput from '@/components/blog/BlogSearchInput'
 export const metadata = generateSEO({
   title: 'Blog',
   description: 'Read the latest articles, tutorials, and insights.',
@@ -110,17 +110,9 @@ export default async function BlogPage({
             </p>
             
             {/* Search */}
-            <form method="GET">
-  <div className="relative">
-    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-    <Input
-      name="q"
-      defaultValue={params.q}
-      placeholder="Search articles..."
-      className="pl-12"
-    />
-  </div>
-</form>
+            <BlogSearchInput />
+
+
           </div>
         </div>
       </section>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, X, Search, LogIn } from 'lucide-react'
+import { Menu, X, LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ThemeToggle } from '@/components/theme-toggle'
@@ -60,9 +60,7 @@ export default function Header() {
                 className="h-8 w-8 object-contain"
               />
             )}
-            <span className="text-xl font-bold">
-              {siteName}
-            </span>
+            <span className="text-xl font-bold">{siteName}</span>
           </Link>
 
           {/* DESKTOP NAV */}
@@ -71,12 +69,11 @@ export default function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`rounded-md px-4 py-2 text-sm font-medium transition
-                  ${
-                    pathname === item.href
-                      ? 'bg-primary/10 text-primary'
-                      : 'hover:bg-muted'
-                  }`}
+                className={`rounded-md px-4 py-2 text-sm font-medium transition ${
+                  pathname === item.href
+                    ? 'bg-primary/10 text-primary'
+                    : 'hover:bg-muted'
+                }`}
               >
                 {item.name}
               </Link>
@@ -85,16 +82,15 @@ export default function Header() {
 
           {/* ACTIONS */}
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
-              <Search className="h-5 w-5" />
-            </Button>
             <ThemeToggle />
+
             <Link href="/admin/login">
               <Button variant="outline" size="sm" className="hidden sm:flex">
                 <LogIn className="mr-2 h-4 w-4" />
                 Admin
               </Button>
             </Link>
+
             <Button
               variant="ghost"
               size="icon"

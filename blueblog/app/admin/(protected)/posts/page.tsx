@@ -3,9 +3,10 @@ import { requireAuth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import PostTable from '@/components/PostTable'
 import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { Plus, Search} from 'lucide-react'
-
+// import { Input } from '@/components/ui/Input'
+import { Plus} from 'lucide-react'
+import { Prisma } from '@prisma/client'
+import PostSearchInput from '@/components/admin/PostSearchInput'
 export default async function AdminPostsPage({
   searchParams,
 }: {
@@ -23,7 +24,7 @@ export default async function AdminPostsPage({
       ? params.status
       : undefined
 
-  const where: any = {}
+  const where: Prisma.PostWhereInput = {}
 
   if (status) where.status = status
 
@@ -55,6 +56,10 @@ export default async function AdminPostsPage({
   ])
 
   const totalPages = Math.ceil(total / limit)
+const query = new URLSearchParams({
+  ...(params.search && { search: params.search }),
+  ...(status && { status }),
+}).toString()
 
   return (
     <div className="space-y-6">
@@ -76,14 +81,9 @@ export default async function AdminPostsPage({
       {/* Filters */}
       <div className="rounded-xl border bg-white p-4 space-y-4">
         <div className="flex flex-col md:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search posts…"
-              className="pl-10"
-              defaultValue={params.search}
-            />
-          </div>
+          <PostSearchInput />
+
+
           
         </div>
 
@@ -130,23 +130,25 @@ export default async function AdminPostsPage({
           </p>
           <div className="flex gap-2">
             <Link
-              href={`/admin/posts?page=${page - 1}`}
-              aria-disabled={page === 1}
-              className={`px-4 py-2 border rounded ${
-                page === 1 && 'pointer-events-none opacity-50'
-              }`}
-            >
-              Previous
-            </Link>
-            <Link
-              href={`/admin/posts?page=${page + 1}`}
-              aria-disabled={page === totalPages}
-              className={`px-4 py-2 border rounded ${
-                page === totalPages && 'pointer-events-none opacity-50'
-              }`}
-            >
-              Next
-            </Link>
+  href={`/admin/posts?page=${page - 1}${query ? `&${query}` : ''}`}
+  aria-disabled={page === 1}
+  className={`px-4 py-2 border rounded ${
+    page === 1 && 'pointer-events-none opacity-50'
+  }`}
+>
+  Previous
+</Link>
+
+<Link
+  href={`/admin/posts?page=${page + 1}${query ? `&${query}` : ''}`}
+  aria-disabled={page === totalPages}
+  className={`px-4 py-2 border rounded ${
+    page === totalPages && 'pointer-events-none opacity-50'
+  }`}
+>
+  Next
+</Link>
+
           </div>
         </div>
       )}
