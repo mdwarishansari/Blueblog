@@ -1,6 +1,6 @@
 // app/layout.tsx
 import './globals.css'
-import { ThemeProvider } from '@/components/theme-provider'
+// import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from 'react-hot-toast'
 import { Inter } from 'next/font/google'
 
@@ -14,10 +14,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} min-h-screen bg-background text-foreground`}>
-        <ThemeProvider>
+        
           <Toaster position="top-right" />
           {children}
-        </ThemeProvider>
+        
       </body>
     </html>
   )

@@ -66,58 +66,102 @@ export default function AdminMessagesPage() {
     setMessages(m => m.filter(msg => msg.id !== id))
   }
 
-  if (loading) return <div>Loading messages…</div>
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="skeleton h-28 w-full rounded-xl" />
+        ))}
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Contact Messages</h1>
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold">Contact Messages</h1>
+        <p className="text-sm text-slate-500">
+          Messages submitted through the contact form
+        </p>
+      </div>
 
       {messages.length === 0 && (
-        <p className="text-gray-500">No messages yet.</p>
+        <div className="bg-card elev-sm rounded-xl p-6 text-center text-slate-500">
+          No messages yet.
+        </div>
       )}
 
-      {messages.map(msg => (
-        <div
-          key={msg.id}
-          onClick={() => !msg.isRead && markAsRead(msg.id)}
-          className={`cursor-pointer rounded-lg border p-4 transition ${
-            msg.isRead ? 'bg-white' : 'bg-blue-50'
-          }`}
-        >
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="font-medium">{msg.name}</p>
-              <p className="text-sm text-gray-500">{msg.email}</p>
+      {/* Messages */}
+      <div className="space-y-4">
+        {messages.map(msg => {
+          const unread = !msg.isRead
+
+          return (
+            <div
+              key={msg.id}
+              onClick={() => unread && markAsRead(msg.id)}
+              className={`
+                relative
+                cursor-pointer
+                rounded-2xl
+                p-5
+                ui-transition
+                ui-lift
+                ${unread ? 'bg-gradient-to-r from-blue-50 to-indigo-50' : 'bg-card'}
+                elev-sm
+                hover:elev-lg
+              `}
+            >
+              {/* Unread indicator */}
+              {unread && (
+                <span className="absolute left-0 top-0 h-full w-1 rounded-l-2xl bg-indigo-500" />
+              )}
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                {/* Sender */}
+                <div>
+                  <p className="font-semibold text-fg">{msg.name}</p>
+                  <p className="text-sm text-slate-500">{msg.email}</p>
+                </div>
+
+                {/* Meta + actions */}
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-slate-400">
+                    {new Date(msg.createdAt).toLocaleString()}
+                  </span>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-red-500 hover:bg-red-50"
+                    onClick={e => {
+                      e.stopPropagation()
+                      deleteMessage(msg.id)
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Message */}
+              <p className="mt-4 whitespace-pre-wrap text-sm text-slate-700 leading-relaxed">
+                {msg.message}
+              </p>
+
+              {/* Badge */}
+              {unread && (
+                <div className="mt-4">
+                  <span className="inline-flex items-center rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-700 shadow-sm">
+                    Unread
+                  </span>
+                </div>
+              )}
             </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400">
-                {new Date(msg.createdAt).toLocaleString()}
-              </span>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={e => {
-                  e.stopPropagation()
-                  deleteMessage(msg.id)
-                }}
-              >
-                <Trash2 className="h-4 w-4 text-red-600" />
-              </Button>
-            </div>
-          </div>
-
-          <p className="mt-3 text-gray-800 whitespace-pre-wrap">
-            {msg.message}
-          </p>
-
-          {!msg.isRead && (
-            <span className="mt-2 inline-block rounded bg-blue-100 px-2 py-1 text-xs text-blue-700">
-              Unread
-            </span>
-          )}
-        </div>
-      ))}
+          )
+        })}
+      </div>
     </div>
   )
 }

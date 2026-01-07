@@ -54,12 +54,12 @@ export async function generateMetadata(
 
   const image = category.image?.url
 
-return generateSEO({
-  title: category.name,
-  description: `Browse posts in ${category.name}`,
-  url: `/category/${category.slug}`,
-  ...(image ? { image } : {}),
-})
+  return generateSEO({
+    title: category.name,
+    description: `Browse posts in ${category.name}`,
+    url: `/category/${category.slug}`,
+    ...(image ? { image } : {}),
+  })
 }
 
 /* ---------------- PAGE ---------------- */
@@ -72,9 +72,10 @@ export default async function CategoryPage(
   if (!category) notFound()
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* HERO */}
-      <section className="relative">
+    <div className="min-h-screen bg-bg">
+
+      {/* ================= HERO ================= */}
+      <section className="relative overflow-hidden">
         {category.image?.url ? (
           <div className="absolute inset-0">
             <Image
@@ -82,39 +83,47 @@ export default async function CategoryPage(
               alt={category.image.altText || category.name}
               fill
               className="object-cover"
+              priority
             />
-            <div className="absolute inset-0 bg-black/50" />
+            {/* overlay for readability */}
+            <div className="absolute inset-0 bg-black/55" />
           </div>
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-r from-primary-600 to-primary-400" />
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-violet-600 to-pink-500" />
         )}
 
-        <div className="relative py-20 text-center text-white">
-          <h1 className="text-4xl font-bold">{category.name}</h1>
-          <p className="mt-2 opacity-90">
+        <div className="relative py-24 text-center text-white">
+          <h1 className="mb-3 text-4xl font-extrabold tracking-tight sm:text-5xl">
+            {category.name}
+          </h1>
+          <p className="text-lg text-white/90">
             {category._count.posts} published posts
           </p>
         </div>
       </section>
 
-      {/* POSTS */}
-      <section className="container mx-auto px-4 py-14">
-        {category.posts.length > 0 ? (
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {category.posts.map(post => (
-              <PostCard key={post.id} post={post} />
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-xl border border-dashed bg-white p-12 text-center">
-            <h3 className="text-xl font-semibold">
-              No posts in {category.name}
-            </h3>
-            <p className="mt-2 text-gray-600">
-              Posts will appear here once published.
-            </p>
-          </div>
-        )}
+      {/* ================= POSTS ================= */}
+      <section className="py-20">
+        <div className="container">
+
+          {category.posts.length > 0 ? (
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {category.posts.map(post => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-card p-14 text-center">
+              <h3 className="mb-2 text-xl font-semibold text-fg">
+                No posts in {category.name}
+              </h3>
+              <p className="text-slate-600">
+                Posts will appear here once published.
+              </p>
+            </div>
+          )}
+
+        </div>
       </section>
     </div>
   )

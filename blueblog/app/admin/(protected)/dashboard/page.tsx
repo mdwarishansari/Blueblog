@@ -16,7 +16,6 @@ import { formatDate } from '@/lib/utils'
 export default async function AdminDashboard() {
   const user = await requireAuth()
 
-  // ----- ROLE FLAGS -----
   const isAdmin = user.role === 'ADMIN'
   const isEditor = user.role === 'EDITOR'
   const isWriter = user.role === 'WRITER'
@@ -25,7 +24,6 @@ export default async function AdminDashboard() {
     redirect('/admin/login')
   }
 
-  // ----- DATA FETCH (ROLE-AWARE) -----
   const [
     postsCount,
     publishedPostsCount,
@@ -36,12 +34,8 @@ export default async function AdminDashboard() {
     recentPosts,
     recentMessages,
   ] = await Promise.all([
-    // Total posts
-    prisma.post.count({
-      where: isWriter ? { authorId: user.id } : {},
-    }),
+    prisma.post.count({ where: isWriter ? { authorId: user.id } : {} }),
 
-    // Published posts
     prisma.post.count({
       where: {
         status: 'PUBLISHED',
@@ -49,19 +43,11 @@ export default async function AdminDashboard() {
       },
     }),
 
-    // Categories (ADMIN + EDITOR)
     isWriter ? 0 : prisma.category.count(),
-
-    // Users (ADMIN only)
     isAdmin ? prisma.user.count() : 0,
-
-    // Media (ADMIN only)
     isAdmin ? prisma.image.count() : 0,
-
-    // Messages (ADMIN only)
     isAdmin ? prisma.contactMessage.count() : 0,
 
-    // Recent posts
     prisma.post.findMany({
       where: isWriter ? { authorId: user.id } : {},
       take: 5,
@@ -72,7 +58,6 @@ export default async function AdminDashboard() {
       },
     }),
 
-    // Recent messages (ADMIN only)
     isAdmin
       ? prisma.contactMessage.findMany({
           take: 5,
@@ -83,91 +68,66 @@ export default async function AdminDashboard() {
   ])
 
   return (
-    <div className="space-y-8">
-      {/* Welcome */}
-      <div className="rounded-2xl bg-gradient-to-r from-primary-600 to-primary-400 p-6 text-white shadow-lg">
-        <h1 className="text-2xl font-bold">Welcome back, {user.name}!</h1>
-        <p className="mt-2 opacity-90">
-          Here&apos;s what&apos;s happening with your blog today.
-        </p>
-      </div>
+    <div className="space-y-10">
+      {/* ===== HERO / WELCOME ===== */}
+      <section className="relative overflow-hidden rounded-2xl gradient-bg p-8 text-white elev-md">
+        <div className="relative z-10">
+          <h1 className="text-2xl font-bold tracking-tight">
+            Welcome back, {user.name}
+          </h1>
+          <p className="mt-2 max-w-xl text-white/90">
+            Here’s a quick overview of what’s happening across your workspace today.
+          </p>
+        </div>
 
-      {/* STATS */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <StatCard
-          title="Total Posts"
-          value={postsCount}
-          icon={FileText}
-          color="primary"
-        />
+        {/* decorative blobs */}
+        <div className="absolute -top-12 -right-12 h-40 w-40 rounded-full bg-white/10 blur-2xl animate-blob" />
+        <div className="absolute bottom-0 left-10 h-32 w-32 rounded-full bg-white/10 blur-2xl animate-blob animation-delay-2000" />
+      </section>
 
-        <StatCard
-          title="Published"
-          value={publishedPostsCount}
-          icon={Eye}
-          color="green"
-        />
+      {/* ===== STATS ===== */}
+      <section>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          <StatCard title="Total Posts" value={postsCount} icon={FileText} />
+          <StatCard title="Published" value={publishedPostsCount} icon={Eye} color="green" />
 
-        {(isAdmin || isEditor) && (
-          <StatCard
-            title="Categories"
-            value={categoriesCount}
-            icon={Folder}
-            color="blue"
-          />
-        )}
+          {(isAdmin || isEditor) && (
+            <StatCard title="Categories" value={categoriesCount} icon={Folder} color="blue" />
+          )}
 
-        {isAdmin && (
-          <StatCard
-            title="Users"
-            value={usersCount}
-            icon={Users}
-            color="purple"
-          />
-        )}
+          {isAdmin && (
+            <StatCard title="Users" value={usersCount} icon={Users} color="purple" />
+          )}
 
-        {isAdmin && (
-          <StatCard
-            title="Media Files"
-            value={imagesCount}
-            icon={Image}
-            color="yellow"
-          />
-        )}
+          {isAdmin && (
+            <StatCard title="Media Files" value={imagesCount} icon={Image} color="yellow" />
+          )}
 
-        {isAdmin && (
-          <StatCard
-            title="Messages"
-            value={messagesCount}
-            icon={MessageSquare}
-            color="red"
-          />
-        )}
-      </div>
+          {isAdmin && (
+            <StatCard title="Messages" value={messagesCount} icon={MessageSquare} color="red" />
+          )}
+        </div>
+      </section>
 
-      {/* RECENT ACTIVITY */}
-      <div className={`grid gap-6 ${isAdmin ? 'lg:grid-cols-2' : ''}`}>
+      {/* ===== RECENT ACTIVITY ===== */}
+      <section className={`grid gap-8 ${isAdmin ? 'lg:grid-cols-2' : ''}`}>
         {/* Recent Posts */}
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
+        <div className="rounded-2xl bg-card p-6 elev-sm">
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Recent Posts
-            </h2>
-            <Calendar className="h-5 w-5 text-gray-400" />
+            <h2 className="text-lg font-semibold text-fg">Recent Posts</h2>
+            <Calendar className="h-5 w-5 text-muted-foreground" />
           </div>
 
           <div className="space-y-4">
-            {recentPosts.map((post) => (
+            {recentPosts.map(post => (
               <div
                 key={post.id}
-                className="rounded-lg border border-gray-100 p-4 hover:bg-gray-50"
+                className="rounded-xl border border-border bg-white p-4 ui-transition hover:bg-muted"
               >
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h3 className="font-medium text-gray-900">
-                      {post.title}
-                    </h3>
-                    <div className="mt-1 flex items-center gap-4 text-sm text-gray-500">
+                    <h3 className="font-medium text-fg">{post.title}</h3>
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                       <span>By {post.author.name}</span>
                       <span>•</span>
                       <span>{formatDate(post.createdAt)}</span>
@@ -175,10 +135,10 @@ export default async function AdminDashboard() {
                   </div>
 
                   <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium ${
+                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${
                       post.status === 'PUBLISHED'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-yellow-100 text-yellow-800'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-yellow-100 text-yellow-700'
                     }`}
                   >
                     {post.status}
@@ -189,47 +149,43 @@ export default async function AdminDashboard() {
           </div>
         </div>
 
-        {/* Recent Messages (ADMIN ONLY) */}
+        {/* Recent Messages */}
         {isAdmin && (
-          <div className="rounded-xl border bg-white p-6 shadow-sm">
+          <div className="rounded-2xl bg-card p-6 elev-sm">
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Recent Messages
-              </h2>
-              <MessageSquare className="h-5 w-5 text-gray-400" />
+              <h2 className="text-lg font-semibold text-fg">Recent Messages</h2>
+              <MessageSquare className="h-5 w-5 text-muted-foreground" />
             </div>
 
             <div className="space-y-4">
               {recentMessages.length > 0 ? (
-                recentMessages.map((message) => (
+                recentMessages.map(msg => (
                   <div
-                    key={message.id}
-                    className="rounded-lg border border-gray-100 bg-blue-50 p-4"
+                    key={msg.id}
+                    className="rounded-xl border border-border bg-blue-50 p-4"
                   >
-                    <h3 className="font-medium text-gray-900">
-                      {message.name}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {message.email}
+                    <h3 className="font-medium text-fg">{msg.name}</h3>
+                    <p className="text-sm text-muted-foreground">{msg.email}</p>
+                    <p className="mt-2 line-clamp-2 text-sm text-fg">
+                      {msg.message}
                     </p>
-                    <p className="mt-2 text-gray-700 line-clamp-2">
-                      {message.message}
-                    </p>
-                    <p className="mt-3 text-xs text-gray-500">
-                      {formatDate(message.createdAt)}
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      {formatDate(msg.createdAt)}
                     </p>
                   </div>
                 ))
               ) : (
-                <div className="rounded-lg border border-dashed border-gray-200 p-8 text-center">
-                  <MessageSquare className="mx-auto h-10 w-10 text-gray-400" />
-                  <p className="mt-2 text-gray-500">No new messages</p>
+                <div className="rounded-xl border border-dashed border-border p-10 text-center">
+                  <MessageSquare className="mx-auto h-10 w-10 text-muted-foreground" />
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    No new messages
+                  </p>
                 </div>
               )}
             </div>
           </div>
         )}
-      </div>
+      </section>
     </div>
   )
 }

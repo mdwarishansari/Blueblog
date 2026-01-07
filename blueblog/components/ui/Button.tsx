@@ -1,27 +1,68 @@
+'use client'
+
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+/* =====================================================
+   BUTTON VARIANTS — SINGLE SOURCE OF TRUTH
+   Visual-only. No logic changes.
+   ===================================================== */
+
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95',
+  [
+    // base
+    'inline-flex items-center justify-center gap-2',
+    'rounded-lg font-medium whitespace-nowrap',
+    'select-none',
+    'ui-transition btn-hover-effect',
+    'disabled:pointer-events-none disabled:opacity-60',
+    'active:scale-[0.98]',
+  ].join(' '),
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:opacity-90',
-        destructive: 'bg-red-600 text-white hover:bg-red-700 shadow-sm hover:shadow',
-        outline: 'border-2 border-input bg-background hover:bg-accent hover:text-accent-foreground',
-        secondary: 'bg-secondary text-secondary-foreground hover:opacity-90',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'text-primary underline-offset-4 hover:underline',
+        default: [
+          'text-white',
+          'bg-gradient-to-r from-[var(--accent-start)] via-[var(--accent-mid)] to-[var(--accent-end)]',
+          'btn-glow', // glow visible by default
+        ].join(' '),
+
+        secondary: [
+          'bg-card text-fg',
+          'border border-[var(--border)]',
+          'elev-sm',
+          'hover:elev-md',
+        ].join(' '),
+
+        outline: [
+          'bg-transparent text-fg',
+          'border border-[var(--border)]',
+          'hover:bg-[var(--muted)]',
+          'elev-sm hover:elev-md',
+        ].join(' '),
+
+        ghost: [
+          'bg-transparent text-fg',
+          'hover:bg-[var(--muted)]',
+        ].join(' '),
+
+        link: [
+          'bg-transparent text-[var(--accent-start)]',
+          'underline-offset-4 hover:underline',
+          'p-0 h-auto',
+        ].join(' '),
       },
+
       size: {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-9 rounded-lg px-3',
-        lg: 'h-11 rounded-lg px-8',
-        icon: 'h-10 w-10',
+        sm: 'h-8 px-3 text-sm',
+        default: 'h-10 px-4 text-sm',
+        lg: 'h-12 px-6 text-base',
+        icon: 'h-10 w-10 p-0',
       },
     },
+
     defaultVariants: {
       variant: 'default',
       size: 'default',
@@ -35,21 +76,39 @@ export interface ButtonProps
   loading?: boolean
 }
 
+/* =====================================================
+   BUTTON COMPONENT
+   ===================================================== */
+
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, loading, children, disabled, ...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      loading = false,
+      disabled,
+      children,
+      ...props
+    },
+    ref
+  ) => {
     return (
       <button
-        className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         disabled={disabled || loading}
+        className={cn(buttonVariants({ variant, size }), className)}
         {...props}
       >
-        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        {loading && (
+          <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+        )}
         {children}
       </button>
     )
   }
 )
+
 Button.displayName = 'Button'
 
 export { Button, buttonVariants }

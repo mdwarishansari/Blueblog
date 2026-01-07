@@ -6,21 +6,23 @@ import toast from 'react-hot-toast'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Category, UserRole, Image as ImageType } from '@prisma/client'
+import { useRouter } from 'next/navigation'
 
 const Editor = dynamic(() => import('@/components/Editor'), { ssr: false })
 
 interface PageProps {
   params: Promise<{ id: string }>
+  userRole: UserRole
 }
 
 const slugify = (v: string) =>
   v.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-')
 
-export default function EditPostPage({ params }: PageProps) {
+export default function EditPostPage({ params, userRole }: PageProps) {
   const { id } = use(params)
+  const router = useRouter()
 
-  const userRole: UserRole = 'WRITER'
-
+  /** ✅ role-based publish (FIXED) */
   const canPublish = userRole !== 'WRITER'
 
   const [slugTouched, setSlugTouched] = useState(false)
@@ -40,8 +42,7 @@ export default function EditPostPage({ params }: PageProps) {
     canonicalUrl: '',
   })
 
-  /* ---------------- Load data ---------------- */
-
+  /* ---------------- LOAD DATA ---------------- */
   useEffect(() => {
     async function load() {
       try {
@@ -50,15 +51,12 @@ export default function EditPostPage({ params }: PageProps) {
           fetch(`/api/admin/posts/${id}`),
         ])
 
-        if (!catRes.ok || !postRes.ok) {
-          throw new Error('Failed to load post')
-        }
+        if (!catRes.ok || !postRes.ok) throw new Error()
 
         const cats = await catRes.json()
         const postData = await postRes.json()
 
         setCategories(cats)
-
         setPost({
           title: postData.title,
           slug: postData.slug,
@@ -71,7 +69,7 @@ export default function EditPostPage({ params }: PageProps) {
         })
 
         setImage(postData.bannerImage || null)
-      } catch (e) {
+      } catch {
         toast.error('Failed to load post')
       } finally {
         setLoading(false)
@@ -81,144 +79,153 @@ export default function EditPostPage({ params }: PageProps) {
     load()
   }, [id])
 
-  /* ---------------- Slug auto ---------------- */
-
+  /* ---------------- SLUG AUTO ---------------- */
   useEffect(() => {
     if (!slugTouched && post.title) {
       setPost((p: any) => ({ ...p, slug: slugify(p.title) }))
     }
   }, [post.title, slugTouched])
 
-  /* ---------------- SEO score ---------------- */
-
+  /* ---------------- SEO SCORE ---------------- */
   const seoScore = useMemo(() => {
-    let s = 0
-    if (post.seoTitle.length >= 40 && post.seoTitle.length <= 60) s += 40
-    if (post.seoDescription.length >= 120 && post.seoDescription.length <= 160) s += 40
-    if (post.slug) s += 20
-    return s
+    let score = 0
+    if (post.seoTitle.length >= 40) score += 25
+    if (post.seoDescription.length >= 120) score += 25
+    if (post.slug) score += 20
+    if (post.excerpt.length >= 50) score += 15
+    if (post.categoryIds.length > 0) score += 15
+    return Math.min(score, 100)
   }, [post])
 
-  /* ---------------- Save ---------------- */
-
+  /* ---------------- SAVE ---------------- */
   async function save(publish: boolean) {
-  setSaving(true)
+    setSaving(true)
 
-  const res = await fetch(`/api/admin/posts/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      ...post,
-      bannerImageId: image?.id || null,
-      status: publish ? 'PUBLISHED' : 'DRAFT',
-      publishedAt: publish ? new Date().toISOString() : undefined,
-    }),
-  })
-
-  let data = null
-  if (res.headers.get('content-type')?.includes('application/json')) {
-    data = await res.json()
-  }
-
-  if (!res.ok) {
-    toast.error(data?.message || 'Failed to save')
-    setSaving(false)
-    return
-  }
-
-  /* 🔥 SAVE IMAGE METADATA */
-  if (image?.id) {
-    await fetch(`/api/images/${image.id}`, {
+    const res = await fetch(`/api/admin/posts/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        altText: image.altText,
-        title: image.title,
-        caption: image.caption,
+        ...post,
+        bannerImageId: image?.id || null,
+        status: publish ? 'PUBLISHED' : 'DRAFT',
+        publishedAt: publish ? new Date().toISOString() : undefined,
       }),
     })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      toast.error(data.message || 'Failed to save')
+      setSaving(false)
+      return
+    }
+
+    /** 🔥 save image meta */
+    if (image?.id) {
+      await fetch(`/api/images/${image.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          altText: image.altText,
+          title: image.title,
+          caption: image.caption,
+        }),
+      })
+    }
+
+    toast.success(publish ? 'Post published' : 'Draft updated')
+
+    if (publish) {
+      setTimeout(() => router.push('/admin/posts'), 800)
+    }
+
+    setSaving(false)
   }
-
-  toast.success(publish ? 'Post published' : 'Draft updated')
-  setSaving(false)
-}
-
 
   if (loading) {
     return <div className="flex h-64 items-center justify-center">Loading…</div>
   }
 
-  /* ---------------- UI (SAME AS NEW PAGE) ---------------- */
-
+  /* ---------------- UI ---------------- */
   return (
     <div className="grid gap-6 lg:grid-cols-3">
-      {/* MAIN */}
+      {/* ================= MAIN ================= */}
       <div className="lg:col-span-2 space-y-4">
-        <Input
-          placeholder="Post title"
-          value={post.title}
-          onChange={e => setPost({ ...post, title: e.target.value })}
-        />
+        <div>
+          <label className="text-sm font-medium">Post Title</label>
+          <Input
+            value={post.title}
+            onChange={e => setPost({ ...post, title: e.target.value })}
+          />
+        </div>
 
-        <Input
-          placeholder="post-slug"
-          value={post.slug}
-          onChange={e => {
-            setSlugTouched(true)
-            setPost({ ...post, slug: slugify(e.target.value) })
-          }}
-        />
+        <div>
+          <label className="text-sm font-medium">Slug</label>
+          <Input
+            value={post.slug}
+            onChange={e => {
+              setSlugTouched(true)
+              setPost({ ...post, slug: slugify(e.target.value) })
+            }}
+          />
+        </div>
 
-        <textarea
-          placeholder="Short excerpt"
-          value={post.excerpt}
-          onChange={e => setPost({ ...post, excerpt: e.target.value })}
-          className="w-full rounded border p-2 bg-background"
-        />
+        <div>
+          <label className="text-sm font-medium">Excerpt</label>
+          <textarea
+            value={post.excerpt}
+            onChange={e => setPost({ ...post, excerpt: e.target.value })}
+            className="w-full rounded-lg bg-background p-3"
+          />
+        </div>
 
-        <Editor
-          value={post.content}
-          onChange={v => setPost({ ...post, content: v })}
-        />
+        <div>
+          <label className="text-sm font-medium">Content</label>
+          <Editor
+            value={post.content}
+            onChange={v => setPost({ ...post, content: v })}
+          />
+        </div>
+
+        <Button variant="ghost" onClick={() => router.push('/admin/posts')}>
+          ← Back to Posts
+        </Button>
       </div>
 
-      {/* SIDEBAR */}
+      {/* ================= SIDEBAR ================= */}
       <div className="space-y-6">
-        {/* Image */}
-        <div className="rounded border p-4">
-          {image && <img src={image.url} className="rounded mb-2" />}
+        {/* IMAGE */}
+        <div className="rounded-xl bg-card p-4 elev-sm space-y-3">
+          <label className="text-sm font-medium">Featured Image</label>
+
+          {image && <img src={image.url} className="rounded-lg" />}
 
           <Input
-            placeholder="Alt text (SEO)"
+            placeholder="Alt text"
             value={image?.altText || ''}
-            onChange={e =>
-              image && setImage({ ...image, altText: e.target.value })
-            }
+            onChange={e => image && setImage({ ...image, altText: e.target.value })}
           />
 
           <Input
             placeholder="Image title"
             value={image?.title || ''}
-            onChange={e =>
-              image && setImage({ ...image, title: e.target.value })
-            }
+            onChange={e => image && setImage({ ...image, title: e.target.value })}
           />
 
           <textarea
             placeholder="Image caption"
             value={image?.caption || ''}
-            onChange={e =>
-              image && setImage({ ...image, caption: e.target.value })
-            }
-            className="w-full rounded border p-2 bg-background"
+            onChange={e => image && setImage({ ...image, caption: e.target.value })}
+            className="w-full rounded-lg bg-background p-2"
             rows={2}
           />
         </div>
 
-        {/* Categories */}
-        <div className="rounded border p-4">
+        {/* CATEGORIES */}
+        <div className="rounded-xl bg-card p-4 elev-sm space-y-2">
+          <label className="text-sm font-medium">Categories</label>
           {categories.map(c => (
-            <label key={c.id} className="flex gap-2">
+            <label key={c.id} className="flex gap-2 text-sm">
               <input
                 type="checkbox"
                 checked={post.categoryIds.includes(c.id)}
@@ -237,9 +244,14 @@ export default function EditPostPage({ params }: PageProps) {
         </div>
 
         {/* SEO */}
-        <div className="rounded border p-4 space-y-2">
-          <div className="h-2 bg-muted rounded">
-            <div className="h-full bg-green-500" style={{ width: `${seoScore}%` }} />
+        <div className="rounded-xl bg-card p-4 elev-sm space-y-3">
+          <label className="text-sm font-medium">SEO</label>
+
+          <div className="h-2 rounded bg-muted overflow-hidden">
+            <div
+              className="h-full bg-green-500 transition-all"
+              style={{ width: `${seoScore}%` }}
+            />
           </div>
 
           <Input
@@ -254,18 +266,22 @@ export default function EditPostPage({ params }: PageProps) {
             onChange={e =>
               setPost({ ...post, seoDescription: e.target.value })
             }
-            className="w-full rounded border p-2 bg-background"
+            className="w-full rounded-lg bg-background p-2"
           />
         </div>
 
-        <Button onClick={() => save(false)} loading={saving}>
-          Save Draft
-        </Button>
-        {canPublish && (
-          <Button onClick={() => save(true)} loading={saving}>
-            Publish
+        {/* ACTIONS */}
+        <div className="flex gap-2">
+          <Button loading={saving} onClick={() => save(false)} className="flex-1">
+            Save Draft
           </Button>
-        )}
+
+          {canPublish && (
+            <Button loading={saving} onClick={() => save(true)} className="flex-1">
+              Publish
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   )

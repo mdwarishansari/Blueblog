@@ -13,7 +13,7 @@ interface EditorProps {
 
 export default function Editor({ value, onChange, className }: EditorProps) {
   const editor = useEditor({
-    immediatelyRender: false, // 🔥 REQUIRED for Next.js App Router
+    immediatelyRender: false, // REQUIRED for App Router
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },
@@ -25,27 +25,38 @@ export default function Editor({ value, onChange, className }: EditorProps) {
     },
   })
 
-  // Sync external value → editor (for edit page)
+  // 🔁 Sync external value → editor (edit page)
   useEffect(() => {
     if (!editor || !value) return
-
     const current = editor.getJSON()
     if (JSON.stringify(current) !== JSON.stringify(value)) {
       editor.commands.setContent(value, { emitUpdate: false })
-
     }
   }, [value, editor])
 
   if (!editor) return null
 
+  const toolBtn = (active: boolean) =>
+    cn(
+      'rounded-lg px-3 py-1.5 text-sm font-medium ui-transition',
+      active
+        ? 'bg-primary/10 text-primary'
+        : 'text-muted-foreground hover:bg-muted'
+    )
+
   return (
-    <div className={cn('rounded-lg border bg-background overflow-hidden', className)}>
-      {/* Toolbar */}
-      <div className="flex flex-wrap gap-1 border-b p-2">
+    <div
+      className={cn(
+        'rounded-xl bg-card elev-sm overflow-hidden flex flex-col border border-border',
+        className
+      )}
+    >
+      {/* ================= TOOLBAR ================= */}
+      <div className="flex flex-wrap items-center gap-1 border-b border-border bg-muted/40 px-2 py-2">
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBold().run()}
-          className="rounded px-2 py-1 text-sm hover:bg-muted"
+          className={toolBtn(editor.isActive('bold'))}
         >
           Bold
         </button>
@@ -53,15 +64,17 @@ export default function Editor({ value, onChange, className }: EditorProps) {
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          className="rounded px-2 py-1 text-sm hover:bg-muted"
+          className={toolBtn(editor.isActive('italic'))}
         >
           Italic
         </button>
 
         <button
           type="button"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className="rounded px-2 py-1 text-sm hover:bg-muted"
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
+          className={toolBtn(editor.isActive('heading', { level: 2 }))}
         >
           H2
         </button>
@@ -69,38 +82,73 @@ export default function Editor({ value, onChange, className }: EditorProps) {
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className="rounded px-2 py-1 text-sm hover:bg-muted"
+          className={toolBtn(editor.isActive('bulletList'))}
         >
           UL
         </button>
       </div>
 
-      {/* Editor */}
+      {/* ================= EDITOR ================= */}
       <EditorContent
-  editor={editor}
-  className="
-    min-h-[360px]
-    w-full
-    px-4 py-4
-    focus:outline-none
+        editor={editor}
+        className="
+          min-h-[360px]
+          w-full
+          px-5 py-4
+          focus:outline-none
+          text-fg
+        "
+      />
 
-    prose prose-lg
-    dark:prose-invert
+      {/* ================= TYPOGRAPHY SCOPE ================= */}
+      <style jsx global>{`
+        .ProseMirror {
+          outline: none;
+        }
 
-    prose-h1:text-3xl
-    prose-h2:text-2xl
-    prose-h2:font-bold
-    prose-h3:text-xl
+        .ProseMirror h1 {
+          font-size: 1.875rem;
+          font-weight: 700;
+          margin: 1rem 0;
+        }
 
-    prose-ul:list-disc
-    prose-ul:pl-6
-    prose-ol:list-decimal
-    prose-ol:pl-6
+        .ProseMirror h2 {
+          font-size: 1.5rem;
+          font-weight: 700;
+          margin: 0.75rem 0;
+        }
 
-    prose-p:my-2
-  "
-/>
+        .ProseMirror h3 {
+          font-size: 1.25rem;
+          font-weight: 600;
+          margin: 0.5rem 0;
+        }
 
+        .ProseMirror p {
+          margin: 0.5rem 0;
+          line-height: 1.75;
+        }
+
+        .ProseMirror ul {
+          list-style: disc;
+          padding-left: 1.5rem;
+          margin: 0.5rem 0;
+        }
+
+        .ProseMirror ol {
+          list-style: decimal;
+          padding-left: 1.5rem;
+          margin: 0.5rem 0;
+        }
+
+        .ProseMirror strong {
+          font-weight: 700;
+        }
+
+        .ProseMirror em {
+          font-style: italic;
+        }
+      `}</style>
     </div>
   )
 }

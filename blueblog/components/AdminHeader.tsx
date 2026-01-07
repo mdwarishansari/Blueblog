@@ -1,5 +1,3 @@
-import { Bell } from 'lucide-react'
-
 interface AdminHeaderProps {
   user: {
     name: string
@@ -22,39 +20,44 @@ export default function AdminHeader({
       : '/avatars/default.png'
 
   return (
-    <header className="flex h-16 items-center justify-between border-b px-6 bg-background">
-      {/* LEFT */}
+    <header
+      className="
+        hidden lg:flex
+        h-16 items-center justify-between
+        bg-card px-6 elev-sm
+      "
+    >
+      {/* LEFT — BRAND */}
       <div className="flex items-center gap-3">
         {siteLogo && (
           <img
             src={siteLogo}
             alt="Site logo"
-            className="h-8 w-8 object-contain"
+            className="h-9 w-9 object-contain"
           />
         )}
-        <span className="text-lg font-semibold">
-          {siteName || 'Admin'}
+        <span className="text-lg font-semibold tracking-tight text-fg">
+          {siteName || 'Dashboard'}
         </span>
       </div>
 
-      {/* RIGHT */}
-      <div className="flex items-center gap-4">
-        <Bell className="h-5 w-5 text-muted-foreground" />
-
-        <div className="flex items-center gap-2">
-          <img
-            src={avatar}
-            alt="User avatar"
-            className="h-8 w-8 rounded-full object-cover border"
-            referrerPolicy="no-referrer"
-          />
-          <div className="text-right">
-            <p className="text-sm font-medium">{user.name}</p>
-            <p className="text-xs text-muted-foreground">
-              {user.role}
-            </p>
-          </div>
+      {/* RIGHT — USER */}
+      <div className="flex items-center gap-3">
+        <div className="text-right leading-tight">
+          <p className="text-sm font-medium text-fg">
+            {user.name}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {user.role}
+          </p>
         </div>
+
+        <img
+          src={avatar}
+          alt="User avatar"
+          className="h-9 w-9 rounded-full object-cover"
+          referrerPolicy="no-referrer"
+        />
       </div>
     </header>
   )

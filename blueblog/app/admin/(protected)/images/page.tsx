@@ -25,7 +25,9 @@ export default function AdminImagesPage() {
   const [search, setSearch] = useState('')
   const [uploading, setUploading] = useState(false)
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
-  // const [selectedImage, setSelectedImage] = useState<ImageData | null>(null)
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+
   const [uploadForm, setUploadForm] = useState({
     altText: '',
     title: '',
@@ -40,10 +42,8 @@ export default function AdminImagesPage() {
     try {
       const response = await fetch('/api/upload/cloudinary')
       const data = await response.json()
-      if (response.ok) {
-        setImages(data.images)
-      }
-    } catch (error) {
+      if (response.ok) setImages(data.images)
+    } catch {
       toast.error('Failed to fetch images')
     } finally {
       setLoading(false)
@@ -52,18 +52,16 @@ export default function AdminImagesPage() {
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault()
-    const fileInput = document.getElementById('file-input') as HTMLInputElement
-    const file = fileInput.files?.[0]
-    
-    if (!file) {
+
+    if (!selectedFile) {
       toast.error('Please select a file')
       return
     }
 
     setUploading(true)
-    
+
     const formData = new FormData()
-    formData.append('file', file)
+    formData.append('file', selectedFile)
     formData.append('altText', uploadForm.altText)
     formData.append('title', uploadForm.title)
     formData.append('caption', uploadForm.caption)
@@ -75,150 +73,139 @@ export default function AdminImagesPage() {
       })
 
       const data = await response.json()
+      if (!response.ok) throw new Error(data.message)
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Upload failed')
-      }
-
-      toast.success('Image uploaded successfully')
+      toast.success('Image uploaded')
       setIsUploadModalOpen(false)
+      setSelectedFile(null)
       setUploadForm({ altText: '', title: '', caption: '' })
-      fileInput.value = ''
       fetchImages()
-    } catch (error: any) {
-      toast.error(error.message)
+    } catch (err: any) {
+      toast.error(err.message)
     } finally {
       setUploading(false)
     }
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this image?')) return
+    if (!confirm('Delete this image?')) return
 
     try {
-      const response = await fetch(`/api/images/${id}`, {
-  method: 'DELETE',
-})
-
-
-
+      const response = await fetch(`/api/images/${id}`, { method: 'DELETE' })
       const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to delete image')
-      }
-
+      if (!response.ok) throw new Error(data.message)
       toast.success(data.message)
       fetchImages()
-    } catch (error: any) {
-      toast.error(error.message)
+    } catch (err: any) {
+      toast.error(err.message)
     }
   }
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
-    toast.success('Copied to clipboard')
+    toast.success('Copied URL')
   }
 
-  const filteredImages = images.filter(image =>
-    (image.altText?.toLowerCase().includes(search.toLowerCase()) ||
-     image.title?.toLowerCase().includes(search.toLowerCase()) ||
-     image.caption?.toLowerCase().includes(search.toLowerCase())) ||
+  const filteredImages = images.filter(img =>
+    [img.altText, img.title, img.caption]
+      .some(v => v?.toLowerCase().includes(search.toLowerCase())) ||
     search === ''
   )
 
   if (loading) {
-    return <div>Loading...</div>
+    return <div className="skeleton h-64 w-full rounded-xl" />
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Media Library</h1>
-          <p className="text-gray-600">Manage your images and media files</p>
+          <h1 className="text-2xl font-bold">Media Library</h1>
+          <p className="text-sm text-slate-500">
+            Upload, search and manage images
+          </p>
         </div>
+
         <Button onClick={() => setIsUploadModalOpen(true)} className="gap-2">
           <Upload className="h-4 w-4" />
           Upload Image
         </Button>
       </div>
 
-      <div className="rounded-xl border bg-white p-4">
-        <div className="mb-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <Input
-              placeholder="Search images..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+      {/* Search */}
+      <div className="bg-card elev-sm rounded-xl p-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Input
+            placeholder="Search images..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10"
+          />
         </div>
+      </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredImages.map((image) => (
-            <div key={image.id} className="group relative overflow-hidden rounded-lg border">
-              <div className="relative aspect-square overflow-hidden bg-gray-100">
-                <Image
-                  src={image.url}
-                  alt={image.altText || ''}
-                  fill
-                  className="object-cover transition-transform group-hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-                <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
-              </div>
-              <div className="p-4">
-                {image.title && (
-                  <h3 className="mb-1 text-sm font-medium text-gray-900 truncate">
-                    {image.title}
-                  </h3>
-                )}
-                {image.altText && (
-                  <p className="mb-2 text-xs text-gray-600 truncate">
-                    {image.altText}
-                  </p>
-                )}
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">
-                    {image.width}×{image.height}
-                  </span>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6"
-                      onClick={() => copyToClipboard(image.url)}
-                      title="Copy URL"
-                    >
-                      <Copy className="h-3 w-3" />
-                    </Button>
-                    <a
-                      href={image.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex h-6 w-6 items-center justify-center rounded text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-                      title="Open in new tab"
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 text-red-400 hover:text-red-600 hover:bg-red-50"
-                      onClick={() => handleDelete(image.id)}
-                      title="Delete"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
+      {/* Grid */}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {filteredImages.map(image => (
+          <div
+            key={image.id}
+            className="group bg-card elev-sm rounded-xl overflow-hidden ui-transition ui-lift"
+          >
+            <div className="relative aspect-square bg-muted overflow-hidden">
+              <Image
+                src={image.url}
+                alt={image.altText || ''}
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+            </div>
+
+            <div className="p-4 space-y-2">
+              {image.title && (
+                <h3 className="text-sm font-semibold truncate">
+                  {image.title}
+                </h3>
+              )}
+              {image.altText && (
+                <p className="text-xs text-slate-500 truncate">
+                  {image.altText}
+                </p>
+              )}
+
+              <div className="flex items-center justify-between pt-2">
+                <span className="text-xs text-slate-400">
+                  {image.width}×{image.height}
+                </span>
+
+                <div className="flex gap-1">
+                  <Button size="icon" variant="ghost" onClick={() => copyToClipboard(image.url)}>
+                    <Copy className="h-4 w-4" />
+                  </Button>
+
+                  <a
+                    href={image.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-muted ui-transition"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="text-red-500 hover:bg-red-50"
+                    onClick={() => handleDelete(image.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
 
       {/* Upload Modal */}
@@ -226,63 +213,99 @@ export default function AdminImagesPage() {
         isOpen={isUploadModalOpen}
         onClose={() => {
           setIsUploadModalOpen(false)
-          setUploadForm({ altText: '', title: '', caption: '' })
+          setSelectedFile(null)
         }}
         title="Upload Image"
         size="md"
       >
         <form onSubmit={handleUpload} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Select Image
-            </label>
+          {/* File selector */}
+          <div className="space-y-3">
+            {!selectedFile ? (
+              <label
+                htmlFor="file-input"
+                className="
+                  flex cursor-pointer items-center justify-center gap-2
+                  rounded-xl px-4 py-3
+                  bg-card
+                  elev-sm
+                  btn-glow
+                  ui-transition
+                  hover:scale-[1.02]
+                  hover:elev-lg
+                  text-sm font-medium
+                "
+              >
+                <Upload className="h-4 w-4 text-indigo-500" />
+                Choose image
+              </label>
+            ) : (
+              <div className="rounded-xl bg-muted p-3 elev-sm ui-transition">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {selectedFile.name}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
+
+                  <div className="flex gap-2 shrink-0">
+                    <label htmlFor="file-input">
+                      <Button size="sm" variant="ghost">
+                        Replace
+                      </Button>
+                    </label>
+
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-red-500 hover:bg-red-50"
+                      onClick={() => setSelectedFile(null)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <input
               id="file-input"
               type="file"
               accept="image/*"
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
-              required
+              className="hidden"
+              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
             />
           </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Alt Text
-            </label>
-            <Input
-              value={uploadForm.altText}
-              onChange={(e) => setUploadForm({ ...uploadForm, altText: e.target.value })}
-              placeholder="Description for screen readers"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Title
-            </label>
-            <Input
-              value={uploadForm.title}
-              onChange={(e) => setUploadForm({ ...uploadForm, title: e.target.value })}
-              placeholder="Optional title"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Caption
-            </label>
-            <Input
-              value={uploadForm.caption}
-              onChange={(e) => setUploadForm({ ...uploadForm, caption: e.target.value })}
-              placeholder="Optional caption"
-            />
-          </div>
-          
+
+          <Input
+            placeholder="Alt text"
+            value={uploadForm.altText}
+            onChange={e => setUploadForm({ ...uploadForm, altText: e.target.value })}
+          />
+
+          <Input
+            placeholder="Title"
+            value={uploadForm.title}
+            onChange={e => setUploadForm({ ...uploadForm, title: e.target.value })}
+          />
+
+          <Input
+            placeholder="Caption"
+            value={uploadForm.caption}
+            onChange={e => setUploadForm({ ...uploadForm, caption: e.target.value })}
+          />
+
           <div className="flex justify-end gap-3 pt-4">
             <Button
-              type="button"
               variant="outline"
-              onClick={() => setIsUploadModalOpen(false)}
+              type="button"
+              onClick={() => {
+                setIsUploadModalOpen(false)
+                setSelectedFile(null)
+              }}
             >
               Cancel
             </Button>

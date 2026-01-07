@@ -1,7 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Save, Globe, Link as LinkIcon, Settings as SettingsIcon } from 'lucide-react'
+import {
+  Save,
+  Globe,
+  Link as LinkIcon,
+  Settings as SettingsIcon,
+  Twitter,
+  Facebook,
+  Instagram,
+} from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import toast from 'react-hot-toast'
@@ -29,7 +37,7 @@ export default function AdminSettingsPage() {
     contact_email: '',
     footer_text: '',
     site_logo: '',
-    social_links: {}
+    social_links: {},
   })
 
   useEffect(() => {
@@ -41,10 +49,8 @@ export default function AdminSettingsPage() {
     try {
       const response = await fetch('/api/admin/settings')
       const data = await response.json()
-      if (response.ok) {
-        setSettings(data)
-      }
-    } catch (error) {
+      if (response.ok) setSettings(data)
+    } catch {
       toast.error('Failed to load settings')
     } finally {
       setLoading(false)
@@ -52,29 +58,25 @@ export default function AdminSettingsPage() {
   }
 
   const uploadLogo = async (file: File) => {
-  // instant preview
-  const localPreview = URL.createObjectURL(file)
-  setSettings(s => ({ ...s, site_logo: localPreview }))
+    const localPreview = URL.createObjectURL(file)
+    setSettings(s => ({ ...s, site_logo: localPreview }))
 
-  const form = new FormData()
-  form.append('file', file)
+    const form = new FormData()
+    form.append('file', file)
 
-  const res = await fetch('/api/upload/cloudinary', {
-    method: 'POST',
-    body: form,
-  })
+    const res = await fetch('/api/upload/cloudinary', {
+      method: 'POST',
+      body: form,
+    })
 
-  const data = await res.json()
+    const data = await res.json()
+    if (!res.ok || !data.image?.url) {
+      toast.error('Logo upload failed')
+      return
+    }
 
-  if (!res.ok || !data.image?.url) {
-    toast.error('Logo upload failed')
-    return
+    setSettings(s => ({ ...s, site_logo: data.image.url }))
   }
-
-  // replace preview with real url
-  setSettings(s => ({ ...s, site_logo: data.image.url }))
-}
-
 
   const handleSave = async () => {
     setSaving(true)
@@ -86,10 +88,7 @@ export default function AdminSettingsPage() {
       })
 
       const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to save settings')
-      }
+      if (!response.ok) throw new Error(data.message)
 
       toast.success('Settings saved successfully')
     } catch (error: any) {
@@ -100,207 +99,235 @@ export default function AdminSettingsPage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="text-center">Loading settings...</div>
-      </div>
-    )
+    return <div className="skeleton h-64 w-full rounded-xl" />
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-600">Manage your site configuration</p>
+        <h1 className="text-2xl font-bold">Settings</h1>
+        <p className="text-sm text-slate-500">
+          Manage your site configuration
+        </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* General Settings */}
-        <div className="rounded-xl border bg-white p-6">
-          <div className="mb-6 flex items-center gap-3">
-            <div className="rounded-lg bg-primary-100 p-2">
-              <SettingsIcon className="h-5 w-5 text-primary-600" />
+        {/* GENERAL SETTINGS */}
+        <div className="bg-card elev-sm rounded-2xl p-6 space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-indigo-100 p-2">
+              <SettingsIcon className="h-5 w-5 text-indigo-600" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">General Settings</h2>
-              <p className="text-sm text-gray-600">Basic site configuration</p>
+              <h2 className="text-lg font-semibold">General Settings</h2>
+              <p className="text-sm text-slate-500">
+                Basic site configuration
+              </p>
             </div>
           </div>
 
-          <div>
-  <label className="block text-sm font-medium text-gray-700">
-    Site Logo
-  </label>
+          {/* LOGO */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Site Logo</label>
 
-  <div className="flex items-center gap-4 mt-2">
-    <img
-      src={settings.site_logo || '/logo-placeholder.png'}
-      alt="Site Logo"
-      className="h-16 w-16 rounded-lg border object-contain bg-white"
-    />
+            <div className="flex flex-col sm:flex-row gap-6 items-start">
+              <div className="h-40 w-40 rounded-2xl bg-muted elev-sm flex items-center justify-center overflow-hidden">
+                <img
+                  src={settings.site_logo || '/logo-placeholder.png'}
+                  alt="Site Logo"
+                  className="h-full w-full object-contain"
+                />
+              </div>
 
-    <label className="cursor-pointer text-sm text-primary-600">
-      Change Logo
-      <input
-        type="file"
-        hidden
-        accept="image/*"
-        onChange={e => {
-  const file = e.target.files?.[0]
-  if (file) {
-    uploadLogo(file)
-  }
-}}
-
-      />
-    </label>
-  </div>
-</div>
-
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Site Name
-              </label>
-              <Input
-                value={settings.site_name}
-                onChange={(e) => setSettings({ ...settings, site_name: e.target.value })}
-                placeholder="BlueBlog"
-              />
+              <div className="space-y-2">
+                <label className="cursor-pointer inline-block">
+                  <span className="inline-flex items-center rounded-xl bg-card px-4 py-2 text-sm font-medium elev-sm ui-transition hover:elev-lg hover:scale-[1.02]">
+                    Change Logo
+                  </span>
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={e => {
+                      const file = e.target.files?.[0]
+                      if (file) uploadLogo(file)
+                    }}
+                  />
+                </label>
+                <p className="text-xs text-slate-500">
+                  Square image recommended
+                </p>
+              </div>
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Site Description
-              </label>
-              <textarea
-                value={settings.site_description}
-                onChange={(e) => setSettings({ ...settings, site_description: e.target.value })}
-                rows={3}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                placeholder="A modern, SEO-optimized blogging platform"
-              />
-            </div>
+          {/* SITE NAME */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Site Name</label>
+            <Input
+              value={settings.site_name}
+              onChange={e =>
+                setSettings({ ...settings, site_name: e.target.value })
+              }
+            />
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Contact Email
-              </label>
-              <Input
-                type="email"
-                value={settings.contact_email}
-                onChange={(e) => setSettings({ ...settings, contact_email: e.target.value })}
-                placeholder="contact@blueblog.com"
-              />
-            </div>
+          {/* DESCRIPTION */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Site Description</label>
+            <textarea
+              rows={3}
+              value={settings.site_description}
+              onChange={e =>
+                setSettings({
+                  ...settings,
+                  site_description: e.target.value,
+                })
+              }
+              className="
+                w-full
+                rounded-xl
+                bg-card
+                elev-sm
+                px-3
+                py-2
+                text-sm
+                ui-transition
+                focus:outline-none
+                focus:elev-lg
+              "
+            />
+          </div>
+
+          {/* EMAIL */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Contact Email</label>
+            <Input
+              type="email"
+              value={settings.contact_email}
+              onChange={e =>
+                setSettings({ ...settings, contact_email: e.target.value })
+              }
+            />
           </div>
         </div>
 
-        {/* Social Media */}
-        <div className="rounded-xl border bg-white p-6">
-          <div className="mb-6 flex items-center gap-3">
-            <div className="rounded-lg bg-blue-100 p-2">
+        {/* SOCIAL LINKS */}
+        <div className="bg-card elev-sm rounded-2xl p-6 space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-blue-100 p-2">
               <Globe className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Social Media</h2>
-              <p className="text-sm text-gray-600">Your social media profiles</p>
+              <h2 className="text-lg font-semibold">Social Media</h2>
+              <p className="text-sm text-slate-500">
+                Public profile links
+              </p>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Twitter
-              </label>
-              <div className="mt-1 flex">
-                <span className="inline-flex items-center rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500">
-                  twitter.com/
-                </span>
-                <Input
-                  value={settings.social_links?.twitter || ''}
-                  onChange={(e) => setSettings({
-                    ...settings,
-                    social_links: { ...settings.social_links, twitter: e.target.value }
-                  })}
-                  className="rounded-l-none"
-                  placeholder="username"
-                />
-              </div>
-            </div>
+          {/* Twitter */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium flex items-center gap-2">
+              <Twitter className="h-4 w-4 text-sky-500" /> Twitter
+            </label>
+            <Input
+              value={settings.social_links.twitter || ''}
+              onChange={e =>
+                setSettings({
+                  ...settings,
+                  social_links: {
+                    ...settings.social_links,
+                    twitter: e.target.value,
+                  },
+                })
+              }
+              placeholder="username"
+            />
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Facebook
-              </label>
-              <div className="mt-1 flex">
-                <span className="inline-flex items-center rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500">
-                  facebook.com/
-                </span>
-                <Input
-                  value={settings.social_links?.facebook || ''}
-                  onChange={(e) => setSettings({
-                    ...settings,
-                    social_links: { ...settings.social_links, facebook: e.target.value }
-                  })}
-                  className="rounded-l-none"
-                  placeholder="username"
-                />
-              </div>
-            </div>
+          {/* Facebook */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium flex items-center gap-2">
+              <Facebook className="h-4 w-4 text-blue-600" /> Facebook
+            </label>
+            <Input
+              value={settings.social_links.facebook || ''}
+              onChange={e =>
+                setSettings({
+                  ...settings,
+                  social_links: {
+                    ...settings.social_links,
+                    facebook: e.target.value,
+                  },
+                })
+              }
+              placeholder="username"
+            />
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Instagram
-              </label>
-              <div className="mt-1 flex">
-                <span className="inline-flex items-center rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500">
-                  instagram.com/
-                </span>
-                <Input
-                  value={settings.social_links?.instagram || ''}
-                  onChange={(e) => setSettings({
-                    ...settings,
-                    social_links: { ...settings.social_links, instagram: e.target.value }
-                  })}
-                  className="rounded-l-none"
-                  placeholder="username"
-                />
-              </div>
-            </div>
+          {/* Instagram */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium flex items-center gap-2">
+              <Instagram className="h-4 w-4 text-pink-500" /> Instagram
+            </label>
+            <Input
+              value={settings.social_links.instagram || ''}
+              onChange={e =>
+                setSettings({
+                  ...settings,
+                  social_links: {
+                    ...settings.social_links,
+                    instagram: e.target.value,
+                  },
+                })
+              }
+              placeholder="username"
+            />
           </div>
         </div>
 
-        {/* Footer Settings */}
-        <div className="rounded-xl border bg-white p-6 lg:col-span-2">
-          <div className="mb-6 flex items-center gap-3">
-            <div className="rounded-lg bg-gray-100 p-2">
-              <LinkIcon className="h-5 w-5 text-gray-600" />
+        {/* FOOTER */}
+        <div className="bg-card elev-sm rounded-2xl p-6 space-y-6 lg:col-span-2">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-slate-100 p-2">
+              <LinkIcon className="h-5 w-5 text-slate-600" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Footer Settings</h2>
-              <p className="text-sm text-gray-600">Footer text and links</p>
+              <h2 className="text-lg font-semibold">Footer</h2>
+              <p className="text-sm text-slate-500">
+                Footer text and branding
+              </p>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Footer Text
-              </label>
-              <textarea
-                value={settings.footer_text}
-                onChange={(e) => setSettings({ ...settings, footer_text: e.target.value })}
-                rows={4}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                placeholder="© 2024 BlueBlog. All rights reserved."
-              />
-            </div>
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Footer Text</label>
+            <textarea
+              rows={4}
+              value={settings.footer_text}
+              onChange={e =>
+                setSettings({ ...settings, footer_text: e.target.value })
+              }
+              className="
+                w-full
+                rounded-xl
+                bg-card
+                elev-sm
+                px-3
+                py-2
+                text-sm
+                ui-transition
+                focus:outline-none
+                focus:elev-lg
+              "
+            />
           </div>
         </div>
       </div>
 
+      {/* SAVE */}
       <div className="flex justify-end">
         <Button onClick={handleSave} loading={saving} className="gap-2">
           <Save className="h-4 w-4" />

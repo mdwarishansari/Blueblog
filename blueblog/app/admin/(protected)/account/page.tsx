@@ -10,15 +10,14 @@ import { useRouter } from 'next/navigation'
 export default function AccountPage() {
   const [loading, setLoading] = useState(false)
   const [profile, setProfile] = useState({
-  name: '',
-  email: '',
-  bio: '',
-  profileImage: '', // CLOUDINARY URL ONLY
-})
+    name: '',
+    email: '',
+    bio: '',
+    profileImage: '',
+  })
 
-const [previewImage, setPreviewImage] = useState<string | null>(null)
-
-const router = useRouter()
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const router = useRouter()
 
   const [password, setPassword] = useState({
     currentPassword: '',
@@ -34,35 +33,29 @@ const router = useRouter()
   }, [])
 
   /* -------- IMAGE UPLOAD -------- */
-const uploadImage = async (file: File) => {
-  // 1️⃣ SAFE preview (base64, never revoked)
-  const reader = new FileReader()
-  reader.onload = () => {
-    setPreviewImage(reader.result as string)
+  const uploadImage = async (file: File) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      setPreviewImage(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+
+    const form = new FormData()
+    form.append('file', file)
+
+    const res = await fetch('/api/upload/cloudinary', {
+      method: 'POST',
+      body: form,
+    })
+
+    const data = await res.json()
+    if (!res.ok || !data.image?.url) {
+      toast.error('Image upload failed')
+      return
+    }
+
+    setProfile(p => ({ ...p, profileImage: data.image.url }))
   }
-  reader.readAsDataURL(file)
-
-  // 2️⃣ upload to cloudinary
-  const form = new FormData()
-  form.append('file', file)
-
-  const res = await fetch('/api/upload/cloudinary', {
-    method: 'POST',
-    body: form,
-  })
-
-  const data = await res.json()
-
-  if (!res.ok || !data.image?.url) {
-    toast.error('Image upload failed')
-    return
-  }
-
-  // 3️⃣ store only cloudinary URL
-  setProfile(p => ({ ...p, profileImage: data.image.url }))
-}
-
-
 
   /* -------- SAVE PROFILE -------- */
   const saveProfile = async () => {
@@ -87,121 +80,184 @@ const uploadImage = async (file: File) => {
   }
 
   /* -------- CHANGE PASSWORD -------- */
-const changePassword = async (): Promise<void> => {
-  if (password.newPassword !== password.confirmPassword) {
-    toast.error('Passwords do not match')
-    return
+  const changePassword = async () => {
+    if (password.newPassword !== password.confirmPassword) {
+      toast.error('Passwords do not match')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const res = await fetch('/api/admin/account/password', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(password),
+      })
+
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message)
+
+      toast.success('Password updated')
+      setPassword({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      })
+    } catch (e: any) {
+      toast.error(e.message)
+    } finally {
+      setLoading(false)
+    }
   }
-
-  setLoading(true)
-  try {
-    const res = await fetch('/api/admin/account/password', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(password),
-    })
-
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message)
-
-    toast.success('Password updated')
-    setPassword({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: '',
-    })
-  } catch (e: any) {
-    toast.error(e.message)
-  } finally {
-    setLoading(false)
-  }
-}
-
-
 
   return (
-    <div className="space-y-10 max-w-3xl">
-      <h1 className="text-2xl font-bold">Account Settings</h1>
-
-      {/* PROFILE */}
-      <div className="rounded-xl border p-6 space-y-4">
-        <h2 className="font-semibold">Profile</h2>
-
-        <div className="flex items-center gap-4">
-          <img
-  key={previewImage || profile.profileImage || 'avatar'}
-  src={previewImage || profile.profileImage || undefined}
-  className="h-20 w-20 rounded-full object-cover border"
-/>
-
-          <label className="cursor-pointer text-sm text-primary-600 flex items-center gap-2">
-            <ImageIcon className="h-4 w-4" />
-            Change photo
-            <input
-  type="file"
-  hidden
-  accept="image/*"
-  onChange={e => {
-    const file = e.currentTarget.files?.[0]
-    if (file) uploadImage(file)
-  }}
-/>
-
-          </label>
-        </div>
-
-        <Input
-          placeholder="Name"
-          value={profile.name}
-          onChange={e => setProfile({ ...profile, name: e.target.value })}
-        />
-
-        <Input
-          placeholder="Email"
-          value={profile.email}
-          onChange={e => setProfile({ ...profile, email: e.target.value })}
-        />
-
-        <textarea
-          value={profile.bio}
-          onChange={e => setProfile({ ...profile, bio: e.target.value })}
-          className="w-full rounded-lg border p-2"
-          rows={3}
-        />
-
-        <Button onClick={saveProfile} loading={loading}>
-          <Save className="h-4 w-4 mr-2" /> Save Profile
-        </Button>
+    <div className="space-y-8 max-w-5xl">
+      <div>
+        <h1 className="text-2xl font-bold">Account Settings</h1>
+        <p className="text-sm text-slate-500">
+          Manage your personal information and security
+        </p>
       </div>
 
-      {/* PASSWORD */}
-      <div className="rounded-xl border p-6 space-y-4">
-        <h2 className="font-semibold">Change Password</h2>
+      {/* GRID */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* PROFILE */}
+        <div className="bg-card elev-sm rounded-2xl p-6 space-y-6">
+          <h2 className="text-lg font-semibold">Profile</h2>
 
-        <Input
-          type="password"
-          placeholder="Current password"
-          value={password.currentPassword}
-          onChange={e => setPassword({ ...password, currentPassword: e.target.value })}
-        />
+          {/* Avatar */}
+          <div className="flex items-center gap-5">
+            <div className="relative h-24 w-24 rounded-full bg-muted elev-sm overflow-hidden">
+              <img
+                key={previewImage || profile.profileImage || 'avatar'}
+                src={previewImage || profile.profileImage || undefined}
+                alt="Profile"
+                className="h-full w-full object-cover"
+              />
+            </div>
 
-        <Input
-          type="password"
-          placeholder="New password"
-          value={password.newPassword}
-          onChange={e => setPassword({ ...password, newPassword: e.target.value })}
-        />
+            <label className="cursor-pointer inline-flex items-center gap-2 text-sm font-medium text-indigo-600">
+              <ImageIcon className="h-4 w-4" />
+              Change photo
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={e => {
+                  const file = e.currentTarget.files?.[0]
+                  if (file) uploadImage(file)
+                }}
+              />
+            </label>
+          </div>
 
-        <Input
-          type="password"
-          placeholder="Confirm password"
-          value={password.confirmPassword}
-          onChange={e => setPassword({ ...password, confirmPassword: e.target.value })}
-        />
+          {/* Name */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Name</label>
+            <Input
+              value={profile.name}
+              onChange={e =>
+                setProfile({ ...profile, name: e.target.value })
+              }
+            />
+          </div>
 
-        <Button onClick={changePassword} loading={loading}>
-          <Lock className="h-4 w-4 mr-2" /> Update Password
-        </Button>
+          {/* Email */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Email</label>
+            <Input
+              value={profile.email}
+              onChange={e =>
+                setProfile({ ...profile, email: e.target.value })
+              }
+            />
+          </div>
+
+          {/* Bio */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Bio</label>
+            <textarea
+              rows={3}
+              value={profile.bio}
+              onChange={e =>
+                setProfile({ ...profile, bio: e.target.value })
+              }
+              className="
+                w-full
+                rounded-xl
+                bg-card
+                elev-sm
+                px-3
+                py-2
+                text-sm
+                ui-transition
+                focus:outline-none
+                focus:elev-lg
+              "
+            />
+          </div>
+
+          <Button onClick={saveProfile} loading={loading} className="gap-2">
+            <Save className="h-4 w-4" />
+            Save Profile
+          </Button>
+        </div>
+
+        {/* PASSWORD */}
+        <div className="bg-card elev-sm rounded-2xl p-6 space-y-6">
+          <h2 className="text-lg font-semibold">Change Password</h2>
+
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Current Password</label>
+            <Input
+              type="password"
+              value={password.currentPassword}
+              onChange={e =>
+                setPassword({
+                  ...password,
+                  currentPassword: e.target.value,
+                })
+              }
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm font-medium">New Password</label>
+            <Input
+              type="password"
+              value={password.newPassword}
+              onChange={e =>
+                setPassword({
+                  ...password,
+                  newPassword: e.target.value,
+                })
+              }
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Confirm Password</label>
+            <Input
+              type="password"
+              value={password.confirmPassword}
+              onChange={e =>
+                setPassword({
+                  ...password,
+                  confirmPassword: e.target.value,
+                })
+              }
+            />
+          </div>
+
+          <Button
+            onClick={changePassword}
+            loading={loading}
+            className="gap-2"
+          >
+            <Lock className="h-4 w-4" />
+            Update Password
+          </Button>
+        </div>
       </div>
     </div>
   )

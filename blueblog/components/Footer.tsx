@@ -1,8 +1,17 @@
 // components/Footer.tsx
 import Link from 'next/link'
-import { Facebook, Twitter, Instagram, Github, Heart } from 'lucide-react'
+import {
+  Facebook,
+  Twitter,
+  Instagram,
+  Github,
+  Heart,
+} from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 
+/* -------------------------------------
+   Data
+------------------------------------- */
 async function getSettings() {
   const rows = await prisma.setting.findMany()
 
@@ -28,69 +37,147 @@ async function getSettings() {
   return settings
 }
 
+/* -------------------------------------
+   Component
+------------------------------------- */
 export default async function Footer() {
   const settings = await getSettings()
   const year = new Date().getFullYear()
   const social = settings.social_links || {}
 
   return (
-    <footer className="mt-auto border-t bg-secondary-50">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid gap-8 md:grid-cols-4">
+    <footer className="relative mt-32 bg-slate-900 text-slate-300">
+
+      {/* top gradient divider */}
+      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-accentMid/60 to-transparent" />
+
+      <div className="container mx-auto px-4 py-20">
+
+        {/* ===============================
+            Main grid
+        =============================== */}
+        <div className="grid gap-12 md:grid-cols-4">
 
           {/* Brand */}
-          <div>
-            <Link href="/" className="flex items-center space-x-2">
-              {settings.site_logo && (
-  <img
-    src={settings.site_logo}
-    alt="Site logo"
-    className="h-8 w-8 object-contain"
-  />
-)}
+          <div className="space-y-4 md:col-span-2">
+            <Link
+              href="/"
+              className="flex items-center gap-3 text-xl font-semibold text-white"
+            >
+              {settings.site_logo ? (
+                <img
+                  src={settings.site_logo}
+                  alt="Site logo"
+                  className="h-9 w-9 object-contain"
+                />
+              ) : (
+                <div className="flex h-9 w-9 items-center justify-center rounded-md bg-gradient-to-br from-accentStart via-accentMid to-accentEnd text-sm font-bold text-white">
+                  B
+                </div>
+              )}
 
-              <span className="text-xl font-bold text-gray-900">
-                {settings.site_name}
-              </span>
+              <span
+  className="
+    font-semibold
+    text-white
+    bg-gradient-to-r
+    from-indigo-400
+    via-violet-400
+    to-pink-400
+    bg-clip-text
+    text-transparent
+  "
+>
+  {settings.site_name || 'BlueBlog'}
+</span>
+
             </Link>
+
             {settings.site_description && (
-              <p className="mt-4 text-gray-600">
+              <p className="max-w-md text-sm text-slate-400">
                 {settings.site_description}
               </p>
             )}
           </div>
 
-          {/* Quick Links */}
+          {/* Quick links */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold">Quick Links</h3>
-            <ul className="space-y-2 text-gray-600">
-              <li><Link href="/blog">Blog</Link></li>
-              <li><Link href="/about">About</Link></li>
-              <li><Link href="/contact">Contact</Link></li>
+            <h3 className="mb-5 text-sm font-semibold uppercase tracking-wide text-slate-200">
+              Explore
+            </h3>
+
+            <ul className="space-y-3 text-sm">
+              <li>
+                <Link
+                  href="/blog"
+                  className="ui-transition hover:text-white"
+                >
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/about"
+                  className="ui-transition hover:text-white"
+                >
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contact"
+                  className="ui-transition hover:text-white"
+                >
+                  Contact
+                </Link>
+              </li>
             </ul>
           </div>
 
           {/* Social */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold">Connect</h3>
+            <h3 className="mb-5 text-sm font-semibold uppercase tracking-wide text-slate-200">
+              Connect
+            </h3>
+
             <div className="flex gap-3">
               {social.twitter && (
-                <a href={social.twitter} target="_blank">
+                <a
+                  href={social.twitter}
+                  target="_blank"
+                  aria-label="Twitter"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-slate-300 ui-transition hover:bg-slate-700 hover:text-white"
+                >
                   <Twitter className="h-5 w-5" />
                 </a>
               )}
               {social.facebook && (
-                <a href={social.facebook} target="_blank">
+                <a
+                  href={social.facebook}
+                  target="_blank"
+                  aria-label="Facebook"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-slate-300 ui-transition hover:bg-slate-700 hover:text-white"
+                >
                   <Facebook className="h-5 w-5" />
                 </a>
               )}
               {social.instagram && (
-                <a href={social.instagram} target="_blank">
+                <a
+                  href={social.instagram}
+                  target="_blank"
+                  aria-label="Instagram"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-slate-300 ui-transition hover:bg-slate-700 hover:text-white"
+                >
                   <Instagram className="h-5 w-5" />
                 </a>
               )}
               {social.github && (
-                <a href={social.github} target="_blank">
+                <a
+                  href={social.github}
+                  target="_blank"
+                  aria-label="GitHub"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-slate-300 ui-transition hover:bg-slate-700 hover:text-white"
+                >
                   <Github className="h-5 w-5" />
                 </a>
               )}
@@ -98,16 +185,18 @@ export default async function Footer() {
           </div>
         </div>
 
-        {/* Bottom */}
-        <div className="mt-10 border-t pt-6 text-center text-gray-600">
+        {/* ===============================
+            Bottom
+        =============================== */}
+        <div className="mt-20 border-t border-slate-800 pt-8 text-center text-sm text-slate-400 space-y-3">
           <p>
             {settings.footer_text ||
               `© ${year} ${settings.site_name}. All rights reserved.`}
           </p>
-          <p className="mt-2 text-sm">
-            Made with <Heart className="inline h-4 w-4 text-red-500" />
-          </p>
+
+          
         </div>
+
       </div>
     </footer>
   )

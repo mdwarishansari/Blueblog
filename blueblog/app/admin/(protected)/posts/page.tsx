@@ -3,10 +3,10 @@ import { requireAuth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import PostTable from '@/components/PostTable'
 import { Button } from '@/components/ui/Button'
-// import { Input } from '@/components/ui/Input'
-import { Plus} from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { Prisma } from '@prisma/client'
 import PostSearchInput from '@/components/admin/PostSearchInput'
+
 export default async function AdminPostsPage({
   searchParams,
 }: {
@@ -35,7 +35,6 @@ export default async function AdminPostsPage({
     ]
   }
 
-  // WRITER: only own posts
   if (user.role === 'WRITER') {
     where.authorId = user.id
   }
@@ -56,39 +55,38 @@ export default async function AdminPostsPage({
   ])
 
   const totalPages = Math.ceil(total / limit)
-const query = new URLSearchParams({
-  ...(params.search && { search: params.search }),
-  ...(status && { status }),
-}).toString()
+
+  const query = new URLSearchParams({
+    ...(params.search && { search: params.search }),
+    ...(status && { status }),
+  }).toString()
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    /* 🔒 ABSOLUTE WIDTH LOCK */
+    <section className="w-full max-w-full min-w-0 overflow-x-hidden space-y-8">
+
+      {/* ================= HEADER ================= */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Posts</h1>
-          <p className="text-muted-foreground">Manage blog posts</p>
+          <h1 className="text-2xl font-bold text-fg">Posts</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage and publish blog content
+          </p>
         </div>
 
         <Link href="/admin/posts/new">
-          <Button className="gap-2">
+          <Button className="gap-2 btn-glow btn-hover-effect">
             <Plus className="h-4 w-4" />
             New Post
           </Button>
         </Link>
       </div>
 
-      {/* Filters */}
-      <div className="rounded-xl border bg-white p-4 space-y-4">
-        <div className="flex flex-col md:flex-row gap-4">
-          <PostSearchInput />
+      {/* ================= FILTERS ================= */}
+      <div className="rounded-2xl bg-card p-5 elev-sm space-y-4">
+        <PostSearchInput />
 
-
-          
-        </div>
-
-        {/* Status tabs */}
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {[
             { label: 'All', href: '/admin/posts', active: !status },
             {
@@ -105,11 +103,14 @@ const query = new URLSearchParams({
             <Link
               key={tab.label}
               href={tab.href}
-              className={`rounded-lg px-4 py-2 text-sm font-medium ${
-                tab.active
-                  ? 'bg-primary-100 text-primary-700'
-                  : 'hover:bg-muted'
-              }`}
+              className={`
+                px-4 py-1.5 rounded-full text-sm font-medium ui-transition
+                ${
+                  tab.active
+                    ? 'bg-gradient-to-r from-accentStart/20 via-accentMid/20 to-accentEnd/20 text-fg'
+                    : 'text-muted-foreground hover:bg-muted'
+                }
+              `}
             >
               {tab.label}
             </Link>
@@ -117,41 +118,55 @@ const query = new URLSearchParams({
         </div>
       </div>
 
-      {/* Table */}
-      <div className="rounded-xl border bg-white overflow-hidden">
-        <PostTable posts={posts} user={user} />
+      {/* ================= TABLE ================= */}
+      {/* 🔥 TABLE SCROLLS — PAGE NEVER DOES */}
+      <div className="rounded-2xl bg-card elev-md overflow-x-auto">
+        <div className="min-w-[900px]">
+          {/* ⬆️ This single line saves your layout on 1366px */}
+          <PostTable posts={posts} user={user} />
+        </div>
       </div>
 
-      {/* Pagination */}
+      {/* ================= PAGINATION ================= */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
             Showing {skip + 1} – {Math.min(skip + limit, total)} of {total}
           </p>
+
           <div className="flex gap-2">
             <Link
-  href={`/admin/posts?page=${page - 1}${query ? `&${query}` : ''}`}
-  aria-disabled={page === 1}
-  className={`px-4 py-2 border rounded ${
-    page === 1 && 'pointer-events-none opacity-50'
-  }`}
->
-  Previous
-</Link>
+              href={`/admin/posts?page=${page - 1}${query ? `&${query}` : ''}`}
+              aria-disabled={page === 1}
+              className={`
+                px-4 py-2 rounded-lg text-sm ui-transition
+                ${
+                  page === 1
+                    ? 'pointer-events-none opacity-40 bg-muted'
+                    : 'bg-card elev-sm hover:ui-lift'
+                }
+              `}
+            >
+              Previous
+            </Link>
 
-<Link
-  href={`/admin/posts?page=${page + 1}${query ? `&${query}` : ''}`}
-  aria-disabled={page === totalPages}
-  className={`px-4 py-2 border rounded ${
-    page === totalPages && 'pointer-events-none opacity-50'
-  }`}
->
-  Next
-</Link>
-
+            <Link
+              href={`/admin/posts?page=${page + 1}${query ? `&${query}` : ''}`}
+              aria-disabled={page === totalPages}
+              className={`
+                px-4 py-2 rounded-lg text-sm ui-transition
+                ${
+                  page === totalPages
+                    ? 'pointer-events-none opacity-40 bg-muted'
+                    : 'bg-card elev-sm hover:ui-lift'
+                }
+              `}
+            >
+              Next
+            </Link>
           </div>
         </div>
       )}
-    </div>
+    </section>
   )
 }

@@ -51,8 +51,6 @@ const slugify = (v: string) =>
 /* ------------------------------------------------------------------ */
 
 export default function AdminCategoriesPage() {
-  /* ---------------- State ---------------- */
-
   const [categories, setCategories] = useState<Category[]>([])
   const [images, setImages] = useState<Image[]>([])
   const [loading, setLoading] = useState(true)
@@ -96,13 +94,11 @@ export default function AdminCategoriesPage() {
       const res = await fetch('/api/images')
       const data = await res.json()
       if (res.ok) setImages(data.images || [])
-    } catch {
-      /* optional */
-    }
+    } catch {}
   }
 
   /* ------------------------------------------------------------------ */
-  /* Slug auto-sync (CREATE + EDIT)                                     */
+  /* Slug auto-sync                                                     */
   /* ------------------------------------------------------------------ */
 
   useEffect(() => {
@@ -110,10 +106,6 @@ export default function AdminCategoriesPage() {
       setFormData(f => ({ ...f, slug: slugify(f.name) }))
     }
   }, [formData.name, slugTouched])
-
-  /* ------------------------------------------------------------------ */
-  /* Helpers                                                           */
-  /* ------------------------------------------------------------------ */
 
   function resetForm() {
     setFormData({ name: '', slug: '', imageId: '' })
@@ -137,11 +129,9 @@ export default function AdminCategoriesPage() {
       })
 
       const data = await res.json()
-
       if (!res.ok) throw new Error(data.message)
 
       toast.success('Image uploaded')
-
       setImages(prev => [data.image, ...prev])
       setFormData(f => ({ ...f, imageId: data.image.id }))
     } catch (e: any) {
@@ -175,7 +165,6 @@ export default function AdminCategoriesPage() {
       if (!res.ok) throw new Error(data.message)
 
       toast.success(editingCategory ? 'Category updated' : 'Category created')
-
       setIsModalOpen(false)
       resetForm()
       fetchCategories()
@@ -195,7 +184,7 @@ export default function AdminCategoriesPage() {
       slug: category.slug,
       imageId: category.image?.id || '',
     })
-    setSlugTouched(false) // 🔥 FIX
+    setSlugTouched(false)
     setIsModalOpen(true)
   }
 
@@ -228,74 +217,102 @@ export default function AdminCategoriesPage() {
     )
   }, [categories, search])
 
+  if (loading) return <div className="p-6">Loading…</div>
+
   /* ------------------------------------------------------------------ */
   /* Render                                                            */
   /* ------------------------------------------------------------------ */
 
-  if (loading) return <div className="p-6">Loading…</div>
-
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Categories</h1>
-        <Button onClick={() => setIsModalOpen(true)}>
+      {/* HEADER */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Categories</h1>
+          <p className="text-sm text-muted-foreground">
+            Organize posts with categories
+          </p>
+        </div>
+
+        <Button onClick={() => setIsModalOpen(true)} className="gap-2">
           <Plus size={16} /> New Category
         </Button>
       </div>
 
-      {/* Search */}
+      {/* SEARCH */}
       <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+        <Search
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+          size={16}
+        />
         <Input
           className="pl-10"
-          placeholder="Search…"
+          placeholder="Search categories…"
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
       </div>
 
-      {/* Table */}
-      <div className="rounded-xl border bg-white overflow-x-auto">
-        <table className="min-w-full divide-y">
-          <thead className="bg-gray-50 text-xs uppercase text-gray-500">
-            <tr>
-              <th className="px-6 py-3 text-left">Category</th>
-              <th className="px-6 py-3 text-left">Slug</th>
-              <th className="px-6 py-3 text-left">Posts</th>
-              <th className="px-6 py-3 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {filteredCategories.map(c => (
-              <tr key={c.id}>
-                <td className="px-6 py-4 flex items-center gap-3">
-                  {c.image ? (
-                    <img src={c.image.url} className="h-10 w-10 rounded object-cover" />
-                  ) : (
-                    <div className="h-10 w-10 rounded bg-gray-100 flex items-center justify-center">
-                      <ImageIcon size={16} className="text-gray-400" />
-                    </div>
-                  )}
-                  {c.name}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-500">{c.slug}</td>
-                <td className="px-6 py-4">{c._count.posts}</td>
-                <td className="px-6 py-4 flex gap-2">
-                  <Button size="icon" variant="ghost" onClick={() => handleEdit(c)}>
-                    <Edit size={16} />
-                  </Button>
-                  <Button size="icon" variant="ghost" onClick={() => handleDelete(c.id)}>
-                    <Trash2 size={16} />
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* LIST */}
+      <div className="space-y-3">
+        {filteredCategories.map(c => (
+          <div
+            key={c.id}
+            className="flex flex-wrap items-center justify-between gap-4 rounded-xl bg-card px-5 py-4 elev-sm"
+          >
+            <div className="flex items-center gap-4 min-w-0">
+              {c.image ? (
+                <img
+                  src={c.image.url}
+                  className="h-11 w-11 rounded-lg object-cover"
+                />
+              ) : (
+                <div className="h-11 w-11 rounded-lg bg-muted flex items-center justify-center">
+                  <ImageIcon size={16} className="text-muted-foreground" />
+                </div>
+              )}
+
+              <div className="min-w-0">
+                <p className="font-medium truncate">{c.name}</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {c.slug}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">
+                {c._count.posts} posts
+              </span>
+
+              <div className="flex gap-1">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => handleEdit(c)}
+                >
+                  <Edit size={16} />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => handleDelete(c.id)}
+                >
+                  <Trash2 size={16} />
+                </Button>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {filteredCategories.length === 0 && (
+          <div className="p-10 text-center text-muted-foreground">
+            No categories found
+          </div>
+        )}
       </div>
 
-      {/* Modal */}
+      {/* MODAL */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => {
@@ -303,6 +320,7 @@ export default function AdminCategoriesPage() {
           resetForm()
         }}
         title={editingCategory ? 'Edit Category' : 'Create Category'}
+        description="Category name, slug, and optional image"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
@@ -322,8 +340,8 @@ export default function AdminCategoriesPage() {
             required
           />
 
-          {/* Upload */}
-          <label className="flex items-center gap-2 cursor-pointer text-sm">
+          {/* UPLOAD */}
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
             <Upload size={16} />
             Upload image
             <input
@@ -332,22 +350,23 @@ export default function AdminCategoriesPage() {
               hidden
               disabled={uploading}
               onChange={e => {
-  const file = e.currentTarget.files?.[0]
-  if (file) uploadImage(file)
-}}
-
+                const file = e.currentTarget.files?.[0]
+                if (file) uploadImage(file)
+              }}
             />
           </label>
 
-          {/* Image picker */}
+          {/* IMAGE PICKER */}
           <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto">
             {images.map(img => (
               <button
                 key={img.id}
                 type="button"
                 onClick={() => setFormData(f => ({ ...f, imageId: img.id }))}
-                className={`border rounded ${
-                  formData.imageId === img.id ? 'ring-2 ring-blue-500' : ''
+                className={`rounded-lg overflow-hidden ${
+                  formData.imageId === img.id
+                    ? 'ring-2 ring-primary'
+                    : 'opacity-80 hover:opacity-100'
                 }`}
               >
                 <img src={img.url} className="h-16 w-full object-cover" />
@@ -359,17 +378,21 @@ export default function AdminCategoriesPage() {
             <button
               type="button"
               onClick={() => setFormData(f => ({ ...f, imageId: '' }))}
-              className="text-sm text-red-600 flex items-center gap-1"
+              className="flex items-center gap-1 text-sm text-red-600"
             >
               <X size={14} /> Remove image
             </button>
           )}
 
           <div className="flex justify-end gap-3 pt-2">
-            <Button variant="outline" type="button" onClick={() => {
-              setIsModalOpen(false)
-              resetForm()
-            }}>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => {
+                setIsModalOpen(false)
+                resetForm()
+              }}
+            >
               Cancel
             </Button>
             <Button type="submit">

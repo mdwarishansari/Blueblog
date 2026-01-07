@@ -29,15 +29,28 @@ export default function BlogSearchInput() {
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-slate-700">
         Search by post title
       </label>
 
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+      <div className="relative group">
+        <Search
+          className="
+            absolute left-4 top-1/2 -translate-y-1/2
+            h-5 w-5
+            text-slate-400
+            ui-transition
+            group-focus-within:text-indigo-500
+          "
+        />
+
         <Input
           placeholder="Enter post title…"
-          className="pl-12"
+          className="
+            pl-12
+            bg-card
+            focus-visible:border-indigo-500
+          "
           value={value}
           onChange={(e) => setValue(e.target.value)}
         />
