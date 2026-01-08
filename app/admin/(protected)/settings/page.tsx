@@ -9,6 +9,7 @@ import {
   Twitter,
   Facebook,
   Instagram,
+  Github,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -286,6 +287,24 @@ export default function AdminSettingsPage() {
               placeholder="username"
             />
           </div>
+          {/* GitHub */}
+          <div className="space-y-1"></div>
+            <label className="text-sm font-medium flex items-center gap-2">
+              <Github className="h-4 w-4 text-slate-700" /> GitHub
+            </label>
+            <Input
+              value={settings.social_links.github || ''}
+              onChange={e =>
+                setSettings({
+                  ...settings,
+                  social_links: {
+                    ...settings.social_links,
+                    github: e.target.value,
+                  },
+                })
+              }
+              placeholder="username"
+            />
         </div>
 
         {/* FOOTER */}
