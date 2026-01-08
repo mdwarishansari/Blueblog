@@ -2,6 +2,7 @@ import { Users, Target, Award, Globe } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import TeamMember from '@/components/TeamMember'
 import { generateSEO } from '@/lib/seo'
+export const revalidate = 60
 
 export const metadata = generateSEO({
   title: 'About Us',

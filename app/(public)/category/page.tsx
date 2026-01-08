@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import CategoryCard from '@/components/CategoryCard'
 import { generateSEO } from '@/lib/seo'
+export const revalidate = 60
 
 export const metadata = generateSEO({
   title: 'Categories',
