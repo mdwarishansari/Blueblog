@@ -4,6 +4,12 @@ import AdminHeader from '@/components/AdminHeader'
 import { getCurrentUser } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { headers } from 'next/headers'
+export const metadata = {
+  title: {
+    default: 'BlueBlog',
+    template: '%s | BlueBlog',
+  },
+}
 
 export default async function AdminLayout({
   children,
