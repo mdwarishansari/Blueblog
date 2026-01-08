@@ -98,9 +98,7 @@ export default function NewPostPage({ userRole }: { userRole: UserRole }) {
       toast.success(publish ? 'Post published' : 'Draft saved')
 
       if (publish) {
-        setTimeout(() => {
-          window.location.href = '/admin/posts'
-        }, 800)
+        router.replace('/admin/posts')
       }
 
       if (!postId) setPostId(data.post.id)

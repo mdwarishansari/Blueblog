@@ -136,7 +136,7 @@ export default function EditPostPage({ params, userRole }: PageProps) {
     toast.success(publish ? 'Post published' : 'Draft updated')
 
     if (publish) {
-      setTimeout(() => router.push('/admin/posts'), 800)
+      router.replace('/admin/posts')
     }
 
     setSaving(false)
