@@ -12,7 +12,10 @@ export async function POST(request: NextRequest) {
     })
   }
 
-  const response = NextResponse.redirect(new URL('/', request.url))
+  const response = NextResponse.redirect(
+    new URL('/', request.url),
+    { status: 303 } // 🔥 IMPORTANT
+  )
 
   response.cookies.delete('access_token')
   response.cookies.delete('refresh_token')
