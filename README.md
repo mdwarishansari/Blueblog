@@ -280,11 +280,3 @@ If you understand this project fully, you are **production-ready** 🚀
 ```
 
 ---
-
-If you want next:
-- a **short README version**
-- a **DEPLOY.md**
-- or **architecture diagrams**
-
-just say the word.
-```
