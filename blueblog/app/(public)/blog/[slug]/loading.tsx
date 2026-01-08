@@ -1,5 +1,4 @@
 import {
-  PageHeaderSkeleton,
   PostCardSkeleton,
 } from '@/components/skeletons'
 

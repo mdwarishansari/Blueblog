@@ -34,7 +34,7 @@ export default function Loading() {
             {/* message body */}
             <div className="mt-4 space-y-2">
               <div className="h-3 w-full rounded bg-muted" />
-              <div classıaName="h-3 w-11/12 rounded bg-muted" />
+              <div className="h-3 w-11/12 rounded bg-muted" />
               <div className="h-3 w-10/12 rounded bg-muted" />
             </div>
 

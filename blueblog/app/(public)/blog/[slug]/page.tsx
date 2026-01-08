@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Calendar, User, Tag, Import } from 'lucide-react'
+import { Calendar, User, Tag } from 'lucide-react'
 
 import { prisma } from '@/lib/prisma'
 import { formatDate } from '@/lib/utils'

@@ -82,7 +82,13 @@ export default function PostTable({ posts, user }: PostTableProps) {
           </span>
 
           <div className="flex gap-2">
-            <Button variant="destructive" size="sm" onClick={() => runBulk('DELETE')}>
+            <Button
+  variant="outline"
+  size="sm"
+  className="text-red-600 border-red-200 hover:bg-red-50"
+  onClick={() => runBulk('DELETE')}
+>
+
               Delete
             </Button>
 

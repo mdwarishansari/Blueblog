@@ -5,7 +5,6 @@ import {
   Twitter,
   Instagram,
   Github,
-  Heart,
 } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 

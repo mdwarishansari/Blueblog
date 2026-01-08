@@ -1,4 +1,4 @@
-import { TableSkeleton } from '@/components/skeletons'
+// import { TableSkeleton } from '@/components/skeletons'
 export default function Loading() {
   return (
     <section className="w-full max-w-full min-w-0 overflow-x-hidden space-y-8 animate-pulse">

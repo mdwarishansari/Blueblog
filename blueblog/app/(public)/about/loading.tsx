@@ -1,7 +1,4 @@
-import {
-  PageHeaderSkeleton,
-  PostCardSkeleton,
-} from '@/components/skeletons'
+import { PostCardSkeleton } from '@/components/skeletons'
 
 export default function Loading() {
   return (
