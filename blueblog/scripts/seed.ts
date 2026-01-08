@@ -6,41 +6,43 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('🌱 Starting seeding...')
 
-  /* ---------------- ADMIN (CREATE ONCE) ---------------- */
+  /* ===============================
+     GLOBAL SAFETY GUARD (KEY PART)
+     =============================== */
+  const adminExists = await prisma.user.findFirst({
+    where: { role: UserRole.ADMIN },
+  })
+
+  if (adminExists) {
+    console.log('ℹ️ Database already seeded. Skipping seed.')
+    return
+  }
+
+  /* ===============================
+     ADMIN (CREATE ONCE)
+     =============================== */
 
   const adminEmail = process.env['ADMIN_EMAIL'] || 'admin@blog.com'
   const adminPassword = process.env['ADMIN_PASSWORD'] || 'Admin@123'
   const adminName = process.env['ADMIN_NAME'] || 'Blog Administrator'
 
-  const existingAdmin = await prisma.user.findFirst({
-    where: { role: UserRole.ADMIN },
+  const hashedPassword = await hash(adminPassword, 12)
+
+  const admin = await prisma.user.create({
+    data: {
+      name: adminName,
+      email: adminEmail,
+      passwordHash: hashedPassword,
+      role: UserRole.ADMIN,
+      bio: 'Administrator of BlueBlog',
+    },
   })
 
-  let admin = existingAdmin
+  console.log(`✅ Admin created: ${admin.email}`)
 
-  if (!existingAdmin) {
-    const hashedPassword = await hash(adminPassword, 12)
-
-    admin = await prisma.user.create({
-      data: {
-        name: adminName,
-        email: adminEmail,
-        passwordHash: hashedPassword,
-        role: UserRole.ADMIN,
-        bio: 'Administrator of BlueBlog',
-      },
-    })
-
-    console.log(`✅ Admin created: ${admin.email}`)
-  } else {
-    console.log(`ℹ️ Admin already exists: ${existingAdmin.email}`)
-  }
-
-  if (!admin) {
-    throw new Error('Admin creation failed')
-  }
-
-  /* ---------------- CATEGORIES (UPSERT) ---------------- */
+  /* ===============================
+     CATEGORIES (UPSERT)
+     =============================== */
 
   const categoryData = [
     { name: 'Technology', slug: 'technology' },
@@ -57,54 +59,50 @@ async function main() {
     })
   }
 
-  console.log(`✅ Categories ensured`)
+  console.log('✅ Categories ensured')
 
-  /* ---------------- SAMPLE POSTS (CREATE ONCE) ---------------- */
+  /* ===============================
+     SAMPLE POST (CREATE ONCE)
+     =============================== */
 
-  const existingPost = await prisma.post.findFirst({
-    where: { slug: 'welcome-to-blueblog' },
+  await prisma.post.create({
+    data: {
+      title: 'Welcome to BlueBlog',
+      slug: 'welcome-to-blueblog',
+      excerpt: 'A modern blogging platform built with Next.js and Prisma',
+      content: {
+        type: 'doc',
+        content: [
+          {
+            type: 'heading',
+            attrs: { level: 1 },
+            content: [{ type: 'text', text: 'Welcome to BlueBlog' }],
+          },
+          {
+            type: 'paragraph',
+            content: [
+              {
+                type: 'text',
+                text: 'This is a sample post showcasing the features of BlueBlog.',
+              },
+            ],
+          },
+        ],
+      },
+      authorId: admin.id,
+      status: 'PUBLISHED',
+      publishedAt: new Date(),
+      categories: {
+        connect: [{ slug: 'technology' }],
+      },
+    },
   })
 
-  if (!existingPost) {
-    await prisma.post.create({
-      data: {
-        title: 'Welcome to BlueBlog',
-        slug: 'welcome-to-blueblog',
-        excerpt: 'A modern blogging platform built with Next.js and Prisma',
-        content: {
-          type: 'doc',
-          content: [
-            {
-              type: 'heading',
-              attrs: { level: 1 },
-              content: [{ type: 'text', text: 'Welcome to BlueBlog' }],
-            },
-            {
-              type: 'paragraph',
-              content: [
-                {
-                  type: 'text',
-                  text: 'This is a sample post showcasing the features of BlueBlog.',
-                },
-              ],
-            },
-          ],
-        },
-        authorId: admin.id,
-        status: 'PUBLISHED',
-        publishedAt: new Date(),
-        categories: {
-          connect: [{ slug: 'technology' }],
-        },
-      },
-    })
+  console.log('✅ Sample post created')
 
-    console.log('✅ Sample post created')
-  } else {
-    console.log('ℹ️ Sample post already exists')
-  }
-
-  /* ---------------- SETTINGS (UPSERT, ENV AS DEFAULT) ---------------- */
+  /* ===============================
+     SETTINGS (UPSERT)
+     =============================== */
 
   const settings = [
     {
