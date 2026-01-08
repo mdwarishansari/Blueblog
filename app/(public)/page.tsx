@@ -5,14 +5,16 @@ import PostCard from '@/components/PostCard'
 import CategoryCard from '@/components/CategoryCard'
 import { Button } from '@/components/ui/Button'
 import { generateSEO } from '@/lib/seo'
+import { getSiteSettings } from '@/lib/getSiteSettings'
+
 export const metadata = generateSEO({
   title: 'Home',
   description: 'A modern, SEO-optimized blogging platform',
   url: '/',
 })
 
-const SITE_NAME =
-  process.env['NEXT_PUBLIC_SITE_NAME'] ?? 'BlueBlog'
+// const SITE_NAME =
+//   process.env['NEXT_PUBLIC_SITE_NAME'] ?? 'BlueBlog'
 
 /* -------------------------------------
    Data
@@ -47,10 +49,14 @@ async function getCategories() {
    Page
 ------------------------------------- */
 export default async function Home() {
-  const [posts, categories] = await Promise.all([
+  const [posts, categories, settings] = await Promise.all([
     getFeaturedPosts(),
     getCategories(),
+    getSiteSettings(),
   ])
+
+  const siteName = settings['site_name'] ?? 'BlueBlog'
+
 
   return (
     <div className="bg-gray-50">
@@ -77,11 +83,12 @@ export default async function Home() {
           </div>
 
           <h1 className="mb-6 text-5xl font-extrabold tracking-tight sm:text-6xl">
-            Welcome to{' '}
-            <span className="text-white underline decoration-white/30 underline-offset-8">
-              {SITE_NAME}
-            </span>
-          </h1>
+  Welcome to{' '}
+  <span className="text-white underline decoration-white/30 underline-offset-8">
+    {siteName}
+  </span>
+</h1>
+
 
           <p className="mx-auto mb-10 max-w-2xl text-lg text-white/90">
             Write, publish, and grow your audience with a platform built for
