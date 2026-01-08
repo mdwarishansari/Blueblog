@@ -109,7 +109,16 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const data = postSchema.parse(body)
+const data = postSchema.parse(body)
+
+/** 🔒 WRITER CANNOT PUBLISH */
+if (user.role === 'WRITER' && data.status === 'PUBLISHED') {
+  return NextResponse.json(
+    { message: 'Writers can only create drafts.' },
+    { status: 403 }
+  )
+}
+
 
     // Check if slug already exists
     const existingPost = await prisma.post.findUnique({
