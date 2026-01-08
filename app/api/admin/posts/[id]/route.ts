@@ -62,10 +62,19 @@ export async function PUT(
 ) {
   try {
     const { id } = await params
-    await requireAuth()
+    const user = await requireAuth()
 
-    const body = await req.json()
-    const data = postSchema.parse(body)
+const body = await req.json()
+const data = postSchema.parse(body)
+
+/** 🔒 WRITER CANNOT PUBLISH */
+if (user.role === 'WRITER' && data.status === 'PUBLISHED') {
+  return NextResponse.json(
+    { message: 'You are not authorized to publish posts. Save as draft only.' },
+    { status: 403 }
+  )
+}
+
 
     const existing = await prisma.post.findFirst({
       where: {
