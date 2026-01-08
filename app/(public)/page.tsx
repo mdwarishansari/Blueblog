@@ -6,6 +6,7 @@ import CategoryCard from '@/components/CategoryCard'
 import { Button } from '@/components/ui/Button'
 import { generateSEO } from '@/lib/seo'
 import { getSiteSettings } from '@/lib/getSiteSettings'
+export const dynamic = 'force-dynamic'
 
 export const metadata = generateSEO({
   title: 'Home',
