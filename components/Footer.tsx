@@ -7,6 +7,13 @@ import {
   Github,
 } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
+function normalizeUrl(url?: string) {
+  if (!url) return null
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url
+  }
+  return `https://${url}`
+}
 
 /* -------------------------------------
    Data
@@ -141,9 +148,7 @@ export default async function Footer() {
 
             <div className="flex gap-3">
               {social.twitter && (
-                <a
-                  href={social.twitter}
-                  target="_blank"
+                <a href={normalizeUrl(social.twitter)!} target="_blank"
                   aria-label="Twitter"
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-slate-300 ui-transition hover:bg-slate-700 hover:text-white"
                 >
@@ -152,7 +157,7 @@ export default async function Footer() {
               )}
               {social.facebook && (
                 <a
-                  href={social.facebook}
+                  href={normalizeUrl(social.facebook)!}
                   target="_blank"
                   aria-label="Facebook"
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-slate-300 ui-transition hover:bg-slate-700 hover:text-white"
@@ -162,7 +167,7 @@ export default async function Footer() {
               )}
               {social.instagram && (
                 <a
-                  href={social.instagram}
+                  href={normalizeUrl(social.instagram)!}
                   target="_blank"
                   aria-label="Instagram"
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-slate-300 ui-transition hover:bg-slate-700 hover:text-white"
@@ -172,7 +177,7 @@ export default async function Footer() {
               )}
               {social.github && (
                 <a
-                  href={social.github}
+                  href={normalizeUrl(social.github)!}
                   target="_blank"
                   aria-label="GitHub"
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-slate-300 ui-transition hover:bg-slate-700 hover:text-white"
