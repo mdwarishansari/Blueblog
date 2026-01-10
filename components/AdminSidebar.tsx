@@ -1,4 +1,5 @@
 'use client'
+import AdminSidebarSkeleton from '@/components/skeletons/AdminSidebarSkeleton'
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -50,6 +51,11 @@ export default function AdminSidebar({ user, settings }: AdminSidebarProps) {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+
+    // ⛔ DB-driven branding not ready → show skeleton
+  if (!settings?.site_name && !settings?.site_logo) {
+    return <AdminSidebarSkeleton />
+  }
 
   const avatar =
     user.profileImage && user.profileImage.trim() !== ''

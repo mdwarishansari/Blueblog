@@ -1,7 +1,10 @@
+import { Suspense } from 'react'
 import { Users, Target, Award, Globe } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import TeamMember from '@/components/TeamMember'
 import { generateSEO } from '@/lib/seo'
+import TeamMemberSkeleton from '@/components/skeletons/TeamMemberSkeleton'
+
 export const revalidate = 60
 
 export const metadata = generateSEO({
@@ -10,6 +13,7 @@ export const metadata = generateSEO({
   url: '/about',
 })
 
+/* ================= TEAM DATA ================= */
 async function getTeamMembers() {
   return prisma.user.findMany({
     where: {
@@ -28,9 +32,21 @@ async function getTeamMembers() {
   })
 }
 
-export default async function AboutPage() {
+/* ================= TEAM SECTION (ASYNC) ================= */
+async function TeamSection() {
   const teamMembers = await getTeamMembers()
 
+  return (
+    <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      {teamMembers.map(member => (
+        <TeamMember key={member.id} member={member} />
+      ))}
+    </div>
+  )
+}
+
+/* ================= PAGE ================= */
+export default async function AboutPage() {
   return (
     <div className="min-h-screen bg-bg">
 
@@ -176,7 +192,7 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {/* ================= TEAM ================= */}
+      {/* ================= TEAM (SUSPENSE) ================= */}
       <section className="py-20">
         <div className="container">
           <div className="mx-auto mb-14 max-w-3xl text-center">
@@ -188,11 +204,17 @@ export default async function AboutPage() {
             </p>
           </div>
 
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {teamMembers.map(member => (
-              <TeamMember key={member.id} member={member} />
-            ))}
-          </div>
+          <Suspense
+            fallback={
+              <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <TeamMemberSkeleton key={i} />
+                ))}
+              </div>
+            }
+          >
+            <TeamSection />
+          </Suspense>
         </div>
       </section>
 

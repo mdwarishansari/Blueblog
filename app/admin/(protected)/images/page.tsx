@@ -112,10 +112,6 @@ export default function AdminImagesPage() {
     search === ''
   )
 
-  if (loading) {
-    return <div className="skeleton h-64 w-full rounded-xl" />
-  }
-
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -147,66 +143,106 @@ export default function AdminImagesPage() {
       </div>
 
       {/* Grid */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {filteredImages.map(image => (
-          <div
-            key={image.id}
-            className="group bg-card elev-sm rounded-xl overflow-hidden ui-transition ui-lift"
-          >
-            <div className="relative aspect-square bg-muted overflow-hidden">
-              <Image
-                src={image.url}
-                alt={image.altText || ''}
-                fill
-                className="object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-            </div>
+<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+  {loading ? (
+    // ===== SKELETONS (ONLY CARDS) =====
+    Array.from({ length: 8 }).map((_, i) => (
+      <div
+        key={i}
+        className="rounded-xl bg-card overflow-hidden animate-pulse"
+      >
+        {/* image */}
+        <div className="aspect-square bg-muted" />
 
-            <div className="p-4 space-y-2">
-              {image.title && (
-                <h3 className="text-sm font-semibold truncate">
-                  {image.title}
-                </h3>
-              )}
-              {image.altText && (
-                <p className="text-xs text-slate-500 truncate">
-                  {image.altText}
-                </p>
-              )}
+        {/* meta */}
+        <div className="p-4 space-y-2">
+          <div className="h-4 w-3/4 rounded bg-muted" />
+          <div className="h-3 w-1/2 rounded bg-muted" />
 
-              <div className="flex items-center justify-between pt-2">
-                <span className="text-xs text-slate-400">
-                  {image.width}×{image.height}
-                </span>
-
-                <div className="flex gap-1">
-                  <Button size="icon" variant="ghost" onClick={() => copyToClipboard(image.url)}>
-                    <Copy className="h-4 w-4" />
-                  </Button>
-
-                  <a
-                    href={image.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-muted ui-transition"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="text-red-500 hover:bg-red-50"
-                    onClick={() => handleDelete(image.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+          <div className="flex items-center justify-between pt-3">
+            <div className="h-3 w-16 rounded bg-muted" />
+            <div className="flex gap-2">
+              <div className="h-8 w-8 rounded bg-muted" />
+              <div className="h-8 w-8 rounded bg-muted" />
+              <div className="h-8 w-8 rounded bg-muted" />
             </div>
           </div>
-        ))}
+        </div>
       </div>
+    ))
+  ) : filteredImages.length > 0 ? (
+    // ===== REAL DATA =====
+    filteredImages.map(image => (
+      <div
+        key={image.id}
+        className="group bg-card elev-sm rounded-xl overflow-hidden ui-transition ui-lift"
+      >
+        <div className="relative aspect-square bg-muted overflow-hidden">
+          <Image
+            src={image.url}
+            alt={image.altText || ''}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </div>
+
+        <div className="p-4 space-y-2">
+          {image.title && (
+            <h3 className="text-sm font-semibold truncate">
+              {image.title}
+            </h3>
+          )}
+
+          {image.altText && (
+            <p className="text-xs text-slate-500 truncate">
+              {image.altText}
+            </p>
+          )}
+
+          <div className="flex items-center justify-between pt-2">
+            <span className="text-xs text-slate-400">
+              {image.width}×{image.height}
+            </span>
+
+            <div className="flex gap-1">
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => copyToClipboard(image.url)}
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+
+              <a
+                href={image.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-muted ui-transition"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </a>
+
+              <Button
+                size="icon"
+                variant="ghost"
+                className="text-red-500 hover:bg-red-50"
+                onClick={() => handleDelete(image.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    ))
+  ) : (
+    // ===== EMPTY STATE =====
+    <div className="col-span-full py-20 text-center text-muted-foreground">
+      No images found
+    </div>
+  )}
+</div>
+
 
       {/* Upload Modal */}
       <Modal

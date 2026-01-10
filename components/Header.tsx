@@ -12,6 +12,8 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [siteName, setSiteName] = useState('BlueBlog')
   const [siteLogo, setSiteLogo] = useState<string | null>(null)
+  const [loadingSettings, setLoadingSettings] = useState(true)
+
 
   /* Scroll shadow */
   useEffect(() => {
@@ -22,14 +24,16 @@ export default function Header() {
 
   /* Site settings */
   useEffect(() => {
-    fetch('/api/public/settings')
-      .then(r => r.json())
-      .then(d => {
-        if (d?.siteName) setSiteName(d.siteName)
-        if (d?.siteLogo) setSiteLogo(d.siteLogo)
-      })
-      .catch(() => {})
-  }, [])
+  fetch('/api/public/settings')
+    .then(r => r.json())
+    .then(d => {
+      if (d?.siteName) setSiteName(d.siteName)
+      if (d?.siteLogo) setSiteLogo(d.siteLogo)
+    })
+    .catch(() => {})
+    .finally(() => setLoadingSettings(false))
+}, [])
+
 
   const nav = [
     { name: 'Home', href: '/' },
@@ -56,13 +60,44 @@ export default function Header() {
 
           {/* LOGO */}
           <Link href="/" className="flex items-center gap-3">
-            {siteLogo && (
-              <img src={siteLogo} alt="Logo" className="h-8 w-8 object-contain" />
-            )}
-            <span className="text-lg sm:text-xl font-bold text-slate-900">
-              {siteName}
-            </span>
-          </Link>
+  {loadingSettings ? (
+    <>
+      {/* Logo skeleton */}
+      <div
+  className="
+    h-8 w-8 rounded-full
+    bg-muted
+    animate-pulse
+    shadow-[inset_0_1px_2px_rgba(0,0,0,0.12),_0_2px_6px_rgba(0,0,0,0.12)]
+  "
+/>
+      
+      {/* Site name skeleton */}
+      <div
+  className="
+    h-5 w-28 rounded
+    bg-muted
+    animate-pulse
+    shadow-[inset_0_1px_2px_rgba(0,0,0,0.12),_0_2px_6px_rgba(0,0,0,0.12)]
+  "
+/>
+    </>
+  ) : (
+    <>
+      {siteLogo && (
+        <img
+          src={siteLogo}
+          alt="Logo"
+          className="h-8 w-8 object-contain"
+        />
+      )}
+      <span className="text-lg sm:text-xl font-bold text-slate-900">
+        {siteName}
+      </span>
+    </>
+  )}
+</Link>
+
 
           {/* DESKTOP NAV */}
           <div className="hidden md:flex items-center gap-2 rounded-2xl bg-muted/60 p-1 shadow-inner">

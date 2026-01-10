@@ -120,89 +120,100 @@ export default function AccountPage() {
       </div>
 
       {/* GRID */}
-      <div className="grid gap-6 lg:grid-cols-2">
+<div className="grid gap-6 lg:grid-cols-2">
+
         {/* PROFILE */}
         <div className="bg-card elev-sm rounded-2xl p-6 space-y-6">
-          <h2 className="text-lg font-semibold">Profile</h2>
+  {loading ? (
+    /* PROFILE SKELETON */
+    <div className="space-y-6 animate-pulse">
+      <div className="h-5 w-24 rounded bg-muted" />
 
-          {/* Avatar */}
-          <div className="flex items-center gap-5">
-            <div className="relative h-24 w-24 rounded-full bg-muted elev-sm overflow-hidden">
-              <img
-                key={previewImage || profile.profileImage || 'avatar'}
-                src={previewImage || profile.profileImage || undefined}
-                alt="Profile"
-                className="h-full w-full object-cover"
-              />
-            </div>
+      <div className="flex items-center gap-5">
+        <div className="h-24 w-24 rounded-full bg-muted" />
+        <div className="h-4 w-32 rounded bg-muted" />
+      </div>
 
-            <label className="cursor-pointer inline-flex items-center gap-2 text-sm font-medium text-indigo-600">
-              <ImageIcon className="h-4 w-4" />
-              Change photo
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={e => {
-                  const file = e.currentTarget.files?.[0]
-                  if (file) uploadImage(file)
-                }}
-              />
-            </label>
-          </div>
+      <div className="space-y-4">
+        <div className="h-10 w-full rounded bg-muted" />
+        <div className="h-10 w-full rounded bg-muted" />
+        <div className="h-20 w-full rounded bg-muted" />
+      </div>
 
-          {/* Name */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Name</label>
-            <Input
-              value={profile.name}
-              onChange={e =>
-                setProfile({ ...profile, name: e.target.value })
-              }
-            />
-          </div>
+      <div className="h-10 w-40 rounded bg-muted" />
+    </div>
+  ) : (
+  <>
+    <h2 className="text-lg font-semibold">Profile</h2>
 
-          {/* Email */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Email</label>
-            <Input
-              value={profile.email}
-              onChange={e =>
-                setProfile({ ...profile, email: e.target.value })
-              }
-            />
-          </div>
+    {/* Avatar */}
+    <div className="flex items-center gap-5">
+      <div className="relative h-24 w-24 rounded-full bg-muted elev-sm overflow-hidden">
+        <img
+          key={previewImage || profile.profileImage || 'avatar'}
+          src={previewImage || profile.profileImage || undefined}
+          alt="Profile"
+          className="h-full w-full object-cover"
+        />
+      </div>
 
-          {/* Bio */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Bio</label>
-            <textarea
-              rows={3}
-              value={profile.bio}
-              onChange={e =>
-                setProfile({ ...profile, bio: e.target.value })
-              }
-              className="
-                w-full
-                rounded-xl
-                bg-card
-                elev-sm
-                px-3
-                py-2
-                text-sm
-                ui-transition
-                focus:outline-none
-                focus:elev-lg
-              "
-            />
-          </div>
+      <label className="cursor-pointer inline-flex items-center gap-2 text-sm font-medium text-indigo-600">
+        <ImageIcon className="h-4 w-4" />
+        Change photo
+        <input
+          type="file"
+          hidden
+          accept="image/*"
+          onChange={e => {
+            const file = e.currentTarget.files?.[0]
+            if (file) uploadImage(file)
+          }}
+        />
+      </label>
+    </div>
 
-          <Button onClick={saveProfile} loading={loading} className="gap-2">
-            <Save className="h-4 w-4" />
-            Save Profile
-          </Button>
+    {/* Name */}
+    <div className="space-y-1">
+      <label className="text-sm font-medium">Name</label>
+      <Input
+        value={profile.name}
+        onChange={e =>
+          setProfile({ ...profile, name: e.target.value })
+        }
+      />
+    </div>
+
+    {/* Email */}
+    <div className="space-y-1">
+      <label className="text-sm font-medium">Email</label>
+      <Input
+        value={profile.email}
+        onChange={e =>
+          setProfile({ ...profile, email: e.target.value })
+        }
+      />
+    </div>
+
+    {/* Bio */}
+    <div className="space-y-1">
+      <label className="text-sm font-medium">Bio</label>
+      <textarea
+        rows={3}
+        value={profile.bio}
+        onChange={e =>
+          setProfile({ ...profile, bio: e.target.value })
+        }
+        className="w-full rounded-xl bg-card elev-sm px-3 py-2 text-sm ui-transition focus:outline-none focus:elev-lg"
+      />
+    </div>
+
+    <Button onClick={saveProfile} loading={loading} className="gap-2">
+      <Save className="h-4 w-4" />
+      Save Profile
+    </Button>
+  </>
+)}
         </div>
-
         {/* PASSWORD */}
         <div className="bg-card elev-sm rounded-2xl p-6 space-y-6">
           <h2 className="text-lg font-semibold">Change Password</h2>

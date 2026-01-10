@@ -1,11 +1,19 @@
 import Link from 'next/link'
 import { ArrowRight, Sparkles, Layers } from 'lucide-react'
-import { prisma } from '@/lib/prisma'
+import { Suspense } from 'react'
+
 import PostCard from '@/components/PostCard'
 import CategoryCard from '@/components/CategoryCard'
 import { Button } from '@/components/ui/Button'
 import { generateSEO } from '@/lib/seo'
-import { getSiteSettings } from '@/lib/getSiteSettings'
+
+import SiteNameHero from '@/components/SiteNameHero'
+import SiteNameSkeleton from '@/components/skeletons/SiteNameSkeleton'
+import PostCardSkeleton from '@/components/skeletons/PostCardSkeleton'
+import CategoryCardSkeleton from '@/components/skeletons/CategoryCardSkeleton'
+
+import { prisma } from '@/lib/prisma'
+
 export const dynamic = 'force-dynamic'
 
 export const metadata = generateSEO({
@@ -14,14 +22,12 @@ export const metadata = generateSEO({
   url: '/',
 })
 
-// const SITE_NAME =
-//   process.env['NEXT_PUBLIC_SITE_NAME'] ?? 'BlueBlog'
-
 /* -------------------------------------
-   Data
+   DATA SECTIONS (SERVER COMPONENTS)
 ------------------------------------- */
-async function getFeaturedPosts() {
-  return prisma.post.findMany({
+
+async function FeaturedPostsSection() {
+  const posts = await prisma.post.findMany({
     where: {
       status: 'PUBLISHED',
       publishedAt: { lte: new Date() },
@@ -34,62 +40,61 @@ async function getFeaturedPosts() {
     take: 3,
     orderBy: { publishedAt: 'desc' },
   })
+
+  return (
+    <>
+      {posts.map(post => (
+        <PostCard key={post.id} post={post} />
+      ))}
+    </>
+  )
 }
 
-async function getCategories() {
-  return prisma.category.findMany({
+async function CategoriesSection() {
+  const categories = await prisma.category.findMany({
     include: {
       image: true,
       _count: { select: { posts: true } },
     },
     orderBy: { name: 'asc' },
   })
+
+  return (
+    <>
+      {categories.map(category => (
+        <CategoryCard key={category.id} category={category} />
+      ))}
+    </>
+  )
 }
 
 /* -------------------------------------
-   Page
+   PAGE
 ------------------------------------- */
-export default async function Home() {
-  const [posts, categories, settings] = await Promise.all([
-    getFeaturedPosts(),
-    getCategories(),
-    getSiteSettings(),
-  ])
-
-  const siteName = settings['site_name'] ?? 'BlueBlog'
-
-
+export default function Home() {
   return (
     <div className="bg-gray-50">
 
-      {/* =====================================================
-         HERO — GRADIENT + CSS ANIMATION (SERVER SAFE)
-         ===================================================== */}
+      {/* ================= HERO ================= */}
       <section className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-500 py-28 text-white">
-
-        {/* grid overlay */}
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
 
-        {/* animated blur blobs */}
         <div className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-pink-400/30 blur-3xl animate-blob" />
         <div className="absolute top-1/3 -right-24 h-96 w-96 rounded-full bg-indigo-400/30 blur-3xl animate-blob animation-delay-2000" />
         <div className="absolute bottom-0 left-1/3 h-96 w-96 rounded-full bg-purple-400/30 blur-3xl animate-blob animation-delay-4000" />
 
         <div className="container relative z-10 mx-auto px-4 text-center">
-
-          {/* pill */}
           <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm backdrop-blur">
             <Sparkles className="h-4 w-4" />
             Modern blogging platform
           </div>
 
           <h1 className="mb-6 text-5xl font-extrabold tracking-tight sm:text-6xl">
-  Welcome to{' '}
-  <span className="text-white underline decoration-white/30 underline-offset-8">
-    {siteName}
-  </span>
-</h1>
-
+            Welcome to{' '}
+            <Suspense fallback={<SiteNameSkeleton />}>
+              <SiteNameHero />
+            </Suspense>
+          </h1>
 
           <p className="mx-auto mb-10 max-w-2xl text-lg text-white/90">
             Write, publish, and grow your audience with a platform built for
@@ -113,60 +118,50 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* =====================================================
-         FEATURED POSTS
-         ===================================================== */}
+      {/* ================= FEATURED POSTS ================= */}
       <section className="container mx-auto py-24 px-4 bg-white">
-
         <div className="mb-12 flex items-center justify-between">
-          <h2 className="text-3xl font-bold text-gray-900">
-            Featured Posts
-          </h2>
-
+          <h2 className="text-3xl font-bold text-gray-900">Featured Posts</h2>
           <Link href="/blog">
-            <Button variant="ghost">
-              View all
-            </Button>
+            <Button variant="ghost">View all</Button>
           </Link>
         </div>
 
         <div className="grid gap-8 md:grid-cols-3">
-          {posts.map(post => (
-            <PostCard key={post.id} post={post} />
-          ))}
+          <Suspense
+            fallback={Array.from({ length: 3 }).map((_, i) => (
+              <PostCardSkeleton key={i} />
+            ))}
+          >
+            <FeaturedPostsSection />
+          </Suspense>
         </div>
       </section>
 
-      {/* =====================================================
-         CATEGORIES
-         ===================================================== */}
+      {/* ================= CATEGORIES ================= */}
       <section className="bg-gray-50 py-24">
-
         <div className="container mx-auto px-4">
-
           <div className="mb-14 text-center">
             <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full bg-indigo-100 px-4 py-2 text-indigo-700">
               <Layers className="h-4 w-4" />
               Explore topics
             </div>
-
             <h2 className="text-3xl font-bold text-gray-900">
               Browse Categories
             </h2>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {categories.map(category => (
-              <CategoryCard
-                key={category.id}
-                category={category}
-              />
-            ))}
+            <Suspense
+              fallback={Array.from({ length: 4 }).map((_, i) => (
+                <CategoryCardSkeleton key={i} />
+              ))}
+            >
+              <CategoriesSection />
+            </Suspense>
           </div>
-
         </div>
       </section>
-
     </div>
   )
 }
