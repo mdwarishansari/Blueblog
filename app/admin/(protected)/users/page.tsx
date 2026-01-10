@@ -121,16 +121,6 @@ export default function AdminUsersPage() {
       'bg-green-100 text-green-700 shadow-[0_6px_16px_rgba(34,197,94,0.35)]',
   }
 
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="skeleton h-24 w-full rounded-xl" />
-        ))}
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-8 w-full max-w-full overflow-x-hidden">
 
@@ -164,7 +154,22 @@ export default function AdminUsersPage() {
 
       {/* ================= MOBILE LIST ================= */}
       <div className="md:hidden space-y-3 px-2">
-        {filteredUsers.map(user => (
+  {loading
+    ? Array.from({ length: 4 }).map((_, i) => (
+        <div
+          key={i}
+          className="rounded-xl bg-card p-3 elev-sm animate-pulse"
+        >
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-muted" />
+            <div className="space-y-2 flex-1">
+              <div className="h-4 w-32 rounded bg-muted" />
+              <div className="h-3 w-40 rounded bg-muted" />
+            </div>
+          </div>
+        </div>
+      ))
+    : filteredUsers.map(user => (
           <div
             key={user.id}
             className="rounded-xl bg-card p-3 elev-sm w-full max-w-full overflow-hidden"
@@ -236,7 +241,15 @@ export default function AdminUsersPage() {
           </thead>
 
           <tbody>
-            {filteredUsers.map(user => (
+  {loading
+    ? Array.from({ length: 6 }).map((_, i) => (
+        <tr key={i}>
+          <td colSpan={5} className="px-6 py-5">
+            <div className="h-6 rounded bg-muted animate-pulse" />
+          </td>
+        </tr>
+      ))
+    : filteredUsers.map(user => (
               <tr
                 key={user.id}
                 className="ui-transition hover:bg-muted"

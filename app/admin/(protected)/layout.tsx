@@ -3,7 +3,7 @@ import AdminSidebar from '@/components/AdminSidebar'
 import AdminHeader from '@/components/AdminHeader'
 import { getCurrentUser } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { headers } from 'next/headers'
+
 export const metadata = {
   title: {
     default: 'BlueBlog',
@@ -16,25 +16,11 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
+  /* ================= AUTH ================= */
   const sessionUser = await getCurrentUser()
   if (!sessionUser) redirect('/admin/login')
 
-  const ROLE_ROUTE_RULES: Record<string, RegExp[]> = {
-    ADMIN: [/^\/admin/],
-    EDITOR: [
-      /^\/admin\/dashboard/,
-      /^\/admin\/posts/,
-      /^\/admin\/categories/,
-      /^\/admin\/messages/,
-      /^\/admin\/account/,
-    ],
-    WRITER: [
-      /^\/admin\/dashboard/,
-      /^\/admin\/posts/,
-      /^\/admin\/account/,
-    ],
-  }
-
+  /* ================= USER ================= */
   const user = await prisma.user.findUnique({
     where: { id: sessionUser.id },
     select: {
@@ -47,26 +33,18 @@ export default async function AdminLayout({
 
   if (!user) redirect('/admin/login')
 
-  // 🔒 ROLE-BASED PAGE ACCESS CHECK (THIS WAS MISSING)
-  const headersList = await headers()
-const pathname = headersList.get('x-pathname') || ''
-
-  const allowedRoutes = ROLE_ROUTE_RULES[user.role] || []
-  const isAllowed = allowedRoutes.some((regex) => regex.test(pathname))
-
-  if (!isAllowed) {
-    redirect('/admin/dashboard')
-  }
-
-  // ✅ fetch settings ONCE
+  /* ================= SETTINGS ================= */
   const rows = await prisma.setting.findMany()
   const settings: Record<string, any> = {}
 
   for (const row of rows) {
     settings[row.key] =
-      row.key === 'social_links' ? JSON.parse(row.value) : row.value
+      row.key === 'social_links'
+        ? JSON.parse(row.value || '{}')
+        : row.value
   }
 
+  /* ================= LAYOUT ================= */
   return (
     <div className="flex h-screen">
       <AdminSidebar
@@ -77,10 +55,9 @@ const pathname = headersList.get('x-pathname') || ''
           profileImage: user.profileImage,
         }}
         settings={{
-  site_name: settings['site_name'],
-  site_logo: settings['site_logo'],
-}}
-
+          site_name: settings['site_name'],
+          site_logo: settings['site_logo'],
+        }}
       />
 
       <div className="flex flex-1 flex-col">
@@ -92,11 +69,12 @@ const pathname = headersList.get('x-pathname') || ''
             profileImage: user.profileImage,
           }}
           siteName={settings['site_name']}
-siteLogo={settings['site_logo']}
-
+          siteLogo={settings['site_logo']}
         />
 
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto p-6">
+          {children}
+        </main>
       </div>
     </div>
   )

@@ -1,3 +1,5 @@
+import AdminHeaderSkeleton from '@/components/skeletons/AdminHeaderSkeleton'
+
 interface AdminHeaderProps {
   user: {
     name: string
@@ -9,11 +11,11 @@ interface AdminHeaderProps {
   siteLogo?: string
 }
 
-export default function AdminHeader({
-  user,
-  siteName,
-  siteLogo,
-}: AdminHeaderProps) {
+export default function AdminHeader({ user, siteName, siteLogo }: AdminHeaderProps) {
+  if (!siteName && !siteLogo) {
+    return <AdminHeaderSkeleton />
+  }
+
   const avatar =
     user.profileImage && user.profileImage.trim() !== ''
       ? user.profileImage
