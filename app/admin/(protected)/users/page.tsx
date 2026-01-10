@@ -132,8 +132,9 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="space-y-8 w-full max-w-full overflow-x-hidden">
+
+      {/* ================= HEADER ================= */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold">Users</h1>
@@ -148,7 +149,7 @@ export default function AdminUsersPage() {
         </Button>
       </div>
 
-      {/* Search */}
+      {/* ================= SEARCH ================= */}
       <div className="bg-card elev-sm rounded-xl p-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -161,8 +162,68 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-card elev-sm rounded-2xl overflow-x-auto">
+      {/* ================= MOBILE LIST ================= */}
+      <div className="md:hidden space-y-3 px-2">
+        {filteredUsers.map(user => (
+          <div
+            key={user.id}
+            className="rounded-xl bg-card p-3 elev-sm w-full max-w-full overflow-hidden"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                {user.profileImage ? (
+                  <img
+                    src={user.profileImage}
+                    alt={user.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <UserIcon className="h-5 w-5 text-slate-400" />
+                )}
+              </div>
+
+              <div className="min-w-0">
+                <p className="text-sm font-medium truncate">{user.name}</p>
+                <p className="text-xs text-slate-500 truncate">{user.email}</p>
+              </div>
+            </div>
+
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+              <span className={`rounded-full px-3 py-1 ${roleStyles[user.role]}`}>
+                {user.role}
+              </span>
+              <span className="text-slate-500">
+                Posts: {user._count.posts}
+              </span>
+              <span className="text-slate-500">
+                Joined: {new Date(user.createdAt).toLocaleDateString()}
+              </span>
+            </div>
+
+            <div className="mt-3 flex gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleEdit(user)}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-red-500 hover:bg-red-50"
+                onClick={() => handleDelete(user.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ================= DESKTOP TABLE ================= */}
+      <div className="hidden md:block bg-card elev-sm rounded-2xl overflow-x-auto">
         <table className="min-w-full">
           <thead>
             <tr className="text-xs uppercase tracking-wide text-slate-500">
@@ -243,7 +304,7 @@ export default function AdminUsersPage() {
         </table>
       </div>
 
-      {/* Modal */}
+      {/* ================= MODAL ================= */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => {
