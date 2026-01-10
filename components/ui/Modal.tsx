@@ -60,7 +60,8 @@ export function Modal({
       {/* MODAL */}
       <div
   className={cn(
-    'relative w-full transform overflow-hidden rounded-2xl bg-white opacity-100 shadow-2xl transition-all',
+    'relative w-[95vw] max-w-full transform overflow-hidden rounded-2xl bg-white'
+,
     sizeClasses[size]
   )}
   onClick={(e) => e.stopPropagation()}

@@ -83,7 +83,7 @@ export default async function AdminPostsPage({
       </div>
 
       {/* ================= FILTERS ================= */}
-      <div className="rounded-2xl bg-card p-5 elev-sm space-y-4">
+      <div className="rounded-2xl bg-card p-5 elev-sm space-y-4 max-w-full overflow-x-hidden">
         <PostSearchInput />
 
         <div className="flex flex-wrap gap-2">
@@ -120,12 +120,11 @@ export default async function AdminPostsPage({
 
       {/* ================= TABLE ================= */}
       {/* 🔥 TABLE SCROLLS — PAGE NEVER DOES */}
-      <div className="rounded-2xl bg-card elev-md overflow-x-auto">
-        <div className="min-w-[900px]">
-          {/* ⬆️ This single line saves your layout on 1366px */}
-          <PostTable posts={posts} user={user} />
-        </div>
-      </div>
+      <div className="rounded-2xl bg-card elev-md overflow-x-hidden md:overflow-x-auto">
+  <div className="w-full md:min-w-[900px]">
+    <PostTable posts={posts} user={user} />
+  </div>
+</div>
 
       {/* ================= PAGINATION ================= */}
       {totalPages > 1 && (
