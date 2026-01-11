@@ -111,9 +111,14 @@ export default function Home() {
 
             <Link href="/about" aria-label="Learn more about BlueBlog platform">
 
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-                Learn More
-              </Button>
+              <Button
+  size="lg"
+  variant="outline"
+  className="border-white text-white hover:bg-white/10"
+>
+  About BlueBlog
+</Button>
+
             </Link>
           </div>
         </div>
