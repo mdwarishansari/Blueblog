@@ -115,8 +115,13 @@ export default async function BlogPostPage({
   const html = renderTipTapContent(post.content)
 
   return (
-    <main className="bg-bg">
-      <article className="mx-auto max-w-5xl px-6 py-14">
+    
+      <article
+  className="mx-auto max-w-5xl px-6 py-14"
+  itemScope
+  itemType="https://schema.org/BlogPosting"
+>
+
 
         {/* Banner */}
         {post.bannerImage?.url && (
@@ -158,17 +163,28 @@ export default async function BlogPostPage({
 
         {/* Meta */}
         <div className="mb-12 flex items-center gap-6 text-sm text-slate-600">
-          <span className="flex items-center gap-1.5">
-            <User className="h-4 w-4" />
-            {post.author.name}
-          </span>
+          <span
+  className="flex items-center gap-1.5"
+  itemProp="author"
+  itemScope
+  itemType="https://schema.org/Person"
+>
+  <User className="h-4 w-4" />
+  <span itemProp="name">{post.author.name}</span>
+</span>
+
 
           {post.publishedAt && (
-            <span className="flex items-center gap-1.5">
-              <Calendar className="h-4 w-4" />
-              {formatDate(post.publishedAt)}
-            </span>
-          )}
+  <time
+    className="flex items-center gap-1.5"
+    dateTime={post.publishedAt.toISOString()}
+    itemProp="datePublished"
+  >
+    <Calendar className="h-4 w-4" />
+    {formatDate(post.publishedAt)}
+  </time>
+)}
+
         </div>
 
         {/* Article body */}
@@ -201,7 +217,8 @@ export default async function BlogPostPage({
 
         {/* Back */}
         <div className="mt-20 text-center">
-          <Link href="/blog">
+          <Link href="/blog" aria-label="Back to BlueBlog blog listing">
+
             <Button variant="outline">
               ← Back to Blog
             </Button>
@@ -209,6 +226,5 @@ export default async function BlogPostPage({
         </div>
 
       </article>
-    </main>
   )
 }

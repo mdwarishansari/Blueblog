@@ -55,11 +55,12 @@ export async function generateMetadata(
   const image = category.image?.url
 
   return generateSEO({
-    title: category.name,
-    description: `Browse posts in ${category.name}`,
-    url: `/category/${category.slug}`,
-    ...(image ? { image } : {}),
-  })
+  title: `${category.name} Articles – BlueBlog`,
+  description: `Browse all published articles in the ${category.name} category on BlueBlog.`,
+  url: `/category/${category.slug}`,
+  ...(image ? { image } : {}),
+})
+
 }
 
 /* ---------------- PAGE ---------------- */

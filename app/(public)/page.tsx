@@ -17,10 +17,12 @@ import { prisma } from '@/lib/prisma'
 export const dynamic = 'force-dynamic'
 
 export const metadata = generateSEO({
-  title: 'Home',
-  description: 'A modern, SEO-optimized blogging platform',
+  title: 'BlueBlog – Modern Tech Blogging Platform',
+  description:
+    'BlueBlog is a modern, SEO-optimized tech blogging platform for developers, engineers, and creators.',
   url: '/',
 })
+
 
 /* -------------------------------------
    DATA SECTIONS (SERVER COMPONENTS)
@@ -90,11 +92,8 @@ export default function Home() {
           </div>
 
           <h1 className="mb-6 text-5xl font-extrabold tracking-tight sm:text-6xl">
-            Welcome to{' '}
-            <Suspense fallback={<SiteNameSkeleton />}>
-              <SiteNameHero />
-            </Suspense>
-          </h1>
+  Welcome to BlueBlog
+</h1>
 
           <p className="mx-auto mb-10 max-w-2xl text-lg text-white/90">
             Write, publish, and grow your audience with a platform built for
@@ -102,14 +101,16 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-            <Link href="/blog">
+            <Link href="/blog" aria-label="Read all blog posts on BlueBlog">
+
               <Button size="lg" className="bg-white text-indigo-600 hover:bg-gray-100">
                 Read Blog
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
 
-            <Link href="/about">
+            <Link href="/about" aria-label="Learn more about BlueBlog platform">
+
               <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
                 Learn More
               </Button>
@@ -122,9 +123,10 @@ export default function Home() {
       <section className="container mx-auto py-24 px-4 bg-white">
         <div className="mb-12 flex items-center justify-between">
           <h2 className="text-3xl font-bold text-gray-900">Featured Posts</h2>
-          <Link href="/blog">
-            <Button variant="ghost">View all</Button>
-          </Link>
+          <Link href="/blog" aria-label="View all published blog posts on BlueBlog">
+  <Button variant="ghost">View all</Button>
+</Link>
+
         </div>
 
         <div className="grid gap-8 md:grid-cols-3">

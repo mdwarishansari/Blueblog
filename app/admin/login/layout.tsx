@@ -1,7 +1,7 @@
 
 export const metadata = {
   title: 'Login | BlueBlog',
-  description: 'Admin login page for Authorized users',
+  description: 'Admin login page for authorized users',
   url: '/admin/login',
 }
 

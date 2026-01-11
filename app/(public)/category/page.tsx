@@ -4,10 +4,12 @@ import CategoryGrid from '@/components/CategoryGrid'
 import CategoryCardSkeleton from '@/components/skeletons/CategoryCardSkeleton'
 
 export const metadata = generateSEO({
-  title: 'Categories',
-  description: 'Explore articles by topic.',
+  title: 'Categories – Browse Topics on BlueBlog',
+  description:
+    'Browse blog categories on BlueBlog to explore articles by topic, technology, and interest.',
   url: '/category',
 })
+
 
 export default function CategoriesPage() {
   return (

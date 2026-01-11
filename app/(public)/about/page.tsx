@@ -4,14 +4,16 @@ import { prisma } from '@/lib/prisma'
 import TeamMember from '@/components/TeamMember'
 import { generateSEO } from '@/lib/seo'
 import TeamMemberSkeleton from '@/components/skeletons/TeamMemberSkeleton'
-
+import Link from 'next/link'  
 export const revalidate = 60
 
 export const metadata = generateSEO({
-  title: 'About Us',
-  description: 'Learn more about BlueBlog, our mission, and our team.',
+  title: 'About BlueBlog – Our Mission, Vision, and Team',
+  description:
+    'Learn more about BlueBlog, our mission, vision, values, and the team behind the platform.',
   url: '/about',
 })
+
 
 /* ================= TEAM DATA ================= */
 async function getTeamMembers() {
@@ -231,19 +233,22 @@ export default async function AboutPage() {
             </p>
 
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-              <a
-                href="/blog"
-                className="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 font-medium text-indigo-600 ui-transition hover:bg-slate-100"
-              >
-                Read Our Blog
-              </a>
-              <a
-                href="/contact"
-                className="inline-flex items-center justify-center rounded-lg bg-white/20 px-6 py-3 font-medium text-white backdrop-blur-sm ui-transition hover:bg-white/30"
-              >
-                Contact Us
-              </a>
-            </div>
+  <Link
+    href="/blog"
+    aria-label="Read blog posts on BlueBlog"
+    className="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 font-medium text-indigo-600 ui-transition hover:bg-slate-100"
+  >
+    Read Our Blog
+  </Link>
+
+  <Link
+    href="/contact"
+    aria-label="Contact the BlueBlog team"
+    className="inline-flex items-center justify-center rounded-lg bg-white/20 px-6 py-3 font-medium text-white backdrop-blur-sm ui-transition hover:bg-white/30"
+  >
+    Contact Us
+  </Link>
+</div>
           </div>
         </div>
       </section>
