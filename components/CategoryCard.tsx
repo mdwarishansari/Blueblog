@@ -17,6 +17,10 @@ export default function CategoryCard({ category }: CategoryCardProps) {
     : null
 
   return (
+    <article
+  itemScope
+  itemType="https://schema.org/CollectionPage"
+>
     <Link
       href={`/category/${category.slug}`}
       className="
@@ -62,9 +66,9 @@ export default function CategoryCard({ category }: CategoryCardProps) {
         </div>
 
         {/* Title */}
-        <h3 className="mb-2 text-xl font-bold text-fg">
-          {category.name}
-        </h3>
+        <h3 itemProp="name" className="mb-2 text-xl font-bold text-fg">
+  {category.name}
+</h3>
 
         {/* Count */}
         <p className="mb-6 text-sm text-slate-600">
@@ -81,5 +85,6 @@ export default function CategoryCard({ category }: CategoryCardProps) {
         </div>
       </div>
     </Link>
+    </article>
   )
 }
