@@ -10,10 +10,12 @@ import CategoryFilterSkeleton from '@/components/skeletons/CategoryFilterSkeleto
 import PostCardSkeleton from '@/components/skeletons/PostCardSkeleton'
 
 export const metadata = generateSEO({
-  title: 'Blog',
-  description: 'Read the latest articles, tutorials, and insights.',
+  title: 'Blog – BlueBlog Tech Articles & Tutorials',
+  description:
+    'Read the latest tech articles, tutorials, and developer insights on BlueBlog.',
   url: '/blog',
 })
+
 
 export default async function BlogPage({
   searchParams,
@@ -70,7 +72,7 @@ export default async function BlogPage({
             </aside>
 
             {/* ================= Posts ================= */}
-            <main className="lg:col-span-3">
+            <div className="lg:col-span-3">
               <Suspense
                 fallback={
                   <div className="grid gap-8 md:grid-cols-2">
@@ -86,7 +88,7 @@ export default async function BlogPage({
 />
 
               </Suspense>
-            </main>
+            </div>
 
           </div>
         </div>

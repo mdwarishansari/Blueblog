@@ -7,7 +7,7 @@ import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import toast from 'react-hot-toast'
-
+import Link from 'next/link'
 export default function LoginPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -126,29 +126,37 @@ export default function LoginPage() {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
-                <Input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  className="pl-10 pr-10"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4.5 w-4.5" />
-                  ) : (
-                    <Eye className="h-4.5 w-4.5" />
-                  )}
-                </button>
-              </div>
+  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+
+  <Input
+    type={showPassword ? 'text' : 'password'}
+    placeholder="••••••••"
+    value={formData.password}
+    onChange={(e) =>
+      setFormData({ ...formData, password: e.target.value })
+    }
+    className="pl-10 pr-10"
+    required
+  />
+
+  <button
+    type="button"
+    aria-label={showPassword ? 'Hide password' : 'Show password'}
+    onClick={() => setShowPassword(!showPassword)}
+    className="
+      absolute right-3 top-1/2 -translate-y-1/2
+      text-slate-400 hover:text-slate-700
+      transition
+    "
+  >
+    {showPassword ? (
+      <EyeOff className="h-4.5 w-4.5" />
+    ) : (
+      <Eye className="h-4.5 w-4.5" />
+    )}
+  </button>
+</div>
+
             </div>
 
             {/* Submit */}
@@ -165,12 +173,13 @@ export default function LoginPage() {
 
         {/* BACK */}
         <div className="mt-8 text-center">
-          <a
-            href="/"
-            className="text-sm text-slate-600 hover:text-slate-900 transition"
-          >
-            ← Back to home
-          </a>
+          <Link
+  href="/"
+  aria-label="Back to BlueBlog home page"
+  className="text-sm text-slate-600 hover:text-slate-900 transition"
+>
+  ← Back to home
+</Link>
         </div>
       </motion.div>
     </div>

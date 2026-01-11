@@ -70,6 +70,7 @@ export default function ContactClient() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               <Input
+                aria-label="Your name"
                 placeholder="Your name"
                 value={formData.name}
                 onChange={e =>
@@ -79,6 +80,7 @@ export default function ContactClient() {
               />
 
               <Input
+                aria-label="Your email"
                 type="email"
                 placeholder="Your email"
                 value={formData.email}
@@ -89,6 +91,7 @@ export default function ContactClient() {
               />
 
               <textarea
+                aria-label="Your message"
                 className="
                   w-full rounded-lg
                   border border-[var(--border)]
