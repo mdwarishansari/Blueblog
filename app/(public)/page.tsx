@@ -19,7 +19,7 @@ export const dynamic = 'force-dynamic'
 export const metadata = generateSEO({
   title: 'BlueBlog – Modern Tech Blogging Platform',
   description:
-    'BlueBlog is a modern, SEO-optimized tech blogging platform for developers, engineers, and creators.',
+  'BlueBlog is a modern tech blogging platform featuring tutorials, guides, and insights for developers and engineers.',
   url: '/',
 })
 
