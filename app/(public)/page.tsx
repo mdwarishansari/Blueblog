@@ -7,8 +7,8 @@ import CategoryCard from '@/components/CategoryCard'
 import { Button } from '@/components/ui/Button'
 import { generateSEO } from '@/lib/seo'
 
-import SiteNameHero from '@/components/SiteNameHero'
-import SiteNameSkeleton from '@/components/skeletons/SiteNameSkeleton'
+// import SiteNameHero from '@/components/SiteNameHero'
+// import SiteNameSkeleton from '@/components/skeletons/SiteNameSkeleton'
 import PostCardSkeleton from '@/components/skeletons/PostCardSkeleton'
 import CategoryCardSkeleton from '@/components/skeletons/CategoryCardSkeleton'
 
