@@ -61,6 +61,11 @@ export default async function AdminPostsPage({
     ...(status && { status }),
   }).toString()
 
+  const safeTotalPages = Math.max(1, totalPages)
+
+const hasPrev = page > 1
+const hasNext = page < safeTotalPages
+
   return (
     /* 🔒 ABSOLUTE WIDTH LOCK */
     <section className="w-full max-w-full min-w-0 overflow-x-hidden space-y-8">
@@ -86,36 +91,32 @@ export default async function AdminPostsPage({
       <div className="rounded-2xl bg-card p-5 elev-sm space-y-4 max-w-full overflow-x-hidden">
         <PostSearchInput />
 
-        <div className="flex flex-wrap gap-2">
-          {[
-            { label: 'All', href: '/admin/posts', active: !status },
-            {
-              label: 'Published',
-              href: '/admin/posts?status=PUBLISHED',
-              active: status === 'PUBLISHED',
-            },
-            {
-              label: 'Drafts',
-              href: '/admin/posts?status=DRAFT',
-              active: status === 'DRAFT',
-            },
-          ].map(tab => (
-            <Link
-              key={tab.label}
-              href={tab.href}
-              className={`
-                px-4 py-1.5 rounded-full text-sm font-medium ui-transition
-                ${
-                  tab.active
-                    ? 'bg-gradient-to-r from-accentStart/20 via-accentMid/20 to-accentEnd/20 text-fg'
-                    : 'text-muted-foreground hover:bg-muted'
-                }
-              `}
-            >
-              {tab.label}
-            </Link>
-          ))}
-        </div>
+        <div className="flex flex-wrap gap-2 rounded-xl bg-muted/60 p-1 shadow-inner">
+  {[
+    { label: 'All', href: '/admin/posts', active: !status },
+    {
+      label: 'Published',
+      href: '/admin/posts?status=PUBLISHED',
+      active: status === 'PUBLISHED',
+    },
+    {
+      label: 'Drafts',
+      href: '/admin/posts?status=DRAFT',
+      active: status === 'DRAFT',
+    },
+  ].map(tab => (
+    <Link key={tab.label} href={tab.href}>
+      <Button
+        size="sm"
+        variant={tab.active ? 'default' : 'ghost'}
+        className={tab.active ? 'btn-glow' : ''}
+      >
+        {tab.label}
+      </Button>
+    </Link>
+  ))}
+</div>
+
       </div>
 
       {/* ================= TABLE ================= */}
@@ -126,46 +127,55 @@ export default async function AdminPostsPage({
   </div>
 </div>
 
-      {/* ================= PAGINATION ================= */}
-      {totalPages > 1 && (
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-muted-foreground">
-            Showing {skip + 1} – {Math.min(skip + limit, total)} of {total}
-          </p>
+{/* ================= PAGINATION ================= */}
+<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+  {/* INFO */}
+  <p className="text-sm text-muted-foreground">
+    {total === 0
+      ? 'No posts found'
+      : `Showing ${skip + 1} – ${Math.min(skip + limit, total)} of ${total}`}
+  </p>
 
-          <div className="flex gap-2">
-            <Link
-              href={`/admin/posts?page=${page - 1}${query ? `&${query}` : ''}`}
-              aria-disabled={page === 1}
-              className={`
-                px-4 py-2 rounded-lg text-sm ui-transition
-                ${
-                  page === 1
-                    ? 'pointer-events-none opacity-40 bg-muted'
-                    : 'bg-card elev-sm hover:ui-lift'
-                }
-              `}
-            >
-              Previous
-            </Link>
+  {/* CONTROLS */}
+  <div className="flex items-center gap-3">
+    {/* PREVIOUS */}
+    {hasPrev ? (
+      <Link
+        href={`/admin/posts?page=${page - 1}${query ? `&${query}` : ''}`}
+      >
+        <Button size="sm" variant="outline">
+          Previous
+        </Button>
+      </Link>
+    ) : (
+      <Button size="sm" variant="outline" disabled>
+        Previous
+      </Button>
+    )}
 
-            <Link
-              href={`/admin/posts?page=${page + 1}${query ? `&${query}` : ''}`}
-              aria-disabled={page === totalPages}
-              className={`
-                px-4 py-2 rounded-lg text-sm ui-transition
-                ${
-                  page === totalPages
-                    ? 'pointer-events-none opacity-40 bg-muted'
-                    : 'bg-card elev-sm hover:ui-lift'
-                }
-              `}
-            >
-              Next
-            </Link>
-          </div>
-        </div>
-      )}
+    {/* PAGE INFO */}
+    <span className="text-sm text-muted-foreground">
+      Page {page} of {safeTotalPages}
+    </span>
+
+    {/* NEXT */}
+    {hasNext ? (
+      <Link
+        href={`/admin/posts?page=${page + 1}${query ? `&${query}` : ''}`}
+      >
+        <Button size="sm" variant="outline">
+          Next
+        </Button>
+      </Link>
+    ) : (
+      <Button size="sm" variant="outline" disabled>
+        Next
+      </Button>
+    )}
+  </div>
+</div>
+
+
     </section>
   )
 }
