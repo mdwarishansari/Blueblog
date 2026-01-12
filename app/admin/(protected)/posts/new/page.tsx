@@ -23,6 +23,10 @@ export default function NewPostPage({ userRole }: { userRole: UserRole }) {
   const [image, setImage] = useState<any>(null)
   const [saving, setSaving] = useState(false)
 
+  const [uploading, setUploading] = useState(false)
+const [uploadProgress, setUploadProgress] = useState(0)
+const [uploadError, setUploadError] = useState<string | null>(null)
+
   const [post, setPost] = useState<any>({
     title: '',
     slug: '',
@@ -48,6 +52,20 @@ export default function NewPostPage({ userRole }: { userRole: UserRole }) {
       .then(setCategories)
   }, [])
 
+  /* ---------- IMAGE VALIDATION---------- */
+  const MAX_IMAGE_SIZE = 1 * 1024 * 1024 // 1MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png']
+
+function validateImage(file: File) {
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    return 'Only JPG and PNG images are allowed'
+  }
+  if (file.size > MAX_IMAGE_SIZE) {
+    return 'Image size must be less than 1MB'
+  }
+  return null
+}
+
   /* ---------- SEO SCORE ---------- */
   const seoScore = useMemo(() => {
     let score = 0
@@ -60,18 +78,51 @@ export default function NewPostPage({ userRole }: { userRole: UserRole }) {
   }, [post])
 
   async function uploadImage(file: File) {
-    const fd = new FormData()
-    fd.append('file', file)
-
-    const res = await fetch('/api/upload/cloudinary', {
-      method: 'POST',
-      body: fd,
-    })
-
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message)
-    setImage(data.image)
+  const error = validateImage(file)
+  if (error) {
+    setUploadError(error)
+    toast.error(error)
+    return
   }
+
+  setUploadError(null)
+  setUploading(true)
+  setUploadProgress(0)
+
+  const formData = new FormData()
+  formData.append('file', file)
+
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open('POST', '/api/upload/cloudinary')
+
+      xhr.upload.onprogress = e => {
+        if (e.lengthComputable) {
+          setUploadProgress(Math.round((e.loaded / e.total) * 100))
+        }
+      }
+
+      xhr.onload = () => {
+        const res = JSON.parse(xhr.responseText)
+        if (xhr.status >= 400) reject(res.message)
+        else {
+          setImage(res.image)
+          resolve()
+        }
+      }
+
+      xhr.onerror = () => reject('Upload failed')
+
+      xhr.send(formData)
+    })
+  } catch (err: any) {
+    toast.error(err)
+  } finally {
+    setUploading(false)
+  }
+}
+
 
   async function save(publish: boolean) {
     setSaving(true)
@@ -164,48 +215,75 @@ export default function NewPostPage({ userRole }: { userRole: UserRole }) {
       <div className="space-y-6">
         {/* IMAGE */}
         <div className="rounded-xl bg-card p-4 elev-sm space-y-3">
-          <label className="block text-sm font-medium">Featured image</label>
+  <label className="text-sm font-medium">Featured Image</label>
 
-          <input
-            id="post-image"
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={e => e.target.files?.[0] && uploadImage(e.target.files[0])}
-          />
+  <p className="text-xs text-muted-foreground">
+    JPG or PNG only • Max size 1MB
+  </p>
 
-          <label
-            htmlFor="post-image"
-            className="inline-block cursor-pointer rounded-lg bg-muted px-4 py-2 text-sm font-medium hover:bg-muted/70 ui-transition"
-          >
-            Choose image
-          </label>
+  <input
+    id="post-image"
+    type="file"
+    accept="image/png,image/jpeg"
+    className="hidden"
+    onChange={e => {
+      const file = e.target.files?.[0]
+      if (file) uploadImage(file)
+      e.target.value = ''
+    }}
+  />
 
-          {image && (
-            <>
-              <img src={image.url} className="rounded-lg" />
+  <label
+    htmlFor="post-image"
+    className="inline-flex cursor-pointer rounded-lg bg-muted px-4 py-2 text-sm font-medium hover:bg-muted/70"
+  >
+    Choose image
+  </label>
 
-              <Input
-                placeholder="Alt text (SEO)"
-                value={image.altText || ''}
-                onChange={e => setImage({ ...image, altText: e.target.value })}
-              />
+  {uploading && (
+    <div className="space-y-1">
+      <div className="h-2 rounded bg-muted overflow-hidden">
+        <div
+          className="h-full bg-indigo-500 transition-all"
+          style={{ width: `${uploadProgress}%` }}
+        />
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Uploading… {uploadProgress}%
+      </p>
+    </div>
+  )}
 
-              <Input
-                placeholder="Image title"
-                value={image.title || ''}
-                onChange={e => setImage({ ...image, title: e.target.value })}
-              />
+  {uploadError && (
+    <p className="text-xs text-red-500">{uploadError}</p>
+  )}
 
-              <textarea
-                placeholder="Image caption"
-                value={image.caption || ''}
-                onChange={e => setImage({ ...image, caption: e.target.value })}
-                className="w-full rounded-lg bg-background p-2"
-              />
-            </>
-          )}
-        </div>
+  {image && (
+    <>
+      <img src={image.url} className="rounded-lg" />
+
+      <Input
+        placeholder="Alt text (SEO)"
+        value={image.altText || ''}
+        onChange={e => setImage({ ...image, altText: e.target.value })}
+      />
+
+      <Input
+        placeholder="Image title"
+        value={image.title || ''}
+        onChange={e => setImage({ ...image, title: e.target.value })}
+      />
+
+      <textarea
+        placeholder="Image caption"
+        value={image.caption || ''}
+        onChange={e => setImage({ ...image, caption: e.target.value })}
+        className="w-full rounded-lg bg-background p-2"
+      />
+    </>
+  )}
+</div>
+
 
         {/* CATEGORIES */}
         <div className="rounded-xl bg-card p-4 elev-sm space-y-2">
@@ -263,7 +341,10 @@ export default function NewPostPage({ userRole }: { userRole: UserRole }) {
           </Button>
 
           {canPublish && (
-            <Button onClick={() => save(true)} className="flex-1">
+            <Button 
+            disabled={uploading}
+            onClick={() => save(true)} 
+            className="flex-1">
               Publish
             </Button>
           )}
