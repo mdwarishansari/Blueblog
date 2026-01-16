@@ -1,12 +1,8 @@
 // open-next.config.ts
-// Minimal OpenNext config — no imports, no defineConfig
+// Minimal, valid OpenNext config — must export a non-empty object
 export default {
-  // tell OpenNext we want edge runtime builds
-  edgeRuntime: true,
-
-  // standalone output is usually the safest for Cloudflare Pages
-  output: "standalone",
-
-  // make sure the builder has something meaningful — this is minimal but valid
-  // you can extend this later to control other OpenNext behaviour
+  default: {
+    edgeRuntime: true,
+    output: "standalone"
+  }
 }
