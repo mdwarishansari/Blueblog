@@ -1,8 +1,6 @@
-// open-next.config.ts
-
+/** @type {import('@opennextjs/cloudflare').OpenNextConfig} */
 const config = {
   edgeRuntime: true,
-  output: "standalone",
 };
 
 export default config;
