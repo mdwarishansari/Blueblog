@@ -1,6 +1,4 @@
 /** @type {import('@opennextjs/cloudflare').OpenNextConfig} */
-const config = {
+module.exports = {
   edgeRuntime: true,
 };
-
-export default config;
