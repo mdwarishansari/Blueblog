@@ -8,11 +8,22 @@ import {
   setAuthCookies,
 } from '@/lib/auth'
 
+/* ------------------------------------------------------------------ */
+/* EDGE RUNTIME (MANDATORY)                                            */
+/* ------------------------------------------------------------------ */
+export const runtime = 'edge'
+
+/* ------------------------------------------------------------------ */
+/* VALIDATION                                                         */
+/* ------------------------------------------------------------------ */
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 })
 
+/* ------------------------------------------------------------------ */
+/* HANDLER                                                            */
+/* ------------------------------------------------------------------ */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -39,22 +50,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 3. Generate tokens
-    const accessToken = signAccessToken({
+    // 3. Generate tokens (EDGE: must await)
+    const accessToken = await signAccessToken({
       userId: user.id,
       email: user.email,
       role: user.role,
     })
 
-    const refreshToken = signRefreshToken({
+    const refreshToken = await signRefreshToken({
       userId: user.id,
       email: user.email,
       role: user.role,
     })
 
     // 4. Store refresh token in DB
-    const expiresAt = new Date()
-    expiresAt.setDate(expiresAt.getDate() + 7)
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
 
     await prisma.refreshToken.create({
       data: {
@@ -75,19 +85,19 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // 6. ✅ SET COOKIES ON SAME RESPONSE
+    // 6. Set cookies
     setAuthCookies(response, accessToken, refreshToken)
 
     return response
   } catch (error) {
-    console.error('Login error:', error)
-
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { message: 'Validation error', errors: error.issues },
         { status: 400 }
       )
     }
+
+    console.error('Login error:', error)
 
     return NextResponse.json(
       { message: 'Internal server error' },

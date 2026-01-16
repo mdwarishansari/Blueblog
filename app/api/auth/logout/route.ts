@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 
+export const runtime = 'edge'
+
 export async function POST(request: NextRequest) {
   const cookieStore = await cookies()
   const refreshToken = cookieStore.get('refresh_token')?.value
@@ -14,7 +16,7 @@ export async function POST(request: NextRequest) {
 
   const response = NextResponse.redirect(
     new URL('/', request.url),
-    { status: 303 } // 🔥 IMPORTANT
+    { status: 303 }
   )
 
   response.cookies.delete('access_token')

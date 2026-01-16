@@ -1,3 +1,5 @@
+export const runtime = 'edge'
+
 import { Suspense } from 'react'
 import { generateSEO } from '@/lib/seo'
 import CategoryGrid from '@/components/CategoryGrid'

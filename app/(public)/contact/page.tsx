@@ -1,3 +1,5 @@
+export const runtime = 'edge'
+
 import { generateSEO } from '@/lib/seo'
 import ContactClient from './ContactClient'
 
