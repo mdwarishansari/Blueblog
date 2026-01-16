@@ -1,3 +1,5 @@
+export const runtime = 'edge'
+
 import { Suspense } from 'react'
 import { Users, Target, Award, Globe } from 'lucide-react'
 import { prisma } from '@/lib/prisma'

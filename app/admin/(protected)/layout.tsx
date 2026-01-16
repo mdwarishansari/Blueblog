@@ -1,3 +1,5 @@
+export const runtime = 'edge'
+
 import { redirect } from 'next/navigation'
 import AdminSidebar from '@/components/AdminSidebar'
 import AdminHeader from '@/components/AdminHeader'

@@ -119,7 +119,7 @@ export default function Header() {
 
           {/* ACTIONS */}
           <div className="flex items-center gap-2">
-            <Link href="/admin/login">
+            <Link href="/login">
               <Button
                 size="sm"
                 className="

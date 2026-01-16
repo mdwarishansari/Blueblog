@@ -1,3 +1,5 @@
+export const runtime = 'edge'
+
 import { Suspense } from 'react'
 import { Filter } from 'lucide-react'
 import BlogSearchInput from '@/components/blog/BlogSearchInput'

@@ -86,3 +86,4 @@ app/generated/prisma/
 # =========================================
 tmp/
 temp/
+etc.md

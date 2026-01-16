@@ -1,3 +1,4 @@
+export const runtime = 'edge'
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
@@ -16,6 +17,8 @@ const postSchema = z.object({
   status: z.enum(['DRAFT', 'PUBLISHED']).default('DRAFT'),
   publishedAt: z.string().optional().transform(str => str ? new Date(str) : null),
 })
+
+
 
 // Get all posts (admin)
 export async function GET(request: NextRequest) {
