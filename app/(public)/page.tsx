@@ -1,3 +1,5 @@
+export const runtime = 'edge'
+
 import Link from 'next/link'
 import { ArrowRight, Sparkles, Layers } from 'lucide-react'
 import { Suspense } from 'react'
