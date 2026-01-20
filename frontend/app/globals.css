@@ -1,0 +1,195 @@
+@import "tailwindcss";
+
+/* =====================================================
+   GLOBAL DESIGN SYSTEM (HARD-CODED LIGHT THEME)
+   ===================================================== */
+
+/* ---------- ROOT TOKENS ---------- */
+:root {
+  /* Core surfaces */
+  --bg: #f7fafc;
+  /* page background */
+  --fg: #0f172a;
+  /* main text */
+  --card: #ffffff;
+  /* cards / header / footer */
+  --muted: #f1f5f9;
+  /* soft panels */
+  --border: #e6eef8;
+  /* subtle borders */
+
+  /* Accent gradient */
+  --accent-start: #6366f1;
+  /* indigo */
+  --accent-mid: #8b5cf6;
+  /* violet */
+  --accent-end: #ec4899;
+  /* pink */
+
+  /* Motion */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---------- BASE ELEMENTS ---------- */
+html,
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  scroll-behavior: smooth;
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Text selection */
+::selection {
+  background: rgba(99, 102, 241, 0.18);
+}
+
+/* =====================================================
+   ELEVATION SYSTEM (REUSE EVERYWHERE)
+   ===================================================== */
+
+.elev-sm {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.elev-md {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+}
+
+.elev-lg {
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.24);
+}
+
+/* Header-specific separation */
+.shadow-header {
+  box-shadow: 0 12px 36px -12px rgba(0, 0, 0, 0.22);
+}
+
+/* =====================================================
+   GRADIENTS & ANIMATION
+   ===================================================== */
+
+/* Animated gradient background */
+.gradient-bg {
+  background-image: linear-gradient(120deg,
+      var(--accent-start),
+      var(--accent-mid),
+      var(--accent-end));
+  background-size: 200% 200%;
+  animation: gradient-move 6s linear infinite;
+}
+
+@keyframes gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* =====================================================
+   INTERACTION HELPERS
+   ===================================================== */
+
+.ui-transition {
+  transition:
+    background-color 200ms var(--ease),
+    color 200ms var(--ease),
+    box-shadow 220ms var(--ease),
+    transform 220ms var(--ease);
+}
+
+.ui-lift {
+  transition: transform 220ms var(--ease);
+}
+
+.ui-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* =====================================================
+   BUTTON BASE HELPERS (USED BY Button COMPONENT)
+   ===================================================== */
+
+/* Default glow visible WITHOUT hover */
+.btn-glow {
+  box-shadow: 0 8px 22px rgba(99, 102, 241, 0.28);
+}
+
+/* On hover: reduce glow but scale up */
+.btn-hover-effect {
+  transition:
+    transform 220ms var(--ease),
+    box-shadow 220ms var(--ease);
+}
+
+.btn-hover-effect:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+/* =====================================================
+   SKELETON SYSTEM (GLOBAL)
+   ===================================================== */
+
+.skeleton {
+  background: linear-gradient(100deg,
+      #e5e7eb 30%,
+      #f1f5f9 50%,
+      #e5e7eb 70%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.2s linear infinite;
+  border-radius: 0.5rem;
+}
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+
+  33% {
+    transform: translate(30px, -40px) scale(1.05);
+  }
+
+  66% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 20s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+@keyframes skeleton-shimmer {
+  to {
+    background-position-x: -200%;
+  }
+}
+
+/* =====================================================
+   LAYOUT HELPERS
+   ===================================================== */
+
+.container {
+  max-width: 1120px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}

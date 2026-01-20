@@ -7,6 +7,11 @@ export class CategoriesService {
       orderBy: { name: 'asc' },
       include: {
         image: true,
+        _count: {
+          select: {
+            posts: true,
+          },
+        },
         ...(includePosts && {
           posts: {
             where: { status: 'PUBLISHED' },

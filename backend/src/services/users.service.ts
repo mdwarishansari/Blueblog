@@ -3,6 +3,23 @@ import prisma from '../utils/prisma'
 import { AppError } from '../middlewares/error.middleware'
 
 export class UsersService {
+  async getPublicTeamMembers() {
+    // Publicly visible team members (no auth)
+    return prisma.user.findMany({
+      where: { role: { in: ['ADMIN', 'EDITOR'] } },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        bio: true,
+        role: true,
+        profileImage: true,
+        createdAt: true,
+      },
+    })
+  }
+
   async getAllUsers(currentUserId: string, currentUserRole: string) {
     // Writers can only see themselves
     if (currentUserRole === 'WRITER') {

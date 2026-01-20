@@ -2,6 +2,18 @@ import { Request, Response, NextFunction } from 'express'
 import usersService from '../services/users.service'
 
 export class UsersController {
+  async getPublicTeamMembers(req: Request, res: Response, next: NextFunction) {
+    try {
+      const team = await usersService.getPublicTeamMembers()
+      res.json({
+        success: true,
+        data: team,
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.user) {
