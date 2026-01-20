@@ -17,12 +17,13 @@ export interface UploadResult {
 
 export const uploadToCloudinary = (
   fileBuffer: Buffer,
-  folder: string = 'blueblog'
+  folder = 'blueblog'
 ): Promise<UploadResult> => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder,
+        resource_type: 'image',
         transformation: [
           { width: 2000, height: 2000, crop: 'limit' },
           { quality: 'auto' },
@@ -33,9 +34,11 @@ export const uploadToCloudinary = (
         if (error) {
           return reject(error)
         }
+
         if (!result) {
-          return reject(new Error('Upload failed'))
+          return reject(new Error('Cloudinary returned empty result'))
         }
+
         resolve({
           url: result.secure_url,
           public_id: result.public_id,
@@ -46,9 +49,15 @@ export const uploadToCloudinary = (
       }
     )
 
-    streamifier.createReadStream(fileBuffer).pipe(uploadStream)
+    const stream = streamifier.createReadStream(fileBuffer)
+
+    stream.on('error', err => reject(err))
+    uploadStream.on('error', err => reject(err))
+
+    stream.pipe(uploadStream)
   })
 }
+
 
 export const deleteFromCloudinary = async (publicId: string): Promise<void> => {
   await cloudinary.uploader.destroy(publicId)

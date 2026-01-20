@@ -15,7 +15,20 @@ router.post(
   authController.login
 )
 
-router.post('/logout', authController.logout)
+// routes/auth.routes.ts
+router.post('/logout', (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+  })
+
+  res.json({
+    success: true,
+    message: 'Logged out successfully',
+  })
+})
+
 router.post('/refresh', authController.refresh)
 
 router.get('/me', authenticate, authController.me)

@@ -20,15 +20,22 @@ export default function AdminMessagesPage() {
   const [loading, setLoading] = useState(true)
 
   const loadMessages = async () => {
-    try {
-      const data = await apiGet('/admin/messages')
-      setMessages(data.data?.messages || data.messages || [])
-    } catch {
-      toast.error('Failed to load messages')
-    } finally {
-      setLoading(false)
-    }
+  try {
+    const res = await apiGet('/admin/messages')
+
+    const list = Array.isArray(res?.data)
+      ? res.data
+      : []
+
+    setMessages(list)
+  } catch {
+    toast.error('Failed to load messages')
+    setMessages([])
+  } finally {
+    setLoading(false)
   }
+}
+
 
   useEffect(() => {
     loadMessages()

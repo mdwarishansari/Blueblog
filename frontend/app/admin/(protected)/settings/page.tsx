@@ -51,7 +51,22 @@ export default function AdminSettingsPage() {
     try {
       const data = await apiGet('/admin/settings')
       const settingsData = data.data?.settings || data.data || data
-      if (settingsData) setSettings(settingsData)
+      if (settingsData) {
+  setSettings({
+    site_name: settingsData.site_name ?? '',
+    site_description: settingsData.site_description ?? '',
+    contact_email: settingsData.contact_email ?? '',
+    footer_text: settingsData.footer_text ?? '',
+    site_logo: settingsData.site_logo ?? '',
+    social_links: {
+      twitter: settingsData.social_links?.twitter ?? '',
+      facebook: settingsData.social_links?.facebook ?? '',
+      instagram: settingsData.social_links?.instagram ?? '',
+      github: settingsData.social_links?.github ?? '',
+    },
+  })
+}
+
     } catch {
       toast.error('Failed to load settings')
     } finally {

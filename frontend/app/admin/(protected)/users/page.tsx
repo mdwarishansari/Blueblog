@@ -38,15 +38,22 @@ export default function AdminUsersPage() {
   }, [])
 
   const fetchUsers = async () => {
-    try {
-      const data = await apiGet('/admin/users')
-      setUsers(data.data?.users || data.users || [])
-    } catch {
-      toast.error('Failed to fetch users')
-    } finally {
-      setLoading(false)
-    }
+  try {
+    const res = await apiGet('/admin/users')
+
+    const list = Array.isArray(res?.data)
+      ? res.data
+      : []
+
+    setUsers(list)
+  } catch {
+    toast.error('Failed to fetch users')
+    setUsers([])
+  } finally {
+    setLoading(false)
   }
+}
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -341,17 +348,20 @@ export default function AdminUsersPage() {
           </select>
 
           {!editingUser && (
+            
             <Input
-              type="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={e =>
-                setFormData({ ...formData, password: e.target.value })
-              }
-              minLength={6}
-              required
-            />
+  type="password"
+  placeholder="Password"
+  value={formData.password}
+  onChange={e => setFormData({ ...formData, password: e.target.value })}
+  minLength={8}
+  required
+/>
+
           )}
+<p className="text-xs text-muted-foreground">
+  Must be 8+ chars, include uppercase, lowercase, number & symbol
+</p>
 
           <div className="flex justify-end gap-3 pt-4">
             <Button

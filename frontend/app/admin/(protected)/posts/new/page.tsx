@@ -48,10 +48,20 @@ const [uploadError, setUploadError] = useState<string | null>(null)
 
   /* ---------- CATEGORIES ---------- */
   useEffect(() => {
-    apiGet('/categories')
-      .then((data: any) => setCategories(data.data?.categories || data.categories || data || []))
-      .catch(() => {})
-  }, [])
+  apiGet('/categories')
+    .then((res: any) => {
+      const list =
+        Array.isArray(res) ? res :
+        Array.isArray(res.data) ? res.data :
+        Array.isArray(res.data?.categories) ? res.data.categories :
+        Array.isArray(res.data?.data) ? res.data.data :
+        []
+
+      setCategories(list)
+    })
+    .catch(() => setCategories([]))
+}, [])
+
 
   /* ---------- IMAGE VALIDATION---------- */
   const MAX_IMAGE_SIZE = 1 * 1024 * 1024 // 1MB

@@ -40,15 +40,22 @@ export default function AdminImagesPage() {
   }, [])
 
   const fetchImages = async () => {
-    try {
-      const data = await apiGet('/admin/media')
-      setImages(data.data?.images || data.images || [])
-    } catch {
-      toast.error('Failed to fetch images')
-    } finally {
-      setLoading(false)
-    }
+  try {
+    const res = await apiGet('/admin/media')
+
+    const list = Array.isArray(res?.data)
+      ? res.data
+      : []
+
+    setImages(list)
+  } catch {
+    toast.error('Failed to fetch images')
+    setImages([])
+  } finally {
+    setLoading(false)
   }
+}
+
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault()

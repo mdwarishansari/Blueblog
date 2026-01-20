@@ -55,7 +55,12 @@ const [uploadError, setUploadError] = useState<string | null>(null)
           apiGet(`/admin/posts/${id}`),
         ])
 
-        const cats = catsData.data?.categories || catsData.categories || catsData || []
+        const cats =
+  Array.isArray(catsData) ? catsData :
+  Array.isArray(catsData.data) ? catsData.data :
+  Array.isArray(catsData.data?.categories) ? catsData.data.categories :
+  Array.isArray(catsData.data?.data) ? catsData.data.data :
+  []
         const post = postData.data?.post || postData.data || postData
 
         setCategories(cats)

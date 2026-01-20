@@ -66,6 +66,23 @@ export default function AdminSidebar({ user, settings }: AdminSidebarProps) {
     item.roles.includes(user.role)
   )
 
+  // Logout handler
+  const handleLogout = async () => {
+  try {
+    await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/logout`,
+      {
+        method: 'POST',
+        credentials: 'include',
+      }
+    )
+
+    window.location.href = '/login'
+  } catch {
+    window.location.href = '/login'
+  }
+}
+
   /* ===== MOBILE TOGGLE ===== */
   const MobileToggle = (
     <button
@@ -183,12 +200,14 @@ export default function AdminSidebar({ user, settings }: AdminSidebarProps) {
 
         <form action="/api/auth/logout" method="POST" className="mt-4">
           <Button
-            variant="ghost"
-            className="w-full justify-start text-red-600 hover:bg-red-50"
-          >
-            <LogOut className="mr-2 h-5 w-5" />
-            {!collapsed && 'Logout'}
-          </Button>
+  variant="ghost"
+  onClick={handleLogout}
+  className="w-full justify-start text-red-600 hover:bg-red-50"
+>
+  <LogOut className="mr-2 h-5 w-5" />
+  {!collapsed && 'Logout'}
+</Button>
+
         </form>
       </div>
     </motion.aside>

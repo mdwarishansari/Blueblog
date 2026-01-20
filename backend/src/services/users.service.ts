@@ -239,17 +239,22 @@ export class UsersService {
   }
 
   private getSafeUserFields() {
-    return {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      bio: true,
-      profileImage: true,
-      createdAt: true,
-      updatedAt: true,
-    }
+  return {
+    id: true,
+    name: true,
+    email: true,
+    role: true,
+    bio: true,
+    profileImage: true,
+    createdAt: true,
+    updatedAt: true,
+    _count: {
+      select: {
+        posts: true,
+      },
+    },
   }
+}
 }
 
 export default new UsersService()

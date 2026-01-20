@@ -79,15 +79,21 @@ export default function AdminCategoriesPage() {
   }, [])
 
   async function fetchCategories() {
-    try {
-      const data = await apiGet('/admin/categories')
-      setCategories(data.data?.categories || data.categories || data || [])
-    } catch {
-      toast.error('Failed to load categories')
-    } finally {
-      setLoading(false)
-    }
+  try {
+    const res = await apiGet('/admin/categories')
+
+    // backend returns: { success, data: Category[] }
+    const list = Array.isArray(res?.data) ? res.data : []
+
+    setCategories(list)
+  } catch {
+    toast.error('Failed to load categories')
+    setCategories([])
+  } finally {
+    setLoading(false)
   }
+}
+
 
   async function fetchImages() {
     try {
