@@ -21,7 +21,7 @@ export default function AdminLayout({
         const site = siteRes.data || siteRes
 
         if (!me) {
-          router.replace('/admin/login')
+          router.replace('/login')
           return
         }
 
@@ -31,7 +31,7 @@ export default function AdminLayout({
           site_logo: site.siteLogo || site.site_logo,
         })
       })
-      .catch(() => router.replace('/admin/login'))
+      .catch(() => router.replace('/login'))
   }, [router])
 
   return (

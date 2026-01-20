@@ -70,9 +70,9 @@ export default function AdminSettingsPage() {
       const data = await apiUpload('/upload/image', form)
       const imageUrl = data.data?.url || data.url || data.data?.image?.url || data.image?.url
       if (!imageUrl) {
-        toast.error('Logo upload failed')
-        return
-      }
+      toast.error('Logo upload failed')
+      return
+    }
       setSettings(s => ({ ...s, site_logo: imageUrl }))
     } catch (err: any) {
       toast.error(err.message || 'Logo upload failed')

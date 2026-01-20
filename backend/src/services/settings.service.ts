@@ -5,6 +5,7 @@ export interface Settings {
   siteName: string
   siteUrl: string
   description: string
+  siteLogo?: string 
   social?: {
     twitter?: string
     facebook?: string
@@ -25,21 +26,59 @@ export class SettingsService {
   }
 
   async getSettings(): Promise<Settings> {
-    const settings = await prisma.setting.findMany()
+  const rows = await prisma.setting.findMany()
 
-    // Convert array of settings to object
-    const settingsObj = settings.reduce((acc, setting) => {
-      try {
-        acc[setting.key] = JSON.parse(setting.value)
-      } catch {
-        acc[setting.key] = setting.value
-      }
-      return acc
-    }, {} as Record<string, any>)
+  const normalized: Partial<Settings> = {}
 
-    // Merge with default settings
-    return { ...this.defaultSettings, ...settingsObj }
+  for (const row of rows) {
+    let value: any
+    try {
+      value = JSON.parse(row.value)
+    } catch {
+      value = row.value
+    }
+
+    switch (row.key) {
+      case 'site_logo':
+        normalized.siteLogo = value
+        break
+
+      case 'site_name':
+        normalized.siteName = value
+        break
+
+      case 'site_url':
+        normalized.siteUrl = value
+        break
+
+      case 'description':
+        normalized.description = value
+        break
+
+      case 'social':
+        normalized.social = value
+        break
+
+      case 'footerHtml':
+        normalized.footerHtml = value
+        break
+
+      case 'contactEmail':
+        normalized.contactEmail = value
+        break
+
+      default:
+        // ❌ ignore unknown keys safely
+        break
+    }
   }
+
+  return {
+    ...this.defaultSettings,
+    ...normalized,
+  }
+}
+
 
   async updateSettings(newSettings: Partial<Settings>) {
     // Convert settings object to array of key-value pairs
@@ -81,6 +120,7 @@ export class SettingsService {
       siteName: settings.siteName,
       siteUrl: settings.siteUrl,
       description: settings.description,
+      siteLogo: settings.siteLogo ?? null,
     }
   }
 

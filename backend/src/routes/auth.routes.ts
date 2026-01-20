@@ -3,6 +3,7 @@ import authController from '../controllers/auth.controller'
 import { validate } from '../utils/validation'
 import { schemas } from '../utils/validation'
 import { authLimiter } from '../middlewares/rateLimit.middleware'
+import { authenticate } from '../middlewares/auth.middleware'
 
 const router = Router()
 
@@ -16,7 +17,9 @@ router.post(
 
 router.post('/logout', authController.logout)
 router.post('/refresh', authController.refresh)
-router.get('/me', authController.me)
+
+router.get('/me', authenticate, authController.me)
+
 router.post(
   '/change-password',
   validate(schemas.changePassword),

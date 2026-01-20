@@ -74,12 +74,17 @@ export async function apiGet<T = any>(endpoint: string, params?: Record<string, 
 /**
  * POST request helper
  */
-export async function apiPost<T = any>(endpoint: string, body?: any): Promise<T> {
+export async function apiPost<T = any>(
+  endpoint: string,
+  body?: unknown
+): Promise<T> {
   return apiFetch(endpoint, {
     method: 'POST',
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
   })
 }
+
+
 
 /**
  * PUT request helper

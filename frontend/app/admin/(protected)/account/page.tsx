@@ -58,9 +58,9 @@ export default function AccountPage() {
       const data = await apiUpload('/upload/image', form)
       const imageUrl = data.data?.url || data.url || data.image?.url
       if (!imageUrl) {
-        toast.error('Image upload failed')
-        return
-      }
+      toast.error('Image upload failed')
+      return
+    }
       setProfile(p => ({ ...p, profileImage: imageUrl }))
     } catch (e: any) {
       toast.error(e.message || 'Image upload failed')

@@ -3,27 +3,15 @@ import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const token = request.cookies.get('access_token')?.value
 
-  // ❗ ABSOLUTELY IGNORE LOGIN PAGE
-  if (pathname === '/admin/login') {
-    return NextResponse.next()
-  }
+  // Protect admin routes
+  if (pathname.startsWith('/admin') && pathname !== '/admin/login' && !token) {
+  return NextResponse.redirect(new URL('/login', request.url))
+}
 
-  // Protect admin routes EXCEPT login
-  if (pathname.startsWith('/admin')) {
-    const token = request.cookies.get('access_token')?.value
 
-    if (!token) {
-      return NextResponse.redirect(
-        new URL('/admin/login', request.url)
-      )
-    }
-  }
-
-  const response = NextResponse.next()
-response.headers.set('x-pathname', pathname)
-return response
-
+  return NextResponse.next()
 }
 
 export const config = {

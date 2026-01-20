@@ -19,47 +19,39 @@ class App {
   }
 
   private initializeMiddlewares() {
-    // Security headers
-    this.app.use(helmet())
+  // Security headers
+  this.app.use(helmet())
 
-    // CORS configuration
-    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || []
-    this.app.use(
-      cors({
-        origin: (origin, callback) => {
-          // Allow requests with no origin (like mobile apps or curl requests)
-          if (!origin) return callback(null, true)
-          
-          if (allowedOrigins.indexOf(origin) === -1) {
-            const msg = 'The CORS policy for this site does not allow access from the specified Origin.'
-            return callback(new Error(msg), false)
-          }
-          return callback(null, true)
-        },
-        credentials: true,
-        optionsSuccessStatus: 200,
-      })
+  // CORS (DEV)
+  this.app.use(
+    cors({
+      origin: 'http://localhost:3000',
+      credentials: true,
+    })
+  )
+
+  // Rate limit ONLY protected routes
+  this.app.use('/api/auth', apiLimiter)
+  this.app.use('/api/admin', apiLimiter)
+  this.app.use('/api/users', apiLimiter)
+
+  // Request logging
+  this.app.use(
+    morgan(
+      ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"',
+      { stream }
     )
+  )
 
-    // Rate limiting
-    this.app.use('/api/', apiLimiter)
+  // Body parsers
+  this.app.use(express.json({ limit: '10mb' }))
+  this.app.use(express.urlencoded({ extended: true, limit: '10mb' }))
+  this.app.use(cookieParser())
 
-    // Request logging
-    this.app.use(
-      morgan(
-        ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"',
-        { stream }
-      )
-    )
+  // Static files
+  this.app.use('/uploads', express.static('uploads'))
+}
 
-    // Body parsers
-    this.app.use(express.json({ limit: '10mb' }))
-    this.app.use(express.urlencoded({ extended: true, limit: '10mb' }))
-    this.app.use(cookieParser())
-
-    // Static files (optional)
-    this.app.use('/uploads', express.static('uploads'))
-  }
 
   private initializeRoutes() {
     // API routes

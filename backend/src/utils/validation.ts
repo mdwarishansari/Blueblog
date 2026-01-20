@@ -138,15 +138,11 @@ export const schemas = {
   }),
 }
 
-// Validation middleware
+// Validation middleware (FIXED)
 export const validate = (schema: z.ZodSchema) => {
   return (req: any, res: any, next: any) => {
     try {
-      schema.parse({
-        body: req.body,
-        query: req.query,
-        params: req.params,
-      })
+      schema.parse(req.body)
       next()
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -163,6 +159,7 @@ export const validate = (schema: z.ZodSchema) => {
     }
   }
 }
+
 
 // Helper to generate slug
 export const generateSlug = (text: string): string => {

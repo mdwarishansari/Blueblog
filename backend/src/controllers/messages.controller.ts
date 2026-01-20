@@ -3,20 +3,42 @@ import messagesService from '../services/messages.service'
 
 export class MessagesController {
   async createMessage(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { name, email, message } = req.body
+  try {
+    console.log('CONTACT BODY:', req.body)
 
-      const contactMessage = await messagesService.createMessage(name, email, message)
+    const { name, email, message } = req.body || {}
 
-      res.status(201).json({
-        success: true,
-        data: contactMessage,
-        message: 'Message sent successfully',
+    // 🔴 VALIDATION (REQUIRED)
+    if (
+      typeof name !== 'string' ||
+      typeof email !== 'string' ||
+      typeof message !== 'string' ||
+      !name.trim() ||
+      !email.trim() ||
+      !message.trim()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name, email, and message are required',
       })
-    } catch (error) {
-      next(error)
     }
+
+    const contactMessage = await messagesService.createMessage(
+      name.trim(),
+      email.trim(),
+      message.trim()
+    )
+
+    res.status(201).json({
+      success: true,
+      data: contactMessage,
+      message: 'Message sent successfully',
+    })
+  } catch (error) {
+    next(error)
   }
+}
+
 
   async getAllMessages(req: Request, res: Response, next: NextFunction) {
     try {

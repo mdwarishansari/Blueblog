@@ -27,12 +27,25 @@ export default function Header() {
   useEffect(() => {
     apiGet('/settings/site-info')
       .then((d: any) => {
-        if (d?.data?.siteName || d?.siteName) setSiteName(d.data?.siteName || d.siteName)
-        if (d?.data?.siteLogo || d?.siteLogo) setSiteLogo(d.data?.siteLogo || d.siteLogo)
-      })
-      .catch(() => {})
-      .finally(() => setLoadingSettings(false))
-  }, [])
+  const data = d?.data || d || {}
+
+  if (data.siteName || data.site_name) {
+    setSiteName(data.siteName || data.site_name)
+  }
+
+  const logo =
+  (data.siteLogo && data.siteLogo.trim()) ||
+  (data.site_logo && data.site_logo.trim()) ||
+  null
+
+setSiteLogo(logo)
+console.log('HEADER siteLogo =', siteLogo)
+
+})
+
+    .catch(() => {})
+    .finally(() => setLoadingSettings(false))
+}, [])
 
 
   const nav = [

@@ -37,11 +37,11 @@ export default function AdminMessagesPage() {
   const markAsRead = async (id: string) => {
     try {
       await apiPut(`/admin/messages/${id}/read`, {})
-      setMessages(m =>
-        m.map(msg =>
-          msg.id === id ? { ...msg, isRead: true } : msg
-        )
+    setMessages(m =>
+      m.map(msg =>
+        msg.id === id ? { ...msg, isRead: true } : msg
       )
+    )
     } catch {
       // Silent fail
     }
@@ -52,8 +52,8 @@ export default function AdminMessagesPage() {
 
     try {
       await apiDelete(`/admin/messages/${id}`)
-      toast.success('Message deleted')
-      setMessages(m => m.filter(msg => msg.id !== id))
+    toast.success('Message deleted')
+    setMessages(m => m.filter(msg => msg.id !== id))
     } catch (err: any) {
       toast.error(err.message || 'Failed to delete message')
     }
