@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
+import prisma from '../utils/prisma' // ✅ FIX 1
 
 export const authorize = (roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -16,7 +17,7 @@ export const authorize = (roles: string[]) => {
       })
     }
 
-    next()
+    return next() // ✅ FIX 2
   }
 }
 
@@ -35,17 +36,22 @@ export const checkOwnership = (model: 'post' | 'user') => {
     }
 
     try {
-      let resource
-      const resourceId = req.params.id
+      const resourceId = Array.isArray(req.params.id)
+  ? req.params.id[0]
+  : req.params.id
+
+      let resource: { authorId?: string } | null = null // ✅ FIX 3
 
       if (model === 'post') {
         resource = await prisma.post.findUnique({
           where: { id: resourceId },
           select: { authorId: true },
         })
-      } else if (model === 'user') {
-        // Users can only access their own profile
-        resource = { id: resourceId }
+      }
+
+      if (model === 'user') {
+        // users can only access themselves
+        resource = { authorId: resourceId }
       }
 
       if (!resource) {
@@ -55,7 +61,6 @@ export const checkOwnership = (model: 'post' | 'user') => {
         })
       }
 
-      // Check if user owns the resource
       if (model === 'post' && resource.authorId !== req.user.id) {
         return res.status(403).json({
           success: false,
@@ -70,9 +75,9 @@ export const checkOwnership = (model: 'post' | 'user') => {
         })
       }
 
-      next()
+      return next() // ✅ FIX 2
     } catch (error) {
-      next(error)
+      return next(error) // ✅ FIX 2
     }
   }
 }

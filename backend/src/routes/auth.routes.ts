@@ -16,7 +16,7 @@ router.post(
 )
 
 // routes/auth.routes.ts
-router.post('/logout', (req, res) => {
+router.post('/logout', (_req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
     sameSite: 'lax',

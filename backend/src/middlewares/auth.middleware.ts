@@ -8,8 +8,10 @@ export const authenticate = async (
   next: NextFunction
 ) => {
   try {
-    // Get token from cookie
-    const token = req.cookies?.access_token || req.headers.authorization?.split(' ')[1]
+    // Get token from cookie or header
+    const token =
+      req.cookies?.access_token ||
+      req.headers.authorization?.split(' ')[1]
 
     if (!token) {
       return res.status(401).json({
@@ -19,7 +21,7 @@ export const authenticate = async (
     }
 
     // Verify token
-    const decoded = verifyAccessToken(token)
+    const decoded = verifyAccessToken(token) as { userId: string }
 
     // Check if user exists
     const user = await prisma.user.findUnique({
@@ -46,7 +48,7 @@ export const authenticate = async (
       role: user.role,
     }
 
-    next()
+    return next()
   } catch (error) {
     if (error instanceof Error && error.name === 'TokenExpiredError') {
       return res.status(401).json({
@@ -54,7 +56,7 @@ export const authenticate = async (
         message: 'Token expired',
       })
     }
-    
+
     return res.status(401).json({
       success: false,
       message: 'Invalid token',

@@ -2,15 +2,16 @@ import { Request, Response, NextFunction } from 'express'
 import usersService from '../services/users.service'
 
 export class UsersController {
-  async getPublicTeamMembers(req: Request, res: Response, next: NextFunction) {
+  async getPublicTeamMembers(_req: Request, res: Response, next: NextFunction) {
     try {
       const team = await usersService.getPublicTeamMembers()
-      res.json({
+
+      return res.json({
         success: true,
         data: team,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -25,12 +26,12 @@ export class UsersController {
 
       const users = await usersService.getAllUsers(req.user.id, req.user.role)
 
-      res.json({
+      return res.json({
         success: true,
         data: users,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -43,16 +44,20 @@ export class UsersController {
         })
       }
 
-      const { id } = req.params
+      const id = String(req.params.id)
 
-      const user = await usersService.getUserById(id, req.user.id, req.user.role)
+      const user = await usersService.getUserById(
+        id,
+        req.user.id,
+        req.user.role
+      )
 
-      res.json({
+      return res.json({
         success: true,
         data: user,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -66,16 +71,15 @@ export class UsersController {
       }
 
       const userData = req.body
-
       const user = await usersService.createUser(userData)
 
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         data: user,
         message: 'User created successfully',
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -88,7 +92,7 @@ export class UsersController {
         })
       }
 
-      const { id } = req.params
+      const id = String(req.params.id)
       const updateData = req.body
 
       const user = await usersService.updateUser(
@@ -98,13 +102,13 @@ export class UsersController {
         req.user.role
       )
 
-      res.json({
+      return res.json({
         success: true,
         data: user,
         message: 'User updated successfully',
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -117,16 +121,19 @@ export class UsersController {
         })
       }
 
-      const { id } = req.params
+      const id = String(req.params.id)
 
-      const result = await usersService.deleteUser(id, req.user.id, req.user.role)
+      const result = await usersService.deleteUser(
+        id,
+        req.user.id,
+      )
 
-      res.json({
+      return res.json({
         success: true,
         message: result.message,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -140,16 +147,15 @@ export class UsersController {
       }
 
       const updateData = req.body
-
       const user = await usersService.updateProfile(req.user.id, updateData)
 
-      res.json({
+      return res.json({
         success: true,
         data: user,
         message: 'Profile updated successfully',
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -164,14 +170,18 @@ export class UsersController {
 
       const { currentPassword, newPassword } = req.body
 
-      await usersService.changePassword(req.user.id, currentPassword, newPassword)
+      await usersService.changePassword(
+        req.user.id,
+        currentPassword,
+        newPassword
+      )
 
-      res.json({
+      return res.json({
         success: true,
         message: 'Password changed successfully',
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 }

@@ -145,7 +145,7 @@ export class UsersService {
     return updatedUser
   }
 
-  async deleteUser(id: string, currentUserId: string, currentUserRole: string) {
+  async deleteUser(id: string, currentUserId: string) {
     // Check if user exists
     const user = await prisma.user.findUnique({
       where: { id },

@@ -15,7 +15,7 @@ export const errorHandler = (
   err: Error | AppError,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction // ✅ unused, silence TS
 ) => {
   // Log error
   console.error('Error:', {
@@ -26,13 +26,13 @@ export const errorHandler = (
     timestamp: new Date().toISOString(),
   })
 
-  // Default error
   const statusCode = err instanceof AppError ? err.statusCode : 500
   const message = err.message || 'Internal Server Error'
 
   // Prisma errors
   if (err.name === 'PrismaClientKnownRequestError') {
     const prismaError = err as any
+
     if (prismaError.code === 'P2002') {
       return res.status(409).json({
         success: false,
@@ -40,6 +40,7 @@ export const errorHandler = (
         details: prismaError.meta?.target,
       })
     }
+
     if (prismaError.code === 'P2025') {
       return res.status(404).json({
         success: false,
@@ -63,7 +64,7 @@ export const errorHandler = (
     })
   }
 
-  // Validation errors (Zod)
+  // Zod validation errors
   if (err.name === 'ZodError') {
     return res.status(400).json({
       success: false,
@@ -72,8 +73,8 @@ export const errorHandler = (
     })
   }
 
-  // Send error response
-  res.status(statusCode).json({
+  // ✅ FINAL return (important)
+  return res.status(statusCode).json({
     success: false,
     message,
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
@@ -81,7 +82,7 @@ export const errorHandler = (
 }
 
 export const notFoundHandler = (req: Request, res: Response) => {
-  res.status(404).json({
+  return res.status(404).json({
     success: false,
     message: `Route ${req.method} ${req.path} not found`,
   })

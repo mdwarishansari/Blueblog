@@ -26,12 +26,12 @@ export interface Settings {
 /* -------------------------------------------------------------------------- */
 
 export class SettingsService {
-  private readonly defaultSettings: Settings = {
-    siteName: 'BlueBlog',
-    siteUrl: 'http://localhost:3000',
-    description: 'A modern, SEO-optimized blogging platform',
-    social: {},
-  }
+  // private readonly defaultSettings: Settings = {
+  //   siteName: 'BlueBlog',
+  //   siteUrl: 'http://localhost:3000',
+  //   description: 'A modern, SEO-optimized blogging platform',
+  //   social: {},
+  // }
 
   /* ------------------------------ GET SETTINGS ----------------------------- */
   async getSettings(): Promise<Settings> {

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import postsService from '../services/posts.service'
 import { generateSlug } from '../utils/validation'
-
+import { PostStatus } from '@prisma/client'
 export class PostsController {
   async getPosts(req: Request, res: Response, next: NextFunction) {
     try {
@@ -15,59 +15,65 @@ export class PostsController {
         status,
       } = req.query
 
-      // ✅ strict + safe status parsing
       const parsedStatus =
-        status === 'DRAFT' || status === 'PUBLISHED'
-          ? status
-          : undefined
+  status === 'DRAFT' || status === 'PUBLISHED'
+    ? (status as PostStatus)
+    : undefined
+
 
       const filters = {
         page: Number(page),
         pageSize: Number(pageSize),
         category: typeof category === 'string' ? category : undefined,
         search: typeof search === 'string' ? search : undefined,
-        sort: sort === 'oldest' || sort === 'popular' ? sort : 'newest',
+        sort:
+  sort === 'oldest' || sort === 'popular' || sort === 'newest'
+    ? (sort as 'newest' | 'oldest' | 'popular')
+    : 'newest',
+
         authorId: typeof authorId === 'string' ? authorId : undefined,
         status: parsedStatus,
       }
 
       const result = await postsService.getPosts(filters)
 
-      res.json({
+      return res.json({
         success: true,
         data: result.data,
         meta: result.meta,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
   async getPostBySlug(req: Request, res: Response, next: NextFunction) {
     try {
-      const { slug } = req.params
+      const slug = String(req.params.slug)
+
       const post = await postsService.getPostBySlug(slug)
 
-      res.json({
+      return res.json({
         success: true,
         data: post,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
   async getPostById(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params
+      const id = String(req.params.id)
+
       const post = await postsService.getPostById(id)
 
-      res.json({
+      return res.json({
         success: true,
         data: post,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -108,13 +114,13 @@ export class PostsController {
         canonicalUrl,
       })
 
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         data: post,
         message: 'Post created successfully',
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -127,7 +133,7 @@ export class PostsController {
         })
       }
 
-      const { id } = req.params
+      const id = String(req.params.id)
       const updateData = req.body
 
       const post = await postsService.updatePost(
@@ -137,13 +143,13 @@ export class PostsController {
         req.user.role
       )
 
-      res.json({
+      return res.json({
         success: true,
         data: post,
         message: 'Post updated successfully',
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -156,19 +162,20 @@ export class PostsController {
         })
       }
 
-      const { id } = req.params
+      const id = String(req.params.id)
+
       const result = await postsService.deletePost(
         id,
         req.user.id,
         req.user.role
       )
 
-      res.json({
+      return res.json({
         success: true,
         message: result.message,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 }

@@ -22,13 +22,13 @@ export class MediaController {
 
       const image = await uploadService.uploadImage(file, req.user.id)
 
-      res.json({
+      return res.json({
         success: true,
         data: image,
         message: 'Image uploaded successfully',
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -41,17 +41,18 @@ export class MediaController {
         })
       }
 
-      const { page = 1, pageSize = 20 } = req.query
+      const page = Number(req.query.page ?? 1)
+      const pageSize = Number(req.query.pageSize ?? 20)
 
-      const result = await mediaService.getAllImages(Number(page), Number(pageSize))
+      const result = await mediaService.getAllImages(page, pageSize)
 
-      res.json({
+      return res.json({
         success: true,
         data: result.data,
         meta: result.meta,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -64,16 +65,16 @@ export class MediaController {
         })
       }
 
-      const { id } = req.params
+      const id = String(req.params.id)
 
       const image = await mediaService.getImageById(id)
 
-      res.json({
+      return res.json({
         success: true,
         data: image,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -86,16 +87,16 @@ export class MediaController {
         })
       }
 
-      const { id } = req.params
+      const id = String(req.params.id)
 
       const result = await mediaService.deleteImage(id)
 
-      res.json({
+      return res.json({
         success: true,
         message: result.message,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -110,12 +111,12 @@ export class MediaController {
 
       const images = await mediaService.getImagesByUsage()
 
-      res.json({
+      return res.json({
         success: true,
         data: images,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 }

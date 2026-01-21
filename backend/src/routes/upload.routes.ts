@@ -3,6 +3,7 @@ import mediaController from '../controllers/media.controller'
 import { authenticate } from '../middlewares/auth.middleware'
 import { authorize } from '../middlewares/role.middleware'
 import { upload } from '../services/upload.service'
+import uploadService from '../services/upload.service'
 
 const router = Router()
 
@@ -17,7 +18,7 @@ router.post(
   mediaController.uploadImage
 )
 
-// Multiple images upload (optional)
+// Multiple images upload
 router.post(
   '/images',
   authorize(['ADMIN', 'EDITOR', 'WRITER']),
@@ -31,20 +32,27 @@ router.post(
         })
       }
 
-      const files = req.files as Express.Multer.File[]
-      const uploadPromises = files.map(file =>
-        mediaController.uploadImage({ ...req, file } as any, res as any, next)
+      const files = req.files as Express.Multer.File[] | undefined
+
+      if (!files || files.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'No files uploaded',
+        })
+      }
+
+      // ✅ call SERVICE, not controller
+      const images = await Promise.all(
+        files.map(file => uploadService.uploadImage(file, req.user!.id))
       )
-      
-      const results = await Promise.all(uploadPromises)
-      
-      res.json({
+
+      return res.json({
         success: true,
-        data: results.map(r => r.data),
+        data: images,
         message: 'Images uploaded successfully',
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 )

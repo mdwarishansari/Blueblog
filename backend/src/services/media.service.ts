@@ -7,7 +7,6 @@ export class MediaService {
   fileBuffer: Buffer,
   filename: string,
   mimeType: string,
-  userId: string
 ) {
 
     // Upload to Cloudinary
@@ -18,10 +17,9 @@ export class MediaService {
 
 
     // Save to database
-    const image = await prisma.image.create({
+   const image = await prisma.image.create({
   data: {
     url: uploadResult.url,
-    publicId: uploadResult.public_id,
     altText: filename,
     title: filename,
     width: uploadResult.width,

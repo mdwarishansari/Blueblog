@@ -3,42 +3,40 @@ import messagesService from '../services/messages.service'
 
 export class MessagesController {
   async createMessage(req: Request, res: Response, next: NextFunction) {
-  try {
-    console.log('CONTACT BODY:', req.body)
+    try {
+      console.log('CONTACT BODY:', req.body)
 
-    const { name, email, message } = req.body || {}
+      const { name, email, message } = req.body || {}
 
-    // 🔴 VALIDATION (REQUIRED)
-    if (
-      typeof name !== 'string' ||
-      typeof email !== 'string' ||
-      typeof message !== 'string' ||
-      !name.trim() ||
-      !email.trim() ||
-      !message.trim()
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: 'Name, email, and message are required',
+      if (
+        typeof name !== 'string' ||
+        typeof email !== 'string' ||
+        typeof message !== 'string' ||
+        !name.trim() ||
+        !email.trim() ||
+        !message.trim()
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: 'Name, email, and message are required',
+        })
+      }
+
+      const contactMessage = await messagesService.createMessage(
+        name.trim(),
+        email.trim(),
+        message.trim()
+      )
+
+      return res.status(201).json({
+        success: true,
+        data: contactMessage,
+        message: 'Message sent successfully',
       })
+    } catch (error) {
+      return next(error)
     }
-
-    const contactMessage = await messagesService.createMessage(
-      name.trim(),
-      email.trim(),
-      message.trim()
-    )
-
-    res.status(201).json({
-      success: true,
-      data: contactMessage,
-      message: 'Message sent successfully',
-    })
-  } catch (error) {
-    next(error)
   }
-}
-
 
   async getAllMessages(req: Request, res: Response, next: NextFunction) {
     try {
@@ -49,21 +47,28 @@ export class MessagesController {
         })
       }
 
-      const { page = 1, pageSize = 20, isRead } = req.query
+      const page = Number(req.query.page ?? 1)
+      const pageSize = Number(req.query.pageSize ?? 20)
+      const isRead =
+        req.query.isRead === 'true'
+          ? true
+          : req.query.isRead === 'false'
+          ? false
+          : undefined
 
       const result = await messagesService.getAllMessages(
-        Number(page),
-        Number(pageSize),
-        isRead === 'true' ? true : isRead === 'false' ? false : undefined
+        page,
+        pageSize,
+        isRead
       )
 
-      res.json({
+      return res.json({
         success: true,
         data: result.data,
         meta: result.meta,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -76,16 +81,16 @@ export class MessagesController {
         })
       }
 
-      const { id } = req.params
+      const id = String(req.params.id)
 
       const message = await messagesService.getMessageById(id)
 
-      res.json({
+      return res.json({
         success: true,
         data: message,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -98,16 +103,16 @@ export class MessagesController {
         })
       }
 
-      const { id } = req.params
+      const id = String(req.params.id)
 
       const result = await messagesService.deleteMessage(id)
 
-      res.json({
+      return res.json({
         success: true,
         message: result.message,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -120,17 +125,17 @@ export class MessagesController {
         })
       }
 
-      const { id } = req.params
+      const id = String(req.params.id)
 
       const message = await messagesService.markAsRead(id)
 
-      res.json({
+      return res.json({
         success: true,
         data: message,
         message: 'Message marked as read',
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -143,17 +148,17 @@ export class MessagesController {
         })
       }
 
-      const { id } = req.params
+      const id = String(req.params.id)
 
       const message = await messagesService.markAsUnread(id)
 
-      res.json({
+      return res.json({
         success: true,
         data: message,
         message: 'Message marked as unread',
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -168,12 +173,12 @@ export class MessagesController {
 
       const count = await messagesService.getUnreadCount()
 
-      res.json({
+      return res.json({
         success: true,
         data: { count },
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 }

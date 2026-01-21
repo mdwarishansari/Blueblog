@@ -3,52 +3,53 @@ import categoriesService from '../services/categories.service'
 import { generateSlug } from '../utils/validation'
 
 export class CategoriesController {
-  async getAllCategories(req: Request, res: Response, next: NextFunction) {
+  async getAllCategories(_req: Request, res: Response, next: NextFunction) {
     try {
       const categories = await categoriesService.getAllCategories()
 
-      res.json({
+      return res.json({
         success: true,
         data: categories,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
   async getCategoryBySlug(req: Request, res: Response, next: NextFunction) {
     try {
-      const { slug } = req.params
+      const slug = String(req.params.slug)
 
       const category = await categoriesService.getCategoryBySlug(slug)
 
-      res.json({
+      return res.json({
         success: true,
         data: category,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
   async getCategoryPosts(req: Request, res: Response, next: NextFunction) {
     try {
-      const { slug } = req.params
-      const { page = 1, pageSize = 10 } = req.query
+      const slug = String(req.params.slug)
+      const page = Number(req.query.page ?? 1)
+      const pageSize = Number(req.query.pageSize ?? 10)
 
       const result = await categoriesService.getCategoryPosts(
         slug,
-        Number(page),
-        Number(pageSize)
+        page,
+        pageSize
       )
 
-      res.json({
+      return res.json({
         success: true,
         data: result.data,
         meta: result.meta,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -66,13 +67,13 @@ export class CategoriesController {
 
       const category = await categoriesService.createCategory(name, slug, imageId)
 
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         data: category,
         message: 'Category created successfully',
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -85,18 +86,18 @@ export class CategoriesController {
         })
       }
 
-      const { id } = req.params
+      const id = String(req.params.id)
       const updateData = req.body
 
       const category = await categoriesService.updateCategory(id, updateData)
 
-      res.json({
+      return res.json({
         success: true,
         data: category,
         message: 'Category updated successfully',
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -109,16 +110,16 @@ export class CategoriesController {
         })
       }
 
-      const { id } = req.params
+      const id = String(req.params.id)
 
       const result = await categoriesService.deleteCategory(id)
 
-      res.json({
+      return res.json({
         success: true,
         message: result.message,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 
@@ -133,12 +134,12 @@ export class CategoriesController {
 
       const categories = await categoriesService.getCategoriesForAdmin()
 
-      res.json({
+      return res.json({
         success: true,
         data: categories,
       })
     } catch (error) {
-      next(error)
+      return next(error)
     }
   }
 }

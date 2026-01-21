@@ -1,11 +1,15 @@
 import bcrypt from 'bcrypt'
 import prisma from '../utils/prisma'
-import { generateAccessToken, generateRefreshToken, JwtPayload } from '../utils/jwt'
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+  JwtPayload,
+} from '../utils/jwt'
 import { AppError } from '../middlewares/error.middleware'
 
 export class AuthService {
   async login(email: string, password: string) {
-    // Find user
     const user = await prisma.user.findUnique({
       where: { email },
       select: {
@@ -23,13 +27,11 @@ export class AuthService {
       throw new AppError('Invalid credentials', 401)
     }
 
-    // Check password
     const isValidPassword = await bcrypt.compare(password, user.passwordHash)
     if (!isValidPassword) {
       throw new AppError('Invalid credentials', 401)
     }
 
-    // Generate tokens
     const payload: JwtPayload = {
       userId: user.id,
       email: user.email,
@@ -39,16 +41,14 @@ export class AuthService {
     const accessToken = generateAccessToken(payload)
     const refreshToken = generateRefreshToken(payload)
 
-    // Store refresh token
     await prisma.refreshToken.create({
       data: {
         token: refreshToken,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         userId: user.id,
       },
     })
 
-    // Return user data (excluding password)
     const { passwordHash, ...userWithoutPassword } = user
 
     return {
@@ -65,10 +65,9 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string) {
-    // Verify refresh token
-    const decoded = verifyRefreshToken(refreshToken)
+    // ✅ verify signature (no unused variable)
+    verifyRefreshToken(refreshToken)
 
-    // Check if token exists in database
     const storedToken = await prisma.refreshToken.findUnique({
       where: { token: refreshToken },
       include: { user: true },
@@ -78,7 +77,6 @@ export class AuthService {
       throw new AppError('Invalid or expired refresh token', 401)
     }
 
-    // Generate new access token
     const payload: JwtPayload = {
       userId: storedToken.user.id,
       email: storedToken.user.email,
@@ -130,16 +128,13 @@ export class AuthService {
       throw new AppError('User not found', 404)
     }
 
-    // Verify current password
     const isValid = await bcrypt.compare(currentPassword, user.passwordHash)
     if (!isValid) {
       throw new AppError('Current password is incorrect', 400)
     }
 
-    // Hash new password
     const hashedPassword = await bcrypt.hash(newPassword, 10)
 
-    // Update password
     await prisma.user.update({
       where: { id: userId },
       data: { passwordHash: hashedPassword },

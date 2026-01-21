@@ -7,7 +7,7 @@ import uploadRoutes from './upload.routes'
 const router = Router()
 
 // Health check endpoint
-router.get('/health', (req, res) => {
+router.get('/health', (_req, res) => {
   res.json({
     success: true,
     message: 'BlueBlog API is running',

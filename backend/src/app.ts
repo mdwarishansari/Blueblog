@@ -6,7 +6,7 @@ import morgan from 'morgan'
 import routes from './routes'
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware'
 import { apiLimiter } from './middlewares/rateLimit.middleware'
-import logger, { stream } from './utils/logger'
+import { stream } from './utils/logger'
 
 class App {
   public app: Application
@@ -58,7 +58,7 @@ class App {
     this.app.use('/api', routes)
 
     // Root endpoint
-    this.app.get('/', (req, res) => {
+    this.app.get('/', (_req, res) => {
       res.json({
         message: 'Welcome to BlueBlog API',
         version: '1.0.0',
