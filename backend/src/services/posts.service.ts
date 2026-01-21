@@ -228,11 +228,11 @@ export class PostsService {
     const where: any = {}
 
     // Only show published posts for public endpoints
-    if (status === undefined) {
-      where.status = 'PUBLISHED'
-    } else {
-      where.status = status
-    }
+    // ✅ Admin: apply status filter ONLY if explicitly requested
+if (status === 'DRAFT' || status === 'PUBLISHED') {
+  where.status = status
+}
+
 
     if (category) {
       where.categories = {

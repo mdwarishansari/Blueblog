@@ -27,8 +27,8 @@ router.post(
 
 // Settings (public)
 router.get('/settings', settingsController.getSettings)
-router.get('/settings/site-info', settingsController.getSiteInfo)
-router.get('/settings/social-links', settingsController.getSocialLinks)
+// router.get('/settings/site-info', settingsController.getSiteInfo)
+// router.get('/settings/social-links', settingsController.getSocialLinks)
 
 // Public team members (About page)
 router.get('/team', usersController.getPublicTeamMembers)

@@ -24,13 +24,15 @@ export default function LoginPage() {
 
   /* Fetch site branding */
   useEffect(() => {
-    apiGet('/settings/site-info')
-      .then((data: any) => {
-        if (data?.data?.siteName || data?.siteName) setSiteName(data.data?.siteName || data.siteName)
-        if (data?.data?.siteLogo || data?.siteLogo) setSiteLogo(data.data?.siteLogo || data.siteLogo)
-      })
-      .catch(() => {})
-  }, [])
+  apiGet('/settings')
+    .then((res: any) => {
+      const data = res.data ?? res
+      if (data?.siteName) setSiteName(data.siteName)
+      if (data?.siteLogo) setSiteLogo(data.siteLogo)
+    })
+    .catch(() => {})
+}, [])
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

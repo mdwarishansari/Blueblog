@@ -79,10 +79,9 @@ export default function PostTable({ posts, user }: PostTableProps) {
           const currentPost = posts.find(p => p.id === id)
           if (currentPost) {
             await apiPut(`/admin/posts/${id}`, {
-              ...currentPost,
-              status: action === 'PUBLISH' ? 'PUBLISHED' : 'DRAFT',
-              publishedAt: action === 'PUBLISH' ? new Date().toISOString() : currentPost.publishedAt,
-            })
+  status: action === 'PUBLISH' ? 'PUBLISHED' : 'DRAFT',
+})
+
           }
         }
       }

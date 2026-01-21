@@ -73,9 +73,14 @@ export default function AdminUsersPage() {
       setFormData({ name: '', email: '', role: 'WRITER', password: '' })
       fetchUsers()
     } catch (error: any) {
-      toast.error(error.message)
+  if (error.details?.errors?.length) {
+    toast.error(error.details.errors[0].message)
+  } else {
+    toast.error(error.message || 'Failed to save user')
+  }
     }
   }
+
 
   const handleEdit = (user: UserData) => {
     setEditingUser(user)

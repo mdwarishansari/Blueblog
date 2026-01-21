@@ -3,20 +3,32 @@ import { AppError } from '../middlewares/error.middleware'
 import { uploadToCloudinary, deleteFromCloudinary } from '../utils/cloudinary'
 
 export class MediaService {
-  async uploadImage(fileBuffer: Buffer, filename: string, userId: string) {
+  async uploadImage(
+  fileBuffer: Buffer,
+  filename: string,
+  mimeType: string,
+  userId: string
+) {
+
     // Upload to Cloudinary
-    const uploadResult = await uploadToCloudinary(fileBuffer)
+    const uploadResult = await uploadToCloudinary(
+  fileBuffer,
+  mimeType
+)
+
 
     // Save to database
     const image = await prisma.image.create({
-      data: {
-        url: uploadResult.url,
-        altText: filename,
-        title: filename,
-        width: uploadResult.width,
-        height: uploadResult.height,
-      },
-    })
+  data: {
+    url: uploadResult.url,
+    publicId: uploadResult.public_id,
+    altText: filename,
+    title: filename,
+    width: uploadResult.width,
+    height: uploadResult.height,
+  },
+})
+
 
     return {
       id: image.id,

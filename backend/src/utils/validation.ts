@@ -107,20 +107,20 @@ export const schemas = {
 
   // Settings
   updateSettings: z.object({
-    siteName: z.string().min(1, 'Site name is required').max(100),
-    siteUrl: z.string().url('Invalid URL'),
-    description: z.string().max(500, 'Description too long'),
-    social: z.object({
-      twitter: z.string().optional(),
-      facebook: z.string().optional(),
-      instagram: z.string().optional(),
-      linkedin: z.string().optional(),
-      github: z.string().optional(),
-    }).optional(),
-    footerHtml: z.string().max(2000, 'Footer HTML too long').optional(),
-    contactEmail: z.string().email('Invalid email').optional(),
-  }),
-
+  siteName: z.string().min(1, 'Site name is required').max(100).optional(),
+  description: z.string().max(500, 'Description too long').optional(),
+  footerHtml: z.string().max(2000, 'Footer HTML too long').optional(),
+  contactEmail: z.string().email('Invalid email').optional(),
+  siteLogo: z.string().url('Invalid URL').optional(),
+  social: z.object({
+    twitter: z.string().optional(),
+    facebook: z.string().optional(),
+    instagram: z.string().optional(),
+    linkedin: z.string().optional(),
+    github: z.string().optional(),
+  }).optional(),
+})
+,
   // Query params
   pagination: z.object({
     page: z.string().regex(/^\d+$/).transform(Number).default('1'),

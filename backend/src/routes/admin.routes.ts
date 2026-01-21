@@ -155,16 +155,7 @@ router.put(
   validate(schemas.updateSettings),
   settingsController.updateSettings
 )
-router.put(
-  '/settings/social-links',
-  authorize(['ADMIN']),
-  settingsController.updateSocialLinks
-)
-router.put(
-  '/settings/site-info',
-  authorize(['ADMIN']),
-  settingsController.updateSiteInfo
-)
+
 
 // Profile (All authenticated users)
 router.put(

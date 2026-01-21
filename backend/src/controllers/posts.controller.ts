@@ -6,8 +6,8 @@ export class PostsController {
   async getPosts(req: Request, res: Response, next: NextFunction) {
     try {
       const {
-        page = 1,
-        pageSize = 10,
+        page = '1',
+        pageSize = '10',
         category,
         search,
         sort = 'newest',
@@ -15,14 +15,20 @@ export class PostsController {
         status,
       } = req.query
 
+      // ✅ strict + safe status parsing
+      const parsedStatus =
+        status === 'DRAFT' || status === 'PUBLISHED'
+          ? status
+          : undefined
+
       const filters = {
         page: Number(page),
         pageSize: Number(pageSize),
-        category: category as string,
-        search: search as string,
-        sort: sort as 'newest' | 'oldest' | 'popular',
-        authorId: authorId as string,
-        status: status as 'DRAFT' | 'PUBLISHED',
+        category: typeof category === 'string' ? category : undefined,
+        search: typeof search === 'string' ? search : undefined,
+        sort: sort === 'oldest' || sort === 'popular' ? sort : 'newest',
+        authorId: typeof authorId === 'string' ? authorId : undefined,
+        status: parsedStatus,
       }
 
       const result = await postsService.getPosts(filters)
@@ -40,7 +46,6 @@ export class PostsController {
   async getPostBySlug(req: Request, res: Response, next: NextFunction) {
     try {
       const { slug } = req.params
-
       const post = await postsService.getPostBySlug(slug)
 
       res.json({
@@ -55,7 +60,6 @@ export class PostsController {
   async getPostById(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params
-
       const post = await postsService.getPostById(id)
 
       res.json({
@@ -153,8 +157,11 @@ export class PostsController {
       }
 
       const { id } = req.params
-
-      const result = await postsService.deletePost(id, req.user.id, req.user.role)
+      const result = await postsService.deletePost(
+        id,
+        req.user.id,
+        req.user.role
+      )
 
       res.json({
         success: true,

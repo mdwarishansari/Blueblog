@@ -19,26 +19,18 @@ function normalizeUrl(url?: string) {
    Data
 ------------------------------------- */
 async function getSettings() {
-  // Backend exposes site info + social links
-  const [siteInfoRes, socialRes, settingsRes] = await Promise.all([
-    serverApiGet<any>('/settings/site-info', undefined, { revalidate: 60 }),
-    serverApiGet<any>('/settings/social-links', undefined, { revalidate: 60 }),
-    // Keep compatibility with existing keys expected by UI
-    serverApiGet<any>('/settings', undefined, { revalidate: 60 }).catch(() => null),
-  ])
-
-  const siteInfo = siteInfoRes.data || {}
-  const social_links = socialRes.data || {}
-  const legacy = settingsRes?.data || {}
+  const res = await serverApiGet<any>('/settings', undefined, { revalidate: 60 })
+  const data = res?.data ?? res ?? {}
 
   return {
-    site_name: legacy.site_name || siteInfo.siteName || 'BlueBlog',
-    site_description: legacy.site_description || siteInfo.description || '',
-    footer_text: legacy.footer_text || '',
-    site_logo: legacy.site_logo || siteInfo.siteLogo || '',
-    social_links,
+    site_name: data.siteName ?? 'BlueBlog',
+    site_description: data.description ?? '',
+    footer_text: data.footerHtml ?? '',
+    site_logo: data.siteLogo ?? '',
+    social_links: data.social ?? {},
   }
 }
+
 
 /* -------------------------------------
    Component

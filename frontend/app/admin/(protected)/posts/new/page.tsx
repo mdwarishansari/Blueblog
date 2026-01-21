@@ -8,6 +8,9 @@ import { Input } from '@/components/ui/Input'
 import { Category, UserRole } from '@prisma/client'
 import { useRouter } from 'next/navigation'
 import { apiGet, apiPost, apiPut, apiUpload } from '@/lib/api'
+import { ImagePlus } from 'lucide-react'
+import imageCompression from 'browser-image-compression'
+
 
 const Editor = dynamic(() => import('@/components/Editor'), { ssr: false })
 
@@ -64,7 +67,9 @@ const [uploadError, setUploadError] = useState<string | null>(null)
 
 
   /* ---------- IMAGE VALIDATION---------- */
-  const MAX_IMAGE_SIZE = 1 * 1024 * 1024 // 1MB
+  const MAX_INPUT_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
+const TARGET_IMAGE_SIZE = 500 * 1024 // 500KB
+
 const ALLOWED_TYPES = ['image/jpeg', 'image/png']
 
 function validateImage(file: File) {
@@ -88,29 +93,53 @@ function validateImage(file: File) {
     return Math.min(score, 100)
   }, [post])
 
+  /* ---------- IMAGE COMPRESSION ---------- */
+async function compressImage(file: File): Promise<File> {
+  const options = {
+    maxSizeMB: 0.5, // 500 KB
+    maxWidthOrHeight: 2000,
+    useWebWorker: true,
+  }
+
+  return await imageCompression(file, options)
+}
+
+  /* ---------- IMAGE UPLOAD ---------- */
   async function uploadImage(file: File) {
-  const error = validateImage(file)
-  if (error) {
-    setUploadError(error)
-    toast.error(error)
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    toast.error('Only JPG and PNG images allowed')
     return
   }
 
-  setUploadError(null)
+  if (file.size > MAX_INPUT_IMAGE_SIZE) {
+    toast.error('Image must be less than 5MB')
+    return
+  }
+
   setUploading(true)
   setUploadProgress(0)
-
-  const formData = new FormData()
-  formData.append('file', file)
+  setUploadError(null)
 
   try {
-    const data = await apiUpload('/upload/image', formData)
-    const image = data.data?.image || data.image || data.data
-    if (image) {
-      setImage(image)
-    } else {
-      throw new Error('Invalid response from server')
+    // 1️⃣ compress in browser
+    const compressedFile = await compressImage(file)
+
+    // sanity check
+    if (compressedFile.size > TARGET_IMAGE_SIZE) {
+      toast.error('Image could not be compressed enough')
+      return
     }
+
+    // 2️⃣ upload compressed file
+    const formData = new FormData()
+    formData.append('file', compressedFile)
+
+    const data = await apiUpload('/upload/image', formData)
+
+    const img = data.data || data.image
+    setImage(img)
+
+    toast.success('Image uploaded')
   } catch (err: any) {
     toast.error(err.message || 'Upload failed')
     setUploadError(err.message || 'Upload failed')
@@ -202,12 +231,19 @@ function validateImage(file: File) {
       {/* ================= SIDEBAR ================= */}
       <div className="space-y-6">
         {/* IMAGE */}
-        <div className="rounded-xl bg-card p-4 elev-sm space-y-3">
+        <div className="rounded-xl bg-card p-4 space-y-3">
   <label className="text-sm font-medium">Featured Image</label>
 
-  <p className="text-xs text-muted-foreground">
-    JPG or PNG only • Max size 1MB
-  </p>
+  {/* PICK ICON */}
+  {!uploading && (
+    <label
+      htmlFor="post-image"
+      className="flex items-center justify-center gap-2 cursor-pointer rounded-lg border border-dashed p-4 hover:bg-muted"
+    >
+      <ImagePlus className="h-5 w-5" />
+      <span className="text-sm">Choose image (1–5MB)</span>
+    </label>
+  )}
 
   <input
     id="post-image"
@@ -221,54 +257,28 @@ function validateImage(file: File) {
     }}
   />
 
-  <label
-    htmlFor="post-image"
-    className="inline-flex cursor-pointer rounded-lg bg-muted px-4 py-2 text-sm font-medium hover:bg-muted/70"
-  >
-    Choose image
-  </label>
-
+  {/* PROGRESS */}
   {uploading && (
-    <div className="space-y-1">
+    <div className="space-y-2">
       <div className="h-2 rounded bg-muted overflow-hidden">
-        <div
-          className="h-full bg-indigo-500 transition-all"
-          style={{ width: `${uploadProgress}%` }}
-        />
+        <div className="h-full bg-indigo-500 animate-pulse w-full" />
       </div>
-      <p className="text-xs text-muted-foreground">
-        Uploading… {uploadProgress}%
-      </p>
+      <p className="text-xs text-muted-foreground">Uploading…</p>
     </div>
+  )}
+
+  {/* PREVIEW */}
+  {image && !uploading && (
+    <>
+      <img src={image.url} className="rounded-lg" />
+      <p className="text-xs text-muted-foreground">
+        Image uploaded • Click icon above to replace
+      </p>
+    </>
   )}
 
   {uploadError && (
     <p className="text-xs text-red-500">{uploadError}</p>
-  )}
-
-  {image && (
-    <>
-      <img src={image.url} className="rounded-lg" />
-
-      <Input
-        placeholder="Alt text (SEO)"
-        value={image.altText || ''}
-        onChange={e => setImage({ ...image, altText: e.target.value })}
-      />
-
-      <Input
-        placeholder="Image title"
-        value={image.title || ''}
-        onChange={e => setImage({ ...image, title: e.target.value })}
-      />
-
-      <textarea
-        placeholder="Image caption"
-        value={image.caption || ''}
-        onChange={e => setImage({ ...image, caption: e.target.value })}
-        className="w-full rounded-lg bg-background p-2"
-      />
-    </>
   )}
 </div>
 

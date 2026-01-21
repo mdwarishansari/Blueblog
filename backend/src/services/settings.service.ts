@@ -35,80 +35,93 @@ export class SettingsService {
 
   /* ------------------------------ GET SETTINGS ----------------------------- */
   async getSettings(): Promise<Settings> {
-    const rows = await prisma.setting.findMany()
+  const rows = await prisma.setting.findMany()
 
-    const normalized: Partial<Settings> = {}
+  const normalized: Partial<Settings> = {}
 
-    for (const row of rows) {
-      let value: any
-      try {
-        value = JSON.parse(row.value)
-      } catch {
-        value = row.value
-      }
-
-      switch (row.key) {
-        case 'siteName':
-          normalized.siteName = value
-          break
-
-        case 'siteUrl':
-          normalized.siteUrl = value
-          break
-
-        case 'description':
-          normalized.description = value
-          break
-
-        case 'siteLogo':
-          normalized.siteLogo = value
-          break
-
-        case 'social':
-          normalized.social = value
-          break
-
-        case 'footerHtml':
-          normalized.footerHtml = value
-          break
-
-        case 'contactEmail':
-          normalized.contactEmail = value
-          break
-
-        default:
-          // ignore unknown keys safely
-          break
-      }
+  for (const row of rows) {
+    let value: any
+    try {
+      value = JSON.parse(row.value)
+    } catch {
+      value = row.value
     }
 
-    return {
-      ...this.defaultSettings,
-      ...normalized,
+    switch (row.key) {
+      case 'site_name':
+        normalized.siteName = value
+        break
+
+      case 'site_description':
+        normalized.description = value
+        break
+
+      case 'footer_text':
+        normalized.footerHtml = value
+        break
+
+      case 'contact_email':
+        normalized.contactEmail = value
+        break
+
+      case 'site_logo':
+        normalized.siteLogo = value
+        break
+
+      case 'social_links':
+        normalized.social = value
+        break
     }
   }
+
+  return {
+    siteName: normalized.siteName ?? 'BlueBlog',
+    siteUrl: 'http://localhost:3000', 
+    description: normalized.description ?? '',
+    footerHtml: normalized.footerHtml ?? '',
+    contactEmail: normalized.contactEmail ?? '',
+    siteLogo: normalized.siteLogo ?? '',
+    social: normalized.social ?? {},
+  }
+}
+
 
   /* ----------------------------- UPDATE SETTINGS ---------------------------- */
   async updateSettings(newSettings: Partial<Settings>) {
-    const entries = Object.entries(newSettings)
-
-    for (const [key, value] of entries) {
-      if (value === undefined) continue
-
-      await prisma.setting.upsert({
-        where: { key },
-        update: {
-          value: typeof value === 'string' ? value : JSON.stringify(value),
-        },
-        create: {
-          key,
-          value: typeof value === 'string' ? value : JSON.stringify(value),
-        },
-      })
-    }
-
-    return this.getSettings()
+  const keyMap: Record<string, string> = {
+    siteName: 'site_name',
+    description: 'site_description',
+    footerHtml: 'footer_text',
+    contactEmail: 'contact_email',
+    siteLogo: 'site_logo',
+    social: 'social_links',
   }
+
+  for (const [camelKey, value] of Object.entries(newSettings)) {
+    if (value === undefined) continue
+
+    const dbKey = keyMap[camelKey]
+    if (!dbKey) continue
+
+    await prisma.setting.upsert({
+      where: { key: dbKey },
+      update: {
+        value: typeof value === 'string'
+          ? value
+          : JSON.stringify(value),
+      },
+      create: {
+        key: dbKey,
+        value: typeof value === 'string'
+          ? value
+          : JSON.stringify(value),
+      },
+    })
+  }
+
+  return this.getSettings()
+}
+
 
   /* ----------------------------- SOCIAL LINKS ------------------------------- */
   async getSocialLinks() {

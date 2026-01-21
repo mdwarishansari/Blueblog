@@ -15,48 +15,36 @@ export interface UploadResult {
   format: string
 }
 
-export const uploadToCloudinary = (
+export const uploadToCloudinary = async (
   fileBuffer: Buffer,
+  mimeType: string,
   folder = 'blueblog'
 ): Promise<UploadResult> => {
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder,
-        resource_type: 'image',
-        transformation: [
-          { width: 2000, height: 2000, crop: 'limit' },
-          { quality: 'auto' },
-          { fetch_format: 'auto' },
-        ],
-      },
-      (error, result) => {
-        if (error) {
-          return reject(error)
-        }
+  const base64 = fileBuffer.toString('base64')
 
-        if (!result) {
-          return reject(new Error('Cloudinary returned empty result'))
-        }
+  const result = await cloudinary.uploader.upload(
+    `data:${mimeType};base64,${base64}`,
+    {
+      folder,
+      resource_type: 'image',
+      timeout: 60_000,
+      transformation: [
+        { width: 2000, height: 2000, crop: 'limit' },
+        { quality: 'auto' },
+        { fetch_format: 'auto' },
+      ],
+    }
+  )
 
-        resolve({
-          url: result.secure_url,
-          public_id: result.public_id,
-          width: result.width,
-          height: result.height,
-          format: result.format,
-        })
-      }
-    )
-
-    const stream = streamifier.createReadStream(fileBuffer)
-
-    stream.on('error', err => reject(err))
-    uploadStream.on('error', err => reject(err))
-
-    stream.pipe(uploadStream)
-  })
+  return {
+    url: result.secure_url,
+    public_id: result.public_id,
+    width: result.width!,
+    height: result.height!,
+    format: result.format!,
+  }
 }
+
 
 
 export const deleteFromCloudinary = async (publicId: string): Promise<void> => {

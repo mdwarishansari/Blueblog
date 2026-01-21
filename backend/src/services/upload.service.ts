@@ -8,17 +8,18 @@ import mediaService from './media.service'
 const storage = multer.memoryStorage()
 
 // File filter
-const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  const allowedTypes = /jpeg|jpg|png|gif|webp/
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase())
-  const mimetype = allowedTypes.test(file.mimetype)
-
-  if (mimetype && extname) {
-    return cb(null, true)
-  } else {
-    cb(new AppError('Only image files are allowed', 400))
+const fileFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback
+) => {
+  if (!file.mimetype.startsWith('image/')) {
+    return cb(new AppError('Only image files are allowed', 400))
   }
+
+  cb(null, true)
 }
+
 
 // Configure multer
 export const upload = multer({
@@ -46,8 +47,13 @@ export class UploadService {
       throw new AppError('Invalid file type. Only images are allowed', 400)
     }
 
-    // Upload to media service
-    const image = await mediaService.uploadImage(file.buffer, file.originalname, userId)
+    // Upload to media service  
+   const image = await mediaService.uploadImage(
+  file.buffer,
+  file.originalname,
+  file.mimetype,
+  userId
+)
 
     return image
   }

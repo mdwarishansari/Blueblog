@@ -17,12 +17,12 @@ import toast from 'react-hot-toast'
 import { apiGet, apiPut, apiUpload } from '@/lib/api'
 
 interface SiteSettings {
-  site_name: string
-  site_description: string
-  contact_email: string
-  footer_text: string
-  site_logo?: string
-  social_links: {
+  siteName: string
+  description: string
+  contactEmail: string
+  footerHtml: string
+  siteLogo?: string
+  social: {
     twitter?: string
     facebook?: string
     instagram?: string
@@ -30,17 +30,19 @@ interface SiteSettings {
   }
 }
 
+
 export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [settings, setSettings] = useState<SiteSettings>({
-    site_name: '',
-    site_description: '',
-    contact_email: '',
-    footer_text: '',
-    site_logo: '',
-    social_links: {},
-  })
+  siteName: '',
+  description: '',
+  contactEmail: '',
+  footerHtml: '',
+  siteLogo: '',
+  social: {},
+})
+
 
   useEffect(() => {
     fetchSettings()
@@ -53,18 +55,19 @@ export default function AdminSettingsPage() {
       const settingsData = data.data?.settings || data.data || data
       if (settingsData) {
   setSettings({
-    site_name: settingsData.site_name ?? '',
-    site_description: settingsData.site_description ?? '',
-    contact_email: settingsData.contact_email ?? '',
-    footer_text: settingsData.footer_text ?? '',
-    site_logo: settingsData.site_logo ?? '',
-    social_links: {
-      twitter: settingsData.social_links?.twitter ?? '',
-      facebook: settingsData.social_links?.facebook ?? '',
-      instagram: settingsData.social_links?.instagram ?? '',
-      github: settingsData.social_links?.github ?? '',
-    },
-  })
+  siteName: settingsData.siteName ?? '',
+  description: settingsData.description ?? '',
+  contactEmail: settingsData.contactEmail ?? '',
+  footerHtml: settingsData.footerHtml ?? '',
+  siteLogo: settingsData.siteLogo ?? '',
+  social: {
+    twitter: settingsData.social?.twitter ?? '',
+    facebook: settingsData.social?.facebook ?? '',
+    instagram: settingsData.social?.instagram ?? '',
+    github: settingsData.social?.github ?? '',
+  },
+})
+
 }
 
     } catch {
@@ -97,7 +100,15 @@ export default function AdminSettingsPage() {
   const handleSave = async () => {
     setSaving(true)
     try {
-      await apiPut('/admin/settings', settings)
+      await apiPut('/admin/settings', {
+  siteName: settings.siteName,
+  description: settings.description,
+  contactEmail: settings.contactEmail,
+  footerHtml: settings.footerHtml,
+  siteLogo: settings.siteLogo,
+  social: settings.social,
+})
+
       toast.success('Settings saved successfully')
     } catch (error: any) {
       toast.error(error.message)
@@ -165,7 +176,7 @@ export default function AdminSettingsPage() {
           <div className="flex flex-col sm:flex-row gap-6 items-start">
             <div className="h-40 w-40 rounded-2xl bg-muted elev-sm flex items-center justify-center overflow-hidden">
               <img
-                src={settings.site_logo || '/logo-placeholder.png'}
+                src={settings.siteLogo || '/logo-placeholder.png'}
                 alt="Site Logo"
                 className="h-full w-full object-contain"
               />
@@ -197,9 +208,9 @@ export default function AdminSettingsPage() {
         <div className="space-y-1">
           <label className="text-sm font-medium">Site Name</label>
           <Input
-            value={settings.site_name}
+            value={settings.siteName}
             onChange={e =>
-              setSettings({ ...settings, site_name: e.target.value })
+              setSettings({ ...settings, siteName: e.target.value })
             }
           />
         </div>
@@ -209,11 +220,11 @@ export default function AdminSettingsPage() {
           <label className="text-sm font-medium">Site Description</label>
           <textarea
             rows={3}
-            value={settings.site_description}
+            value={settings.description}
             onChange={e =>
               setSettings({
                 ...settings,
-                site_description: e.target.value,
+                description: e.target.value,
               })
             }
             className="w-full rounded-xl bg-card elev-sm px-3 py-2 text-sm ui-transition focus:outline-none focus:elev-lg"
@@ -225,9 +236,9 @@ export default function AdminSettingsPage() {
           <label className="text-sm font-medium">Contact Email</label>
           <Input
             type="email"
-            value={settings.contact_email}
+            value={settings.contactEmail}
             onChange={e =>
-              setSettings({ ...settings, contact_email: e.target.value })
+              setSettings({ ...settings, contactEmail: e.target.value })
             }
           />
         </div>
@@ -276,12 +287,12 @@ export default function AdminSettingsPage() {
   </label>
 
   <Input
-    value={settings.social_links.twitter || ''}
+    value={settings.social.twitter || ''}
     onChange={e =>
       setSettings({
         ...settings,
-        social_links: {
-          ...settings.social_links,
+        social: {
+          ...settings.social,
           twitter: e.target.value,
         },
       })
@@ -299,12 +310,12 @@ export default function AdminSettingsPage() {
   </label>
 
   <Input
-    value={settings.social_links.facebook || ''}
+    value={settings.social.facebook || ''}
     onChange={e =>
       setSettings({
         ...settings,
-        social_links: {
-          ...settings.social_links,
+        social: {
+          ...settings.social,
           facebook: e.target.value,
         },
       })
@@ -322,12 +333,12 @@ export default function AdminSettingsPage() {
   </label>
 
   <Input
-    value={settings.social_links.instagram || ''}
+    value={settings.social.instagram || ''}
     onChange={e =>
       setSettings({
         ...settings,
-        social_links: {
-          ...settings.social_links,
+        social: {
+          ...settings.social,
           instagram: e.target.value,
         },
       })
@@ -345,12 +356,12 @@ export default function AdminSettingsPage() {
   </label>
 
   <Input
-    value={settings.social_links.github || ''}
+    value={settings.social.github || ''}
     onChange={e =>
       setSettings({
         ...settings,
-        social_links: {
-          ...settings.social_links,
+        social: {
+          ...settings.social,
           github: e.target.value,
         },
       })
@@ -393,9 +404,9 @@ export default function AdminSettingsPage() {
 
         <textarea
           rows={4}
-          value={settings.footer_text}
+          value={settings.footerHtml}
           onChange={e =>
-            setSettings({ ...settings, footer_text: e.target.value })
+            setSettings({ ...settings, footerHtml: e.target.value })
           }
           className="w-full rounded-xl bg-card elev-sm px-3 py-2 text-sm ui-transition focus:outline-none focus:elev-lg"
         />

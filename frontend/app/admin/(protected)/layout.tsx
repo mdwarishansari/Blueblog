@@ -15,10 +15,11 @@ export default function AdminLayout({
   const [settings, setSettings] = useState<{ site_name?: string; site_logo?: string }>({})
 
   useEffect(() => {
-    Promise.all([apiGet('/auth/me'), apiGet('/settings/site-info')])
+   Promise.all([apiGet('/auth/me'), apiGet('/settings')])
+
       .then(([meRes, siteRes]) => {
         const me = meRes.data?.user || meRes.user || meRes.data || meRes
-        const site = siteRes.data || siteRes
+        const site = siteRes.data ?? siteRes ?? {}
 
         if (!me) {
           router.replace('/login')
@@ -27,11 +28,15 @@ export default function AdminLayout({
 
         setUser(me)
         setSettings({
-          site_name: site.siteName || site.site_name,
-          site_logo: site.siteLogo || site.site_logo,
-        })
+  site_name: site.siteName,
+  site_logo: site.siteLogo,
+})
       })
-      .catch(() => router.replace('/login'))
+      .catch((err) => {
+  console.error('Admin layout init failed:', err)
+  router.replace('/login')
+})
+
   }, [router])
 
   return (
