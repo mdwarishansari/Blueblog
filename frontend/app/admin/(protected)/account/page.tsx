@@ -44,28 +44,68 @@ export default function AccountPage() {
   }, [])
 
   /* -------- IMAGE UPLOAD -------- */
-  const uploadImage = async (file: File) => {
-    const reader = new FileReader()
-    reader.onload = () => {
-      setPreviewImage(reader.result as string)
-    }
-    reader.readAsDataURL(file)
-
-    const form = new FormData()
-    form.append('file', file)
-
-    try {
-      const data = await apiUpload('/upload/image', form)
-      const imageUrl = data.data?.url || data.url || data.image?.url
-      if (!imageUrl) {
-      toast.error('Image upload failed')
-      return
-    }
-      setProfile(p => ({ ...p, profileImage: imageUrl }))
-    } catch (e: any) {
-      toast.error(e.message || 'Image upload failed')
-    }
+ const uploadImage = async (file: File) => {
+  if (!file.type.startsWith('image/')) {
+    toast.error('Only image files allowed')
+    return
   }
+
+  // 1️⃣ Local preview (UI only)
+  const reader = new FileReader()
+  reader.onload = () => {
+    setPreviewImage(reader.result as string)
+  }
+  reader.readAsDataURL(file)
+
+  try {
+    // 2️⃣ Upload directly to Cloudinary
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append(
+      'upload_preset',
+      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!
+    )
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+      {
+        method: 'POST',
+        body: formData,
+      }
+    )
+
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(err.error?.message || 'Cloudinary upload failed')
+    }
+
+    const data = await res.json()
+
+    // 3️⃣ Save image metadata in backend (THIS IS THE FIX)
+    const imgRes = await apiPost('/admin/images', {
+      url: data.secure_url,
+      width: data.width,
+      height: data.height,
+    })
+
+    const image = imgRes.data?.image || imgRes.data
+
+    if (!image?.url) {
+      throw new Error('Invalid image response from backend')
+    }
+
+    // 4️⃣ Update profile
+    setProfile(p => ({
+      ...p,
+      profileImage: image.url,
+    }))
+
+    toast.success('Profile image updated')
+  } catch (e: any) {
+    toast.error(e.message || 'Image upload failed')
+  }
+}
+
 
   /* -------- SAVE PROFILE -------- */
   const saveProfile = async () => {

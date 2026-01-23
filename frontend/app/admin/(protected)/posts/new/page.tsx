@@ -7,10 +7,9 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Category, UserRole } from '@prisma/client'
 import { useRouter } from 'next/navigation'
-import { apiGet, apiPost, apiPut, apiUpload } from '@/lib/api'
+import { apiGet, apiPost, apiPut } from '@/lib/api'
 import { ImagePlus } from 'lucide-react'
 import imageCompression from 'browser-image-compression'
-
 
 const Editor = dynamic(() => import('@/components/Editor'), { ssr: false })
 
@@ -24,13 +23,14 @@ export default function NewPostPage({ userRole }: { userRole: UserRole }) {
   const [postId, setPostId] = useState<string | null>(null)
   const [slugTouched, setSlugTouched] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
-  const [image, setImage] = useState<any>(null)
   const [saving, setSaving] = useState(false)
 
+  /* ---------------- IMAGE STATE (EXTENDED ONLY) ---------------- */
+  const [image, setImage] = useState<any>(null)
   const [uploading, setUploading] = useState(false)
-const [uploadProgress, setUploadProgress] = useState(0)
-const [uploadError, setUploadError] = useState<string | null>(null)
+  const [uploadError, setUploadError] = useState<string | null>(null)
 
+  /* ---------------- POST STATE ---------------- */
   const [post, setPost] = useState<any>({
     title: '',
     slug: '',
@@ -51,36 +51,18 @@ const [uploadError, setUploadError] = useState<string | null>(null)
 
   /* ---------- CATEGORIES ---------- */
   useEffect(() => {
-  apiGet('/categories')
-    .then((res: any) => {
-      const list =
-        Array.isArray(res) ? res :
-        Array.isArray(res.data) ? res.data :
-        Array.isArray(res.data?.categories) ? res.data.categories :
-        Array.isArray(res.data?.data) ? res.data.data :
-        []
-
-      setCategories(list)
-    })
-    .catch(() => setCategories([]))
-}, [])
-
-
-  /* ---------- IMAGE VALIDATION---------- */
-  const MAX_INPUT_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
-const TARGET_IMAGE_SIZE = 500 * 1024 // 500KB
-
-const ALLOWED_TYPES = ['image/jpeg', 'image/png']
-
-function validateImage(file: File) {
-  if (!ALLOWED_TYPES.includes(file.type)) {
-    return 'Only JPG and PNG images are allowed'
-  }
-  if (file.size > MAX_IMAGE_SIZE) {
-    return 'Image size must be less than 1MB'
-  }
-  return null
-}
+    apiGet('/categories')
+      .then((res: any) => {
+        const list =
+          Array.isArray(res) ? res :
+          Array.isArray(res.data) ? res.data :
+          Array.isArray(res.data?.categories) ? res.data.categories :
+          Array.isArray(res.data?.data) ? res.data.data :
+          []
+        setCategories(list)
+      })
+      .catch(() => setCategories([]))
+  }, [])
 
   /* ---------- SEO SCORE ---------- */
   const seoScore = useMemo(() => {
@@ -93,72 +75,99 @@ function validateImage(file: File) {
     return Math.min(score, 100)
   }, [post])
 
-  /* ---------- IMAGE COMPRESSION ---------- */
-async function compressImage(file: File): Promise<File> {
-  const options = {
-    maxSizeMB: 0.5, // 500 KB
-    maxWidthOrHeight: 2000,
-    useWebWorker: true,
-  }
+  /* ---------- IMAGE CONSTANTS ---------- */
+  const MAX_INPUT_IMAGE_SIZE = 5 * 1024 * 1024
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png']
 
-  return await imageCompression(file, options)
-}
+  /* ---------- IMAGE COMPRESSION ---------- */
+  async function compressImage(file: File): Promise<File> {
+    return await imageCompression(file, {
+      maxSizeMB: 0.5,
+      maxWidthOrHeight: 2000,
+      useWebWorker: true,
+    })
+  }
 
   /* ---------- IMAGE UPLOAD ---------- */
   async function uploadImage(file: File) {
-  if (!ALLOWED_TYPES.includes(file.type)) {
-    toast.error('Only JPG and PNG images allowed')
-    return
-  }
-
-  if (file.size > MAX_INPUT_IMAGE_SIZE) {
-    toast.error('Image must be less than 5MB')
-    return
-  }
-
-  setUploading(true)
-  setUploadProgress(0)
-  setUploadError(null)
-
-  try {
-    // 1️⃣ compress in browser
-    const compressedFile = await compressImage(file)
-
-    // sanity check
-    if (compressedFile.size > TARGET_IMAGE_SIZE) {
-      toast.error('Image could not be compressed enough')
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      toast.error('Only JPG and PNG images allowed')
       return
     }
 
-    // 2️⃣ upload compressed file
-    const formData = new FormData()
-    formData.append('file', compressedFile)
+    if (file.size > MAX_INPUT_IMAGE_SIZE) {
+      toast.error('Image must be between 1–5MB')
+      return
+    }
 
-    const data = await apiUpload('/upload/image', formData)
+    setUploading(true)
+    setUploadError(null)
 
-    const img = data.data || data.image
-    setImage(img)
+    try {
+      const compressed = await compressImage(file)
 
-    toast.success('Image uploaded')
-  } catch (err: any) {
-    toast.error(err.message || 'Upload failed')
-    setUploadError(err.message || 'Upload failed')
-  } finally {
-    setUploading(false)
+      const formData = new FormData()
+      formData.append('file', compressed)
+      formData.append(
+        'upload_preset',
+        process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!
+      )
+
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        { method: 'POST', body: formData }
+      )
+
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error?.message || 'Upload failed')
+      }
+
+      const data = await res.json()
+
+      setImage({
+        url: data.secure_url,
+        publicId: data.public_id,
+        width: data.width,
+        height: data.height,
+        altText: '',
+        title: '',
+        caption: '',
+      })
+
+      toast.success('Image uploaded')
+    } catch (err: any) {
+      toast.error(err.message || 'Upload failed')
+      setUploadError(err.message)
+    } finally {
+      setUploading(false)
+    }
   }
-}
 
-
+  /* ---------- SAVE ---------- */
   async function save(publish: boolean) {
     setSaving(true)
 
     try {
-      const payload = {
-        ...post,
-        bannerImageId: image?.id || null,
-        status: publish ? 'PUBLISHED' : 'DRAFT',
-        publishedAt: publish ? new Date().toISOString() : undefined,
+      let imageId: string | null = null
+
+      if (image) {
+        const imgRes = await apiPost('/admin/images', image)
+        imageId = imgRes.data.id
       }
+
+      const payload = {
+  title: post.title,
+  excerpt: post.excerpt || undefined,
+  content: post.content,
+  categoryIds: post.categoryIds,
+  bannerImageId: imageId || undefined,
+  status: publish ? 'PUBLISHED' : 'DRAFT',
+  seoTitle: post.seoTitle || undefined,
+  seoDescription: post.seoDescription || undefined,
+  canonicalUrl: post.canonicalUrl || undefined,
+}
+
 
       const data = postId
         ? await apiPut(`/admin/posts/${postId}`, payload)
@@ -166,16 +175,8 @@ async function compressImage(file: File): Promise<File> {
 
       toast.success(publish ? 'Post published' : 'Draft saved')
 
-      if (publish) {
-        router.replace('/admin/posts')
-      }
-
-      const postData = data.data?.post || data.post || data.data
-      if (!postId && postData?.id) {
-        setPostId(postData.id)
-      }
-
-      // Note: Image metadata update may need to be handled separately if backend supports it
+      if (publish) router.replace('/admin/posts')
+      else if (!postId) setPostId(data.data.id)
     } catch (err: any) {
       toast.error(err.message || 'Failed to save post')
     } finally {
@@ -183,108 +184,88 @@ async function compressImage(file: File): Promise<File> {
     }
   }
 
+  /* ---------- UI ---------- */
   return (
     <div className="grid gap-6 lg:grid-cols-3">
-      {/* ================= MAIN ================= */}
       <div className="lg:col-span-2 space-y-4">
-        <div>
-          <label className="mb-1 block text-sm font-medium">Post title</label>
-          <Input
-            value={post.title}
-            onChange={e => setPost({ ...post, title: e.target.value })}
-          />
-        </div>
+        <Input
+          value={post.title}
+          onChange={e => setPost({ ...post, title: e.target.value })}
+          placeholder="Post title"
+        />
 
-        <div>
-          <label className="mb-1 block text-sm font-medium">Slug</label>
-          <Input
-            value={post.slug}
-            onChange={e => {
-              setSlugTouched(true)
-              setPost({ ...post, slug: slugify(e.target.value) })
-            }}
-          />
-        </div>
+       
 
-        <div>
-          <label className="mb-1 block text-sm font-medium">Excerpt</label>
-          <textarea
-            value={post.excerpt}
-            onChange={e => setPost({ ...post, excerpt: e.target.value })}
-            className="w-full rounded-lg bg-background p-3 shadow-sm"
-          />
-        </div>
+        <textarea
+          value={post.excerpt}
+          onChange={e => setPost({ ...post, excerpt: e.target.value })}
+          className="w-full rounded-lg p-3"
+          placeholder="Excerpt"
+        />
 
-        <div>
-          <label className="mb-1 block text-sm font-medium">Content</label>
-          <Editor
-            value={post.content}
-            onChange={v => setPost({ ...post, content: v })}
-          />
-        </div>
-
-        <Button variant="ghost" onClick={() => router.push('/admin/posts')}>
-          ← Back to Posts
-        </Button>
+        <Editor
+          value={post.content}
+          onChange={v => setPost({ ...post, content: v })}
+        />
       </div>
 
-      {/* ================= SIDEBAR ================= */}
       <div className="space-y-6">
         {/* IMAGE */}
         <div className="rounded-xl bg-card p-4 space-y-3">
-  <label className="text-sm font-medium">Featured Image</label>
+          <label className="text-sm font-medium">Featured Image</label>
 
-  {/* PICK ICON */}
-  {!uploading && (
-    <label
-      htmlFor="post-image"
-      className="flex items-center justify-center gap-2 cursor-pointer rounded-lg border border-dashed p-4 hover:bg-muted"
-    >
-      <ImagePlus className="h-5 w-5" />
-      <span className="text-sm">Choose image (1–5MB)</span>
-    </label>
-  )}
+          {!uploading && (
+            <label className="flex cursor-pointer items-center justify-center gap-2 border border-dashed p-4">
+              <ImagePlus className="h-5 w-5" />
+              <span>{image ? 'Replace Image' : 'Choose Image (1–5MB)'}</span>
+              <input
+                type="file"
+                accept="image/png,image/jpeg"
+                hidden
+                onChange={e =>
+                  e.target.files && uploadImage(e.target.files[0])
+                }
+              />
+            </label>
+          )}
 
-  <input
-    id="post-image"
-    type="file"
-    accept="image/png,image/jpeg"
-    className="hidden"
-    onChange={e => {
-      const file = e.target.files?.[0]
-      if (file) uploadImage(file)
-      e.target.value = ''
-    }}
-  />
+          {uploading && <p className="text-xs">Uploading…</p>}
 
-  {/* PROGRESS */}
-  {uploading && (
-    <div className="space-y-2">
-      <div className="h-2 rounded bg-muted overflow-hidden">
-        <div className="h-full bg-indigo-500 animate-pulse w-full" />
-      </div>
-      <p className="text-xs text-muted-foreground">Uploading…</p>
-    </div>
-  )}
+          {image && !uploading && (
+            <>
+              <img src={image.url} className="rounded-lg" />
+              <Input
+                placeholder="Alt text"
+                value={image.altText}
+                onChange={e =>
+                  setImage({ ...image, altText: e.target.value })
+                }
+              />
+              <Input
+                placeholder="Image title"
+                value={image.title}
+                onChange={e =>
+                  setImage({ ...image, title: e.target.value })
+                }
+              />
+              <textarea
+                placeholder="Image caption"
+                className="w-full rounded-lg p-2"
+                value={image.caption}
+                onChange={e =>
+                  setImage({ ...image, caption: e.target.value })
+                }
+              />
+            </>
+          )}
 
-  {/* PREVIEW */}
-  {image && !uploading && (
-    <>
-      <img src={image.url} className="rounded-lg" />
-      <p className="text-xs text-muted-foreground">
-        Image uploaded • Click icon above to replace
-      </p>
-    </>
-  )}
-
-  {uploadError && (
-    <p className="text-xs text-red-500">{uploadError}</p>
-  )}
-</div>
-
+          {uploadError && (
+            <p className="text-xs text-red-500">{uploadError}</p>
+          )}
+        </div>
 
         {/* CATEGORIES */}
-        <div className="rounded-xl bg-card p-4 elev-sm space-y-2">
+        <div className="rounded-xl bg-card p-4 space-y-2">
           <label className="block text-sm font-medium">Categories</label>
           {categories.map(c => (
             <label key={c.id} className="flex gap-2 text-sm">
@@ -306,43 +287,42 @@ async function compressImage(file: File): Promise<File> {
         </div>
 
         {/* SEO */}
-        <div className="rounded-xl bg-card p-4 elev-sm space-y-3">
+        <div className="rounded-xl bg-card p-4 space-y-3">
           <label className="block text-sm font-medium">SEO</label>
-
           <div className="h-2 rounded bg-muted overflow-hidden">
             <div
-              className="h-full bg-green-500 transition-all"
+              className="h-full bg-green-500"
               style={{ width: `${seoScore}%` }}
             />
           </div>
-
           <Input
-            placeholder="SEO title (40–60 chars)"
+            placeholder="SEO title"
             value={post.seoTitle}
-            onChange={e => setPost({ ...post, seoTitle: e.target.value })}
+            onChange={e =>
+              setPost({ ...post, seoTitle: e.target.value })
+            }
           />
-
           <textarea
-            placeholder="SEO description (120–160 chars)"
+            placeholder="SEO description"
             value={post.seoDescription}
             onChange={e =>
               setPost({ ...post, seoDescription: e.target.value })
             }
-            className="w-full rounded-lg bg-background p-2"
+            className="w-full rounded-lg p-2"
           />
         </div>
 
-        {/* ACTIONS */}
         <div className="flex gap-2">
           <Button loading={saving} onClick={() => save(false)} className="flex-1">
             Save Draft
           </Button>
-
           {canPublish && (
-            <Button 
-            disabled={uploading}
-            onClick={() => save(true)} 
-            className="flex-1">
+            <Button
+              loading={saving}
+              disabled={uploading}
+              onClick={() => save(true)}
+              className="flex-1"
+            >
               Publish
             </Button>
           )}

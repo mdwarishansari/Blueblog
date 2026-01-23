@@ -25,7 +25,7 @@ export default function Header() {
 
   /* Site settings */
   useEffect(() => {
-    apiGet('/settings/site-info')
+    apiGet('/settings')
       .then((d: any) => {
   const data = d?.data || d || {}
 

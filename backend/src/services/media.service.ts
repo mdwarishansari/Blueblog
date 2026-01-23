@@ -3,40 +3,39 @@ import { AppError } from '../middlewares/error.middleware'
 import { uploadToCloudinary, deleteFromCloudinary } from '../utils/cloudinary'
 
 export class MediaService {
-  async uploadImage(
-  fileBuffer: Buffer,
-  filename: string,
-  mimeType: string,
-) {
+  // media.service.ts
+// async uploadImage(
+//   fileBuffer: Buffer,
+//   filename: string,
+//   mimeType: string
+// ) {
+//   const uploadResult = await uploadToCloudinary(
+//     fileBuffer,
+//     mimeType
+//   )
 
-    // Upload to Cloudinary
-    const uploadResult = await uploadToCloudinary(
-  fileBuffer,
-  mimeType
-)
+//   const image = await prisma.image.create({
+//     data: {
+//       url: uploadResult.url,
+//       altText: filename,
+//       title: filename,
+//       width: uploadResult.width,
+//       height: uploadResult.height,
+//     },
+//   })
 
+//   return image
+// }
 
-    // Save to database
-   const image = await prisma.image.create({
-  data: {
-    url: uploadResult.url,
-    altText: filename,
-    title: filename,
-    width: uploadResult.width,
-    height: uploadResult.height,
-  },
-})
+async createImage(data: {
+  url: string
+  publicId: string
+  width?: number
+  height?: number
+}) {
+  return prisma.image.create({ data })
+}
 
-
-    return {
-      id: image.id,
-      url: image.url,
-      altText: image.altText,
-      width: image.width,
-      height: image.height,
-      createdAt: image.createdAt,
-    }
-  }
 
   async getAllImages(page: number = 1, pageSize: number = 20) {
     const skip = (page - 1) * pageSize

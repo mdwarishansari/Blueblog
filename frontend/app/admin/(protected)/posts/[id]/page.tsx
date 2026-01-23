@@ -105,52 +105,73 @@ const [uploadError, setUploadError] = useState<string | null>(null)
   }, [post])
 
   /* ---------------- IMAGE VALIDATION ---------------- */
-const MAX_IMAGE_SIZE = 1 * 1024 * 1024 // 1MB
+const MAX_INPUT_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png']
 
-function validateImage(file: File) {
-  if (!ALLOWED_TYPES.includes(file.type)) {
-    return 'Only JPG and PNG images are allowed'
-  }
+async function compressImage(file: File): Promise<File> {
+  const imageCompression = (await import('browser-image-compression')).default
 
-  if (file.size > MAX_IMAGE_SIZE) {
-    return 'Image size must be less than 1MB'
-  }
-
-  return null
+  return imageCompression(file, {
+    maxSizeMB: 0.5, // ~500KB
+    maxWidthOrHeight: 2000,
+    useWebWorker: true,
+  })
 }
 
-/* ---------------- IMAGE UPLOAD ---------------- */
 async function uploadImage(file: File) {
-  const error = validateImage(file)
-  if (error) {
-    setUploadError(error)
-    toast.error(error)
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    toast.error('Only JPG and PNG images allowed')
     return
   }
 
-  setUploadError(null)
-  setUploading(true)
-  setUploadProgress(0)
+  if (file.size > MAX_INPUT_IMAGE_SIZE) {
+    toast.error('Image must be between 1–5MB')
+    return
+  }
 
-  const formData = new FormData()
-  formData.append('file', file)
+  setUploading(true)
+  setUploadError(null)
 
   try {
-    const data = await apiUpload('/upload/image', formData)
-    const image = data.data?.image || data.image || data.data
-    if (image) {
-      setImage(image)
-    } else {
-      throw new Error('Invalid response from server')
+    const compressed = await compressImage(file)
+
+    const formData = new FormData()
+    formData.append('file', compressed)
+    formData.append(
+      'upload_preset',
+      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!
+    )
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+      { method: 'POST', body: formData }
+    )
+
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(err.error?.message || 'Upload failed')
     }
+
+    const data = await res.json()
+
+    setImage({
+      url: data.secure_url,
+      width: data.width,
+      height: data.height,
+      altText: '',
+      title: '',
+      caption: '',
+    })
+
+    toast.success('Image uploaded')
   } catch (err: any) {
     toast.error(err.message || 'Upload failed')
-    setUploadError(err.message || 'Upload failed')
+    setUploadError(err.message)
   } finally {
     setUploading(false)
   }
 }
+
 
   /* ---------------- SAVE ---------------- */
   async function save(publish: boolean) {
@@ -158,11 +179,17 @@ async function uploadImage(file: File) {
 
     try {
       const payload = {
-        ...post,
-        bannerImageId: image?.id || null,
-        status: publish ? 'PUBLISHED' : 'DRAFT',
-        publishedAt: publish ? new Date().toISOString() : undefined,
-      }
+  title: post.title,
+  excerpt: post.excerpt || undefined,
+  content: post.content,
+  categoryIds: post.categoryIds,
+  bannerImageId: image?.id || undefined,
+  status: publish ? 'PUBLISHED' : 'DRAFT',
+  seoTitle: post.seoTitle || undefined,
+  seoDescription: post.seoDescription || undefined,
+  canonicalUrl: post.canonicalUrl || undefined,
+}
+
 
       await apiPut(`/admin/posts/${id}`, payload)
 
@@ -204,16 +231,7 @@ async function uploadImage(file: File) {
           />
         </div>
 
-        <div>
-          <label className="text-sm font-medium">Slug</label>
-          <Input
-            value={post.slug}
-            onChange={e => {
-              setSlugTouched(true)
-              setPost({ ...post, slug: slugify(e.target.value) })
-            }}
-          />
-        </div>
+        
 
         <div>
           <label className="text-sm font-medium">Excerpt</label>

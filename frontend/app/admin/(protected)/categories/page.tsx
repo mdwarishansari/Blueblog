@@ -96,11 +96,17 @@ export default function AdminCategoriesPage() {
 
 
   async function fetchImages() {
-    try {
-      const data = await apiGet('/admin/media')
-      setImages(data.data?.images || data.images || [])
-    } catch {}
+  try {
+    const res = await apiGet('/admin/media')
+    const list =
+      Array.isArray(res) ? res :
+      Array.isArray(res.data) ? res.data :
+      []
+    setImages(list)
+  } catch {
+    setImages([])
   }
+}
 
   /* ------------------------------------------------------------------ */
   /* Slug auto-sync                                                     */
@@ -122,26 +128,67 @@ export default function AdminCategoriesPage() {
   /* Image Upload                                                       */
   /* ------------------------------------------------------------------ */
 
-  async function uploadImage(file: File) {
-    setUploading(true)
-    try {
-      const fd = new FormData()
-      fd.append('file', file)
+  const MAX_IMAGE_SIZE = 1 * 1024 * 1024 // 1MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
-      const data = await apiUpload('/upload/image', fd)
-      const image = data.data?.image || data.image || data.data
 
-      toast.success('Image uploaded')
-      if (image) {
-        setImages(prev => [image, ...prev])
-        setFormData(f => ({ ...f, imageId: image.id }))
-      }
-    } catch (e: any) {
-      toast.error(e.message || 'Upload failed')
-    } finally {
-      setUploading(false)
-    }
+  /* ---------- IMAGE UPLOAD ---------- */
+async function uploadImage(file: File) {
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+  const MAX_IMAGE_SIZE = 1 * 1024 * 1024 // 1MB
+
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    toast.error('Only JPG, PNG, WEBP allowed')
+    return
   }
+
+  if (file.size > MAX_IMAGE_SIZE) {
+    toast.error('Image must be under 1MB')
+    return
+  }
+
+  setUploading(true)
+
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append(
+      'upload_preset',
+      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!
+    )
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+      { method: 'POST', body: formData }
+    )
+
+    if (!res.ok) throw new Error('Upload failed')
+
+    const data = await res.json()
+
+    // 🔥 SAVE IMAGE IN BACKEND (same as post page)
+    const imgRes = await apiPost('/admin/images', {
+      url: data.secure_url,
+      width: data.width,
+      height: data.height,
+      altText: '',
+      title: '',
+      caption: '',
+    })
+
+    const image = imgRes.data
+
+    setImages(prev => [image, ...prev])
+    setFormData(f => ({ ...f, imageId: image.id }))
+
+    toast.success('Image uploaded')
+  } catch (e: any) {
+    toast.error(e.message || 'Upload failed')
+  } finally {
+    setUploading(false)
+  }
+}
+
 
   /* ------------------------------------------------------------------ */
   /* Submit                                                             */
@@ -151,10 +198,16 @@ export default function AdminCategoriesPage() {
     e.preventDefault()
 
     try {
+      const payload = {
+  name: formData.name,
+  slug: formData.slug,
+  imageId: formData.imageId || undefined, // 🔥 MAIN FIX
+}
+
       if (editingCategory) {
-        await apiPut(`/admin/categories/${editingCategory.id}`, formData)
+        await apiPut(`/admin/categories/${editingCategory.id}`, payload)
       } else {
-        await apiPost('/admin/categories', formData)
+        await apiPost('/admin/categories', payload)
       }
 
       toast.success(editingCategory ? 'Category updated' : 'Category created')

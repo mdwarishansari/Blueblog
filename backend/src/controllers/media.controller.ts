@@ -1,36 +1,53 @@
 import { Request, Response, NextFunction } from 'express'
 import mediaService from '../services/media.service'
 import uploadService from '../services/upload.service'
+import { AppError } from '../middlewares/error.middleware'
+
 
 export class MediaController {
-  async uploadImage(req: Request, res: Response, next: NextFunction) {
-    try {
-      if (!req.user) {
-        return res.status(401).json({
-          success: false,
-          message: 'Authentication required',
-        })
-      }
+//   async uploadImage(req: Request, res: Response, next: NextFunction) {
+//   try {
+//     const file = req.file
 
-      const file = req.file
-      if (!file) {
-        return res.status(400).json({
-          success: false,
-          message: 'No file uploaded',
-        })
-      }
+//     if (!file) {
+//       return next(new AppError('No file uploaded', 400))
+//     }
 
-      const image = await uploadService.uploadImage(file, req.user.id)
+//     const image = await uploadService.uploadImage(file, req.user!.id)
 
-      return res.json({
-        success: true,
-        data: image,
-        message: 'Image uploaded successfully',
-      })
-    } catch (error) {
-      return next(error)
+//     return res.json({
+//       success: true,
+//       data: image,
+//       message: 'Image uploaded successfully',
+//     })
+//   } catch (error) {
+//   console.error('🔥 REAL UPLOAD ERROR:', error)
+//   return next(error)
+// }
+
+// }
+
+
+async createImage(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { url, publicId, width, height } = req.body
+
+    if (!url || !publicId) {
+      return next(new AppError('Invalid image data', 400))
     }
+
+    const image = await mediaService.createImage({
+      url,
+      publicId,
+      width,
+      height,
+    })
+
+    return res.json({ success: true, data: image })
+  } catch (error) {
+    next(error)
   }
+}
 
   async getAllImages(req: Request, res: Response, next: NextFunction) {
     try {

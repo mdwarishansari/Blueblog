@@ -2,7 +2,6 @@ import { Router } from 'express'
 import publicRoutes from './public.routes'
 import authRoutes from './auth.routes'
 import adminRoutes from './admin.routes'
-import uploadRoutes from './upload.routes'
 
 const router = Router()
 
@@ -20,6 +19,8 @@ router.get('/health', (_req, res) => {
 router.use('/', publicRoutes)
 router.use('/auth', authRoutes)
 router.use('/admin', adminRoutes)
-router.use('/upload', uploadRoutes)
+
+
+// router.use('/upload', uploadRoutes)
 
 export default router

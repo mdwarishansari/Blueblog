@@ -1,29 +1,24 @@
 import { Request, Response, NextFunction } from 'express'
 import { verifyAccessToken } from '../utils/jwt'
 import prisma from '../utils/prisma'
+import { AppError } from './error.middleware'
 
 export const authenticate = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   try {
-    // Get token from cookie or header
     const token =
       req.cookies?.access_token ||
       req.headers.authorization?.split(' ')[1]
 
     if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication required',
-      })
+      return next(new AppError('Authentication required', 401))
     }
 
-    // Verify token
     const decoded = verifyAccessToken(token) as { userId: string }
 
-    // Check if user exists
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       select: {
@@ -35,13 +30,9 @@ export const authenticate = async (
     })
 
     if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'User not found',
-      })
+      return next(new AppError('User not found', 401))
     }
 
-    // Attach user to request
     req.user = {
       id: user.id,
       email: user.email,
@@ -49,17 +40,11 @@ export const authenticate = async (
     }
 
     return next()
-  } catch (error) {
-    if (error instanceof Error && error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Token expired',
-      })
+  } catch (error: any) {
+    if (error?.name === 'TokenExpiredError') {
+      return next(new AppError('Token expired', 401))
     }
 
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid token',
-    })
+    return next(new AppError('Invalid token', 401))
   }
 }

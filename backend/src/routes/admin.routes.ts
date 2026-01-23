@@ -9,7 +9,7 @@ import { authenticate } from '../middlewares/auth.middleware'
 import { authorize } from '../middlewares/role.middleware'
 import { validate } from '../utils/validation'
 import { schemas } from '../utils/validation'
-
+import imageRoutes from './admin/image.routes'
 const router = Router()
 
 // All admin routes require authentication
@@ -109,6 +109,13 @@ router.get(
   '/media/usage/stats',
   authorize(['ADMIN', 'EDITOR']),
   mediaController.getImagesByUsage
+)
+
+// Images (Admin / Editor / Writer)
+router.use(
+  '/images',
+  authorize(['ADMIN', 'EDITOR', 'WRITER']),
+  imageRoutes
 )
 
 // Messages (Admin)

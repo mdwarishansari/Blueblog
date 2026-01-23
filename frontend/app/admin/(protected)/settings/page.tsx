@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import toast from 'react-hot-toast'
-import { apiGet, apiPut, apiUpload } from '@/lib/api'
+import { apiGet, apiPut, apiPost } from '@/lib/api'
 
 interface SiteSettings {
   siteName: string
@@ -77,26 +77,59 @@ export default function AdminSettingsPage() {
     }
   }
 
+  /* Upload Logo */
   const uploadLogo = async (file: File) => {
-    const localPreview = URL.createObjectURL(file)
-    setSettings(s => ({ ...s, site_logo: localPreview }))
-
-    const form = new FormData()
-    form.append('file', file)
-
-    try {
-      const data = await apiUpload('/upload/image', form)
-      const imageUrl = data.data?.url || data.url || data.data?.image?.url || data.image?.url
-      if (!imageUrl) {
-      toast.error('Logo upload failed')
-      return
-    }
-      setSettings(s => ({ ...s, site_logo: imageUrl }))
-    } catch (err: any) {
-      toast.error(err.message || 'Logo upload failed')
-    }
+  // basic validation
+  if (!file.type.startsWith('image/')) {
+    toast.error('Only image files allowed')
+    return
   }
 
+  // local preview (UX)
+  const preview = URL.createObjectURL(file)
+  setSettings(s => ({ ...s, siteLogo: preview }))
+
+  try {
+    // 1️⃣ upload to cloudinary
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append(
+      'upload_preset',
+      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!
+    )
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+      { method: 'POST', body: formData }
+    )
+
+    if (!res.ok) throw new Error('Cloudinary upload failed')
+
+    const data = await res.json()
+
+    // 2️⃣ save in backend DB
+    const imgRes = await apiPost('/admin/images', {
+      url: data.secure_url,
+      width: data.width,
+      height: data.height,
+      altText: 'Site Logo',
+      title: 'Site Logo',
+      caption: '',
+    })
+
+    // 3️⃣ store URL in settings
+    setSettings(s => ({
+      ...s,
+      siteLogo: imgRes.data.url,
+    }))
+
+    toast.success('Logo uploaded successfully')
+  } catch (err: any) {
+    toast.error(err.message || 'Logo upload failed')
+  }
+}
+
+  /* Save Settings */
   const handleSave = async () => {
     setSaving(true)
     try {
@@ -116,6 +149,8 @@ export default function AdminSettingsPage() {
       setSaving(false)
     }
   }
+
+
   return (
     <div className="space-y-8">
       {/* Header */}

@@ -1,25 +1,20 @@
 import { Request, Response, NextFunction } from 'express'
-import prisma from '../utils/prisma' // ✅ FIX 1
+import { AppError } from './error.middleware'
 
 export const authorize = (roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication required',
-      })
+      return next(new AppError('Authentication required', 401))
     }
 
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        message: 'Insufficient permissions',
-      })
+      return next(new AppError('Insufficient permissions', 403))
     }
 
-    return next() // ✅ FIX 2
+    return next()
   }
 }
+
 
 export const checkOwnership = (model: 'post' | 'user') => {
   return async (req: Request, res: Response, next: NextFunction) => {
