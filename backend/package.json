@@ -35,7 +35,8 @@
     "node-cron": "^4.2.1",
     "streamifier": "^0.1.1",
     "winston": "^3.19.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "@types/node": "^22.19.7"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
@@ -56,6 +57,6 @@
     "typescript": "^5.7.3"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.x"
   }
 }
