@@ -29,9 +29,6 @@ build/
 .DS_Store
 Thumbs.db
 
-# Prisma
-prisma/migrations/*
-!prisma/migrations/.gitkeep
 
 # Logs
 logs/
