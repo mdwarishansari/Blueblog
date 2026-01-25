@@ -115,14 +115,18 @@ export interface CreateUserRequest {
 }
 
 // Extend Express Request
+import { UserRole } from '@prisma/client'
+
 declare global {
   namespace Express {
+    interface User {
+      id: string
+      email: string
+      role: UserRole
+    }
+
     interface Request {
-      user?: {
-        id: string
-        email: string
-        role: string
-      }
+      user?: User
     }
   }
 }

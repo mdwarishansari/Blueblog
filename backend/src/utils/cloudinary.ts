@@ -19,7 +19,7 @@ export interface UploadResult {
 
 export const uploadToCloudinary = (
   fileBuffer: Buffer,
-  mimeType: string,
+  // mimeType: string,
   folder = 'blueblog'
 ): Promise<UploadResult> => {
   return new Promise((resolve, reject) => {

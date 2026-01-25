@@ -2,8 +2,13 @@ import { Request, Response, NextFunction } from 'express'
 import postsService from '../services/posts.service'
 import { generateSlug } from '../utils/validation'
 import { PostStatus } from '@prisma/client'
+const getParamId = (id: string | string[]): string => {
+  if (Array.isArray(id)) return id[0]
+  return id
+}
 
 export class PostsController {
+  
   // ============================
   // GET POSTS (ADMIN / DASHBOARD)
   // ============================
@@ -214,43 +219,71 @@ export class PostsController {
   // ============================
 
   async requestVerification(req: Request, res: Response, next: NextFunction) {
-    try {
-      const post = await postsService.requestVerification(
-        req.params.id,
-        req.user
-      )
-
-      res.json({ success: true, data: post })
-    } catch (error) {
-      next(error)
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+      })
     }
-  }
 
-  async approvePost(req: Request, res: Response, next: NextFunction) {
-    try {
-      const post = await postsService.approvePost(
-        req.params.id,
-        req.user
-      )
+    const postId = getParamId(req.params.id)
 
-      res.json({ success: true, data: post })
-    } catch (error) {
-      next(error)
-    }
-  }
+    const post = await postsService.requestVerification(
+      postId,
+      req.user
+    )
 
-  async rejectPost(req: Request, res: Response, next: NextFunction) {
-    try {
-      const post = await postsService.rejectPost(
-        req.params.id,
-        req.user
-      )
-
-      res.json({ success: true, data: post })
-    } catch (error) {
-      next(error)
-    }
+    return res.json({ success: true, data: post })
+  } catch (error) {
+    return next(error)
   }
 }
 
+
+  async approvePost(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+      })
+    }
+
+    const postId = getParamId(req.params.id)
+
+    const post = await postsService.approvePost(
+      postId,
+      req.user
+    )
+
+    return res.json({ success: true, data: post })
+  } catch (error) {
+    return next(error)
+  }
+}
+
+
+  async rejectPost(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+      })
+    }
+
+    const postId = getParamId(req.params.id)
+
+    const post = await postsService.rejectPost(
+      postId,
+      req.user
+    )
+
+    return res.json({ success: true, data: post })
+  } catch (error) {
+    return next(error)
+  }
+}
+}
 export default new PostsController()

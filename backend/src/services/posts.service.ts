@@ -106,6 +106,57 @@ export class PostsService {
   return post
 }
 
+/* =========================
+   REQUEST VERIFICATION (WRITER)
+   ========================= */
+async requestVerification(postId: string, user: Express.User) {
+  if (user.role !== UserRole.WRITER) {
+    throw new AppError('Only writers can request verification', 403)
+  }
+
+  return prisma.post.update({
+    where: { id: postId },
+    data: {
+      status: PostStatus.VERIFICATION_PENDING,
+    },
+  })
+}
+
+/* =========================
+   APPROVE POST (ADMIN / EDITOR)
+   ========================= */
+async approvePost(postId: string, user: Express.User) {
+  if (user.role !== UserRole.ADMIN && user.role !== UserRole.EDITOR) {
+    throw new AppError('Only admins or editors can approve posts', 403)
+  }
+
+  return prisma.post.update({
+    where: { id: postId },
+    data: {
+  status: PostStatus.PUBLISHED,
+}
+,
+  })
+}
+
+/* =========================
+   REJECT POST (ADMIN / EDITOR)
+   ========================= */
+   
+async rejectPost(postId: string, user: Express.User) {
+  if (user.role !== UserRole.ADMIN && user.role !== UserRole.EDITOR) {
+    throw new AppError('Only admins or editors can reject posts', 403)
+  }
+
+  return prisma.post.update({
+    where: { id: postId },
+    data: {
+      status: PostStatus.DRAFT,
+
+    },
+  })
+}
+
 
   /* =========================
      UPDATE POST (NO STATUS)

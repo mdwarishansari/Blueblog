@@ -166,7 +166,8 @@ async function uploadImage(file: File) {
     formData.append('file', compressed)
     formData.append(
       'upload_preset',
-      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!
+      process.env['NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET']!
+
     )
 
     const res = await fetch(

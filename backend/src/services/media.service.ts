@@ -1,32 +1,8 @@
 import prisma from '../utils/prisma'
 import { AppError } from '../middlewares/error.middleware'
-import { uploadToCloudinary, deleteFromCloudinary } from '../utils/cloudinary'
+import { deleteFromCloudinary } from '../utils/cloudinary'
 
 export class MediaService {
-  // media.service.ts
-// async uploadImage(
-//   fileBuffer: Buffer,
-//   filename: string,
-//   mimeType: string
-// ) {
-//   const uploadResult = await uploadToCloudinary(
-//     fileBuffer,
-//     mimeType
-//   )
-
-//   const image = await prisma.image.create({
-//     data: {
-//       url: uploadResult.url,
-//       altText: filename,
-//       title: filename,
-//       width: uploadResult.width,
-//       height: uploadResult.height,
-//     },
-//   })
-
-//   return image
-// }
-
 async createImage(data: {
   url: string
   publicId: string

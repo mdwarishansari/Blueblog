@@ -1,32 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
 import mediaService from '../services/media.service'
-import uploadService from '../services/upload.service'
+// import uploadService from '../services/upload.service'
 import { AppError } from '../middlewares/error.middleware'
 
 
 export class MediaController {
-//   async uploadImage(req: Request, res: Response, next: NextFunction) {
-//   try {
-//     const file = req.file
-
-//     if (!file) {
-//       return next(new AppError('No file uploaded', 400))
-//     }
-
-//     const image = await uploadService.uploadImage(file, req.user!.id)
-
-//     return res.json({
-//       success: true,
-//       data: image,
-//       message: 'Image uploaded successfully',
-//     })
-//   } catch (error) {
-//   console.error('🔥 REAL UPLOAD ERROR:', error)
-//   return next(error)
-// }
-
-// }
-
 
 async createImage(req: Request, res: Response, next: NextFunction) {
   try {

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { AppError } from './error.middleware'
+import prisma from '../utils/prisma'
 
 export const authorize = (roles: string[]) => {
   return (req: Request, _res: Response, next: NextFunction) => {
