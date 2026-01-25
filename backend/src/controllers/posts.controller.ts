@@ -2,7 +2,11 @@ import { Request, Response, NextFunction } from 'express'
 import postsService from '../services/posts.service'
 import { generateSlug } from '../utils/validation'
 import { PostStatus } from '@prisma/client'
+
 export class PostsController {
+  // ============================
+  // GET POSTS (ADMIN / DASHBOARD)
+  // ============================
   async getPosts(req: Request, res: Response, next: NextFunction) {
     try {
       const {
@@ -15,11 +19,12 @@ export class PostsController {
         status,
       } = req.query
 
+      // ✅ allow ALL PostStatus values
       const parsedStatus =
-  status === 'DRAFT' || status === 'PUBLISHED'
-    ? (status as PostStatus)
-    : undefined
-
+        typeof status === 'string' &&
+        Object.values(PostStatus).includes(status as PostStatus)
+          ? (status as PostStatus)
+          : undefined
 
       const filters = {
         page: Number(page),
@@ -27,10 +32,9 @@ export class PostsController {
         category: typeof category === 'string' ? category : undefined,
         search: typeof search === 'string' ? search : undefined,
         sort:
-  sort === 'oldest' || sort === 'popular' || sort === 'newest'
-    ? (sort as 'newest' | 'oldest' | 'popular')
-    : 'newest',
-
+          sort === 'oldest' || sort === 'popular' || sort === 'newest'
+            ? (sort as 'newest' | 'oldest' | 'popular')
+            : 'newest',
         authorId: typeof authorId === 'string' ? authorId : undefined,
         status: parsedStatus,
       }
@@ -47,6 +51,9 @@ export class PostsController {
     }
   }
 
+  // ============================
+  // GET POST BY SLUG (PUBLIC)
+  // ============================
   async getPostBySlug(req: Request, res: Response, next: NextFunction) {
     try {
       const slug = String(req.params.slug)
@@ -62,6 +69,9 @@ export class PostsController {
     }
   }
 
+  // ============================
+  // GET POST BY ID (ADMIN)
+  // ============================
   async getPostById(req: Request, res: Response, next: NextFunction) {
     try {
       const id = String(req.params.id)
@@ -77,53 +87,62 @@ export class PostsController {
     }
   }
 
+  // ============================
+  // CREATE POST (ALL ROLES)
+  // ============================
   async createPost(req: Request, res: Response, next: NextFunction) {
-    try {
-      if (!req.user) {
-        return res.status(401).json({
-          success: false,
-          message: 'Authentication required',
-        })
-      }
-
-      const {
-        title,
-        excerpt,
-        content,
-        categoryIds,
-        bannerImageId,
-        status = 'DRAFT',
-        seoTitle,
-        seoDescription,
-        canonicalUrl,
-      } = req.body
-
-      const slug = generateSlug(title)
-
-      const post = await postsService.createPost({
-        title,
-        slug,
-        excerpt,
-        content,
-        authorId: req.user.id,
-        categoryIds,
-        bannerImageId,
-        status,
-        seoTitle,
-        seoDescription,
-        canonicalUrl,
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required',
       })
-
-      return res.status(201).json({
-        success: true,
-        data: post,
-        message: 'Post created successfully',
-      })
-    } catch (error) {
-      return next(error)
     }
-  }
 
+    const {
+      title,
+      excerpt,
+      content,
+      categoryIds,
+      bannerImageId,
+      status,
+      scheduledAt,
+      seoTitle,
+      seoDescription,
+      canonicalUrl,
+    } = req.body
+
+    const slug = generateSlug(title)
+
+    const post = await postsService.createPost({
+      title,
+      slug,
+      excerpt,
+      content,
+      authorId: req.user.id,
+      categoryIds,
+      bannerImageId,
+      status,
+      scheduledAt,
+      seoTitle,
+      seoDescription,
+      canonicalUrl,
+      userRole: req.user.role,
+    })
+
+    return res.status(201).json({
+      success: true,
+      data: post,
+      message: 'Post created successfully',
+    })
+  } catch (error) {
+    return next(error)
+  }
+}
+
+  // ============================
+  // UPDATE POST (CONTENT ONLY)
+  // ============================
   async updatePost(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.user) {
@@ -134,11 +153,19 @@ export class PostsController {
       }
 
       const id = String(req.params.id)
-      const updateData = req.body
+
+      // ❌ status must NEVER come from req.body
+      const {
+        status, // discard if sent
+        publishedAt,
+        approvedAt,
+        approvedBy,
+        ...safeUpdateData
+      } = req.body
 
       const post = await postsService.updatePost(
         id,
-        updateData,
+        safeUpdateData,
         req.user.id,
         req.user.role
       )
@@ -153,6 +180,9 @@ export class PostsController {
     }
   }
 
+  // ============================
+  // DELETE POST
+  // ============================
   async deletePost(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.user) {
@@ -176,6 +206,49 @@ export class PostsController {
       })
     } catch (error) {
       return next(error)
+    }
+  }
+
+  // ============================
+  // WORKFLOW ACTIONS
+  // ============================
+
+  async requestVerification(req: Request, res: Response, next: NextFunction) {
+    try {
+      const post = await postsService.requestVerification(
+        req.params.id,
+        req.user
+      )
+
+      res.json({ success: true, data: post })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  async approvePost(req: Request, res: Response, next: NextFunction) {
+    try {
+      const post = await postsService.approvePost(
+        req.params.id,
+        req.user
+      )
+
+      res.json({ success: true, data: post })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  async rejectPost(req: Request, res: Response, next: NextFunction) {
+    try {
+      const post = await postsService.rejectPost(
+        req.params.id,
+        req.user
+      )
+
+      res.json({ success: true, data: post })
+    } catch (error) {
+      next(error)
     }
   }
 }

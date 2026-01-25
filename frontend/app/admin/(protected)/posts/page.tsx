@@ -20,7 +20,15 @@ export default function AdminPostsPage() {
   const skip = (page - 1) * limit
 
   const statusParam = searchParams.get('status')
-  const status = statusParam === 'PUBLISHED' || statusParam === 'DRAFT' ? statusParam : undefined
+
+const status =
+  statusParam === 'PUBLISHED' ||
+  statusParam === 'DRAFT' ||
+  statusParam === 'VERIFICATION_PENDING' ||
+  statusParam === 'SCHEDULED'
+    ? statusParam
+    : undefined
+
   const search = searchParams.get('search') || undefined
 
   const query = useMemo(() => {
@@ -87,18 +95,33 @@ export default function AdminPostsPage() {
 
         <div className="flex flex-wrap gap-2 rounded-xl bg-muted/60 p-1 shadow-inner">
   {[
-    { label: 'All', href: '/admin/posts', active: !status },
-    {
-      label: 'Published',
-      href: '/admin/posts?status=PUBLISHED',
-      active: status === 'PUBLISHED',
-    },
-    {
-      label: 'Drafts',
-      href: '/admin/posts?status=DRAFT',
-      active: status === 'DRAFT',
-    },
-  ].map(tab => (
+  { label: 'All', href: '/admin/posts', active: !status },
+
+  {
+    label: 'Published',
+    href: '/admin/posts?status=PUBLISHED',
+    active: status === 'PUBLISHED',
+  },
+
+  {
+    label: 'Drafts',
+    href: '/admin/posts?status=DRAFT',
+    active: status === 'DRAFT',
+  },
+
+  {
+    label: 'Verification Pending',
+    href: '/admin/posts?status=VERIFICATION_PENDING',
+    active: status === 'VERIFICATION_PENDING',
+  },
+
+  {
+    label: 'Scheduled',
+    href: '/admin/posts?status=SCHEDULED',
+    active: status === 'SCHEDULED',
+  },
+]
+.map(tab => (
     <Link key={tab.label} href={tab.href}>
       <Button
         size="sm"

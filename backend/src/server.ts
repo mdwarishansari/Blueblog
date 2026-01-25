@@ -1,3 +1,4 @@
+import './jobs/scheduler'
 import app from './app'
 import prisma from './utils/prisma'
 import logger from './utils/logger'

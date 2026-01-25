@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "BlueBlog Backend API",
   "main": "dist/server.js",
+  "prisma": {
+    "seed": "ts-node --transpile-only prisma/seed.ts"
+  },
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
@@ -29,6 +32,7 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",
     "multer": "^1.4.5-lts.1",
+    "node-cron": "^4.2.1",
     "streamifier": "^0.1.1",
     "winston": "^3.19.0",
     "zod": "^3.23.8"

@@ -20,11 +20,20 @@ const slugify = (v: string) =>
   v.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-')
 
 export default function EditPostPage({ params, userRole }: PageProps) {
+
+  const [me, setMe] = useState<any>(null)
+const role = me?.role as UserRole | undefined
+
+const isWriter = role === 'WRITER'
+const canSchedule = role === 'ADMIN' || role === 'EDITOR' || role === 'WRITER'
+const canPublish = role === 'ADMIN' || role === 'EDITOR'
+
+
   const { id } = use(params)
   const router = useRouter()
 
-  /** ✅ role-based publish (FIXED) */
-  const canPublish = userRole !== 'WRITER'
+const [scheduledAt, setScheduledAt] = useState<string>('')
+
 const [uploading, setUploading] = useState(false)
 const [uploadProgress, setUploadProgress] = useState(0)
 const [uploadError, setUploadError] = useState<string | null>(null)
@@ -45,6 +54,15 @@ const [uploadError, setUploadError] = useState<string | null>(null)
     seoDescription: '',
     canonicalUrl: '',
   })
+/* ---------------- LOAD ME ---------------- */
+  useEffect(() => {
+  apiGet('/auth/me')
+    .then(res => {
+      const user = res.data?.user || res.data || res
+      setMe(user)
+    })
+    .catch(() => setMe(null))
+}, [])
 
   /* ---------------- LOAD DATA ---------------- */
   useEffect(() => {
@@ -75,6 +93,14 @@ const [uploadError, setUploadError] = useState<string | null>(null)
           canonicalUrl: post.canonicalUrl || '',
         })
 
+        if (post.status === 'SCHEDULED' && post.scheduledAt) {
+  const localDate = new Date(post.scheduledAt)
+  setScheduledAt(localDate.toISOString().slice(0, 16))
+} else {
+  setScheduledAt('')
+}
+
+
         setImage(post.bannerImage || null)
       } catch {
         toast.error('Failed to load post')
@@ -84,6 +110,7 @@ const [uploadError, setUploadError] = useState<string | null>(null)
     }
 
     load()
+    
   }, [id])
 
   /* ---------------- SLUG AUTO ---------------- */
@@ -178,20 +205,34 @@ async function uploadImage(file: File) {
     setSaving(true)
 
     try {
-      const payload = {
+    const payload: any = {
   title: post.title,
   excerpt: post.excerpt || undefined,
   content: post.content,
   categoryIds: post.categoryIds,
   bannerImageId: image?.id || undefined,
-  status: publish ? 'PUBLISHED' : 'DRAFT',
   seoTitle: post.seoTitle || undefined,
   seoDescription: post.seoDescription || undefined,
   canonicalUrl: post.canonicalUrl || undefined,
 }
 
+// ===== STATUS LOGIC (SAME AS NEW PAGE) =====
+if (isWriter) {
+  payload.status = publish ? 'VERIFICATION_PENDING' : 'DRAFT'
+  if (scheduledAt) {
+    payload.scheduledAt = new Date(scheduledAt).toISOString()
+  }
+} else {
+  if (scheduledAt) {
+    payload.status = 'SCHEDULED'
+    payload.scheduledAt = new Date(scheduledAt).toISOString()
+  } else {
+    payload.status = publish ? 'PUBLISHED' : 'DRAFT'
+  }
+}
 
-      await apiPut(`/admin/posts/${id}`, payload)
+await apiPut(`/admin/posts/${id}`, payload)
+
 
       // Note: Image metadata update may need to be handled separately if backend supports it
       // if (image?.id) {
@@ -214,9 +255,10 @@ async function uploadImage(file: File) {
     }
   }
 
-  if (loading) {
-    return <div className="flex h-64 items-center justify-center">Loading…</div>
-  }
+  if (!me) {
+  return <div className="flex h-64 items-center justify-center">Loading…</div>
+}
+
 
   /* ---------------- UI ---------------- */
   return (
@@ -385,18 +427,38 @@ async function uploadImage(file: File) {
           />
         </div>
 
+        {canSchedule && (
+
+  <div className="rounded-xl bg-card p-4 elev-sm space-y-2">
+    <label className="text-sm font-medium">
+      Schedule publication (optional)
+    </label>
+    <input
+      type="datetime-local"
+      value={scheduledAt}
+      onChange={e => setScheduledAt(e.target.value)}
+      className="w-full rounded-lg border p-2"
+    />
+  </div>
+)}
+
         {/* ACTIONS */}
         <div className="flex gap-2">
-          <Button loading={saving} onClick={() => save(false)} className="flex-1">
-            Save Draft
-          </Button>
+  <Button loading={saving} onClick={() => save(false)} className="flex-1">
+    Save Draft
+  </Button>
 
-          {canPublish && (
-            <Button loading={saving} onClick={() => save(true)} className="flex-1">
-              Publish
-            </Button>
-          )}
-        </div>
+  {isWriter ? (
+    <Button loading={saving} onClick={() => save(true)} className="flex-1">
+      Send for Verification
+    </Button>
+  ) : (
+    <Button loading={saving} onClick={() => save(true)} className="flex-1">
+      {scheduledAt ? 'Schedule Post' : 'Publish'}
+    </Button>
+  )}
+</div>
+
       </div>
     </div>
   )

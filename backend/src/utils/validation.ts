@@ -22,28 +22,54 @@ export const schemas = {
 
   // Posts
   createPost: z.object({
-    title: z.string().min(1, 'Title is required').max(200, 'Title too long'),
-    excerpt: z.string().max(500, 'Excerpt too long').optional(),
-    content: z.any(),
-    categoryIds: z.array(z.string().uuid()).min(1, 'At least one category is required'),
-    bannerImageId: z.string().uuid('Invalid image ID').optional(),
-    status: z.enum(['DRAFT', 'PUBLISHED']).default('DRAFT'),
-    seoTitle: z.string().max(200, 'SEO title too long').optional(),
-    seoDescription: z.string().max(500, 'SEO description too long').optional(),
-    canonicalUrl: z.string().url('Invalid URL').optional(),
-  }),
+  title: z.string().min(1, 'Title is required').max(200, 'Title too long'),
+  excerpt: z.string().max(500, 'Excerpt too long').optional(),
+  content: z.any(),
+  categoryIds: z.array(z.string().uuid()).min(1, 'At least one category is required'),
+  bannerImageId: z.string().uuid('Invalid image ID').optional(),
+
+  status: z.enum([
+    'DRAFT',
+    'VERIFICATION_PENDING',
+    'SCHEDULED',
+    'PUBLISHED',
+  ]).default('DRAFT'),
+
+  scheduledAt: z
+    .string()
+    .datetime()
+    .optional(),
+
+  seoTitle: z.string().max(200, 'SEO title too long').optional(),
+  seoDescription: z.string().max(500, 'SEO description too long').optional(),
+  canonicalUrl: z.string().url('Invalid URL').optional(),
+}),
+
 
   updatePost: z.object({
-    title: z.string().min(1, 'Title is required').max(200, 'Title too long').optional(),
-    excerpt: z.string().max(500, 'Excerpt too long').optional(),
-    content: z.any().optional(),
-    categoryIds: z.array(z.string().uuid()).optional(),
-    bannerImageId: z.string().uuid('Invalid image ID').optional(),
-    status: z.enum(['DRAFT', 'PUBLISHED']).optional(),
-    seoTitle: z.string().max(200, 'SEO title too long').optional(),
-    seoDescription: z.string().max(500, 'SEO description too long').optional(),
-    canonicalUrl: z.string().url('Invalid URL').optional(),
-  }),
+  title: z.string().min(1, 'Title is required').max(200, 'Title too long').optional(),
+  excerpt: z.string().max(500, 'Excerpt too long').optional(),
+  content: z.any().optional(),
+  categoryIds: z.array(z.string().uuid()).optional(),
+  bannerImageId: z.string().uuid('Invalid image ID').optional(),
+
+  status: z.enum([
+    'DRAFT',
+    'VERIFICATION_PENDING',
+    'SCHEDULED',
+    'PUBLISHED',
+  ]).optional(),
+
+  scheduledAt: z
+    .string()
+    .datetime()
+    .optional(),
+
+  seoTitle: z.string().max(200, 'SEO title too long').optional(),
+  seoDescription: z.string().max(500, 'SEO description too long').optional(),
+  canonicalUrl: z.string().url('Invalid URL').optional(),
+}),
+
 
   // Categories
   createCategory: z.object({

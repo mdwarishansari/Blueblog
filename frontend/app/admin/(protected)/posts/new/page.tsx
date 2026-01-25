@@ -17,15 +17,27 @@ const slugify = (v: string) =>
   v.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-')
 
 export default function NewPostPage({ userRole }: { userRole: UserRole }) {
-  const canPublish = userRole !== 'WRITER'
+   const [me, setMe] = useState<any>(null)
+  const role = me?.role as UserRole | undefined
+
+const isWriter = role === 'WRITER'
+const canSchedule = role === 'ADMIN' || role === 'EDITOR' || role === 'WRITER'
+const canPublish = role === 'ADMIN' || role === 'EDITOR'
+
+
+
+ 
+
   const router = useRouter()
+
+  const [scheduledAt, setScheduledAt] = useState<string>('')
 
   const [postId, setPostId] = useState<string | null>(null)
   const [slugTouched, setSlugTouched] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
   const [saving, setSaving] = useState(false)
 
-  /* ---------------- IMAGE STATE (EXTENDED ONLY) ---------------- */
+  /* ---------------- IMAGE STATE ---------------- */
   const [image, setImage] = useState<any>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
@@ -81,7 +93,7 @@ export default function NewPostPage({ userRole }: { userRole: UserRole }) {
 
   /* ---------- IMAGE COMPRESSION ---------- */
   async function compressImage(file: File): Promise<File> {
-    return await imageCompression(file, {
+    return imageCompression(file, {
       maxSizeMB: 0.5,
       maxWidthOrHeight: 2000,
       useWebWorker: true,
@@ -118,12 +130,8 @@ export default function NewPostPage({ userRole }: { userRole: UserRole }) {
         { method: 'POST', body: formData }
       )
 
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.error?.message || 'Upload failed')
-      }
-
       const data = await res.json()
+      if (!res.ok) throw new Error(data.error?.message || 'Upload failed')
 
       setImage({
         url: data.secure_url,
@@ -143,40 +151,75 @@ export default function NewPostPage({ userRole }: { userRole: UserRole }) {
       setUploading(false)
     }
   }
+  /* ---------- FETCH ME ---------- */
+  useEffect(() => {
+  apiGet('/auth/me')
+    .then(res => {
+      const user = res.data?.user || res.data || res
+      setMe(user)
+    })
+    .catch(() => setMe(null))
+}, [])
+
 
   /* ---------- SAVE ---------- */
   async function save(publish: boolean) {
     setSaving(true)
 
     try {
-      let imageId: string | null = null
+      let imageId: string | undefined
 
       if (image) {
         const imgRes = await apiPost('/admin/images', image)
         imageId = imgRes.data.id
       }
 
-      const payload = {
-  title: post.title,
-  excerpt: post.excerpt || undefined,
-  content: post.content,
-  categoryIds: post.categoryIds,
-  bannerImageId: imageId || undefined,
-  status: publish ? 'PUBLISHED' : 'DRAFT',
-  seoTitle: post.seoTitle || undefined,
-  seoDescription: post.seoDescription || undefined,
-  canonicalUrl: post.canonicalUrl || undefined,
-}
+      const payload: any = {
+        title: post.title,
+        excerpt: post.excerpt || undefined,
+        content: post.content,
+        categoryIds: post.categoryIds,
+        bannerImageId: imageId,
+        seoTitle: post.seoTitle || undefined,
+        seoDescription: post.seoDescription || undefined,
+        canonicalUrl: post.canonicalUrl || undefined,
+      }
 
+      // ===== STATUS LOGIC =====
+      if (isWriter) {
+        payload.status = publish ? 'VERIFICATION_PENDING' : 'DRAFT'
+        if (scheduledAt) {
+          payload.scheduledAt = new Date(scheduledAt).toISOString()
+        }
+      } else {
+        if (scheduledAt) {
+          payload.status = 'SCHEDULED'
+          payload.scheduledAt = new Date(scheduledAt).toISOString()
+        } else {
+          payload.status = publish ? 'PUBLISHED' : 'DRAFT'
+        }
+      }
 
-      const data = postId
+      const res = postId
         ? await apiPut(`/admin/posts/${postId}`, payload)
         : await apiPost('/admin/posts', payload)
 
-      toast.success(publish ? 'Post published' : 'Draft saved')
+      toast.success(
+        isWriter
+          ? publish
+            ? 'Sent for verification'
+            : 'Draft saved'
+          : scheduledAt
+            ? 'Post scheduled'
+            : publish
+              ? 'Post published'
+              : 'Draft saved'
+      )
 
-      if (publish) router.replace('/admin/posts')
-      else if (!postId) setPostId(data.data.id)
+      if (!postId) setPostId(res.data.id)
+      if (!isWriter && publish && !scheduledAt) {
+        router.push('/admin/posts')
+      }
     } catch (err: any) {
       toast.error(err.message || 'Failed to save post')
     } finally {
@@ -193,8 +236,6 @@ export default function NewPostPage({ userRole }: { userRole: UserRole }) {
           onChange={e => setPost({ ...post, title: e.target.value })}
           placeholder="Post title"
         />
-
-       
 
         <textarea
           value={post.excerpt}
@@ -230,6 +271,7 @@ export default function NewPostPage({ userRole }: { userRole: UserRole }) {
           )}
 
           {uploading && <p className="text-xs">Uploading…</p>}
+          {uploadError && <p className="text-xs text-red-500">{uploadError}</p>}
 
           {image && !uploading && (
             <>
@@ -257,10 +299,6 @@ export default function NewPostPage({ userRole }: { userRole: UserRole }) {
                 }
               />
             </>
-          )}
-
-          {uploadError && (
-            <p className="text-xs text-red-500">{uploadError}</p>
           )}
         </div>
 
@@ -312,18 +350,44 @@ export default function NewPostPage({ userRole }: { userRole: UserRole }) {
           />
         </div>
 
+        {/* SCHEDULING (ADMIN / EDITOR ONLY) */}
+        {canSchedule && (
+          <div className="rounded-xl bg-card p-4 space-y-2">
+            <label className="text-sm font-medium">
+              Schedule publication (optional)
+            </label>
+            <input
+              type="datetime-local"
+              value={scheduledAt}
+              onChange={e => setScheduledAt(e.target.value)}
+              className="w-full rounded-lg border p-2"
+            />
+          </div>
+        )}
+
+        {/* ACTIONS */}
         <div className="flex gap-2">
           <Button loading={saving} onClick={() => save(false)} className="flex-1">
             Save Draft
           </Button>
-          {canPublish && (
+
+          {isWriter ? (
             <Button
               loading={saving}
               disabled={uploading}
               onClick={() => save(true)}
               className="flex-1"
             >
-              Publish
+              Send for Verification
+            </Button>
+          ) : (
+            <Button
+              loading={saving}
+              disabled={uploading}
+              onClick={() => save(true)}
+              className="flex-1"
+            >
+              {scheduledAt ? 'Schedule Post' : 'Publish'}
             </Button>
           )}
         </div>

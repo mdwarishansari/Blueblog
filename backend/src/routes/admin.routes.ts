@@ -10,152 +10,211 @@ import { authorize } from '../middlewares/role.middleware'
 import { validate } from '../utils/validation'
 import { schemas } from '../utils/validation'
 import imageRoutes from './admin/image.routes'
+
 const router = Router()
 
-// All admin routes require authentication
+// ================================
+// AUTH (ALL ADMIN ROUTES)
+// ================================
 router.use(authenticate)
 
-// Posts (Admin)
+// ================================
+// POSTS
+// ================================
 router.get('/posts', postsController.getPosts)
 router.get('/posts/:id', postsController.getPostById)
+
 router.post(
   '/posts',
   authorize(['ADMIN', 'EDITOR', 'WRITER']),
   validate(schemas.createPost),
   postsController.createPost
 )
+
 router.put(
   '/posts/:id',
   authorize(['ADMIN', 'EDITOR', 'WRITER']),
   validate(schemas.updatePost),
   postsController.updatePost
 )
+
 router.delete(
   '/posts/:id',
   authorize(['ADMIN', 'EDITOR']),
   postsController.deletePost
 )
 
-// Categories (Admin)
+// ===== WORKFLOW ACTIONS (NEW) =====
+
+// Writer → request verification
+router.post(
+  '/posts/:id/request-verification',
+  authorize(['WRITER']),
+  postsController.requestVerification
+)
+
+// Admin / Editor → approve post
+router.post(
+  '/posts/:id/approve',
+  authorize(['ADMIN', 'EDITOR']),
+  postsController.approvePost
+)
+
+// Admin / Editor → reject post
+router.post(
+  '/posts/:id/reject',
+  authorize(['ADMIN', 'EDITOR']),
+  postsController.rejectPost
+)
+
+// ================================
+// CATEGORIES
+// ================================
 router.get(
   '/categories',
   authorize(['ADMIN', 'EDITOR']),
   categoriesController.getAdminCategories
 )
+
 router.post(
   '/categories',
   authorize(['ADMIN', 'EDITOR']),
   validate(schemas.createCategory),
   categoriesController.createCategory
 )
+
 router.put(
   '/categories/:id',
   authorize(['ADMIN', 'EDITOR']),
   validate(schemas.updateCategory),
   categoriesController.updateCategory
 )
+
 router.delete(
   '/categories/:id',
   authorize(['ADMIN', 'EDITOR']),
   categoriesController.deleteCategory
 )
 
-// Users (Admin only)
+// ================================
+// USERS (ADMIN ONLY)
+// ================================
 router.get(
   '/users',
   authorize(['ADMIN']),
   usersController.getAllUsers
 )
+
 router.get(
   '/users/:id',
   authorize(['ADMIN']),
   usersController.getUserById
 )
+
 router.post(
   '/users',
   authorize(['ADMIN']),
   validate(schemas.createUser),
   usersController.createUser
 )
+
 router.put(
   '/users/:id',
   authorize(['ADMIN']),
   validate(schemas.updateUser),
   usersController.updateUser
 )
+
 router.delete(
   '/users/:id',
   authorize(['ADMIN']),
   usersController.deleteUser
 )
 
-// Media (Admin/Editor/Writer)
+// ================================
+// MEDIA
+// ================================
 router.get(
   '/media',
   authorize(['ADMIN', 'EDITOR', 'WRITER']),
   mediaController.getAllImages
 )
+
 router.get(
   '/media/:id',
   authorize(['ADMIN', 'EDITOR', 'WRITER']),
   mediaController.getImageById
 )
+
 router.delete(
   '/media/:id',
   authorize(['ADMIN', 'EDITOR']),
   mediaController.deleteImage
 )
+
 router.get(
   '/media/usage/stats',
   authorize(['ADMIN', 'EDITOR']),
   mediaController.getImagesByUsage
 )
 
-// Images (Admin / Editor / Writer)
+// ================================
+// IMAGES
+// ================================
 router.use(
   '/images',
   authorize(['ADMIN', 'EDITOR', 'WRITER']),
   imageRoutes
 )
 
-// Messages (Admin)
+// ================================
+// MESSAGES (ADMIN)
+// ================================
 router.get(
   '/messages',
   authorize(['ADMIN']),
   messagesController.getAllMessages
 )
+
 router.get(
   '/messages/:id',
   authorize(['ADMIN']),
   messagesController.getMessageById
 )
+
 router.delete(
   '/messages/:id',
   authorize(['ADMIN']),
   messagesController.deleteMessage
 )
+
 router.put(
   '/messages/:id/read',
   authorize(['ADMIN']),
   messagesController.markAsRead
 )
+
 router.put(
   '/messages/:id/unread',
   authorize(['ADMIN']),
   messagesController.markAsUnread
 )
+
 router.get(
   '/messages/unread/count',
   authorize(['ADMIN']),
   messagesController.getUnreadCount
 )
 
-// Settings (Admin only)
+// ================================
+// SETTINGS (ADMIN ONLY)
+// ================================
 router.get(
   '/settings',
   authorize(['ADMIN']),
   settingsController.getSettings
 )
+
 router.put(
   '/settings',
   authorize(['ADMIN']),
@@ -163,12 +222,14 @@ router.put(
   settingsController.updateSettings
 )
 
-
-// Profile (All authenticated users)
+// ================================
+// PROFILE (ALL AUTH USERS)
+// ================================
 router.put(
   '/profile',
   usersController.updateProfile
 )
+
 router.post(
   '/profile/change-password',
   validate(schemas.changePassword),
