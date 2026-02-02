@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  WRITER
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         UserRole @default(WRITER)
+  bio          String?
+  profileImage String?  @map("profile_image")
+
+  posts         Post[]
+  refreshTokens RefreshToken[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Post {
+  id      String  @id @default(uuid())
+  title   String
+  slug    String  @unique
+  excerpt String?
+  content Json
+
+  bannerImageId String? @map("banner_image_id")
+  bannerImage   Image?  @relation(fields: [bannerImageId], references: [id], onDelete: SetNull)
+
+  authorId String @map("author_id")
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  status         PostStatus @default(DRAFT)
+  seoTitle       String?    @map("seo_title")
+  seoDescription String?    @map("seo_description")
+  canonicalUrl   String?    @map("canonical_url")
+  publishedAt    DateTime?  @map("published_at")
+
+  categories Category[] @relation("CategoryToPost")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([slug])
+  @@index([publishedAt])
+  @@index([authorId])
+  @@index([status])
+  @@map("posts")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+
+  imageId   String? @map("image_id")
+  image     Image?  @relation(fields: [imageId], references: [id], onDelete: SetNull)
+
+  posts     Post[] @relation("CategoryToPost")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("categories")
+}
+
+model Image {
+  id      String  @id @default(uuid())
+  url     String
+  altText String? @map("alt_text")
+  title   String?
+  caption String?
+  width   Int?
+  height  Int?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  posts     Post[]
+  categories Category[]
+
+  @@map("images")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model Setting {
+  id    String @id @default(uuid())
+  key   String @unique
+  value String
+
+  @@map("settings")
+}
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  message   String
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("contact_messages")
+}
