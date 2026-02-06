@@ -120,99 +120,99 @@ export default function AccountPage() {
       </div>
 
       {/* GRID */}
-<div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
 
         {/* PROFILE */}
         <div className="bg-card elev-sm rounded-2xl p-6 space-y-6">
-  {loading ? (
-    /* PROFILE SKELETON */
-    <div className="space-y-6 animate-pulse">
-      <div className="h-5 w-24 rounded bg-muted" />
+          {loading ? (
+            /* PROFILE SKELETON */
+            <div className="space-y-6 animate-pulse">
+              <div className="h-5 w-24 rounded bg-muted" />
 
-      <div className="flex items-center gap-5">
-        <div className="h-24 w-24 rounded-full bg-muted" />
-        <div className="h-4 w-32 rounded bg-muted" />
-      </div>
+              <div className="flex items-center gap-5">
+                <div className="h-24 w-24 rounded-full bg-muted" />
+                <div className="h-4 w-32 rounded bg-muted" />
+              </div>
 
-      <div className="space-y-4">
-        <div className="h-10 w-full rounded bg-muted" />
-        <div className="h-10 w-full rounded bg-muted" />
-        <div className="h-20 w-full rounded bg-muted" />
-      </div>
+              <div className="space-y-4">
+                <div className="h-10 w-full rounded bg-muted" />
+                <div className="h-10 w-full rounded bg-muted" />
+                <div className="h-20 w-full rounded bg-muted" />
+              </div>
 
-      <div className="h-10 w-40 rounded bg-muted" />
-    </div>
-  ) : (
-  <>
-    <h2 className="text-lg font-semibold">Profile</h2>
+              <div className="h-10 w-40 rounded bg-muted" />
+            </div>
+          ) : (
+            <>
+              <h2 className="text-lg font-semibold">Profile</h2>
 
-    {/* Avatar */}
-    <div className="flex items-center gap-5">
-      <div className="relative h-24 w-24 rounded-full bg-muted elev-sm overflow-hidden">
-        <img
-          key={previewImage || profile.profileImage || 'avatar'}
-          src={previewImage || profile.profileImage || undefined}
-          alt="Profile"
-          className="h-full w-full object-cover"
-        />
-      </div>
+              {/* Avatar */}
+              <div className="flex items-center gap-5">
+                <div className="relative h-24 w-24 rounded-full bg-muted elev-sm overflow-hidden">
+                  <img
+                    key={previewImage || profile.profileImage || 'avatar'}
+                    src={previewImage || profile.profileImage || undefined}
+                    alt="Profile"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
 
-      <label className="cursor-pointer inline-flex items-center gap-2 text-sm font-medium text-indigo-600">
-        <ImageIcon className="h-4 w-4" />
-        Change photo
-        <input
-          type="file"
-          hidden
-          accept="image/*"
-          onChange={e => {
-            const file = e.currentTarget.files?.[0]
-            if (file) uploadImage(file)
-          }}
-        />
-      </label>
-    </div>
+                <label className="cursor-pointer inline-flex items-center gap-2 text-sm font-medium text-indigo-600">
+                  <ImageIcon className="h-4 w-4" />
+                  Change photo
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={e => {
+                      const file = e.currentTarget.files?.[0]
+                      if (file) uploadImage(file)
+                    }}
+                  />
+                </label>
+              </div>
 
-    {/* Name */}
-    <div className="space-y-1">
-      <label className="text-sm font-medium">Name</label>
-      <Input
-        value={profile.name}
-        onChange={e =>
-          setProfile({ ...profile, name: e.target.value })
-        }
-      />
-    </div>
+              {/* Name */}
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Name</label>
+                <Input
+                  value={profile.name}
+                  onChange={e =>
+                    setProfile({ ...profile, name: e.target.value })
+                  }
+                />
+              </div>
 
-    {/* Email */}
-    <div className="space-y-1">
-      <label className="text-sm font-medium">Email</label>
-      <Input
-        value={profile.email}
-        onChange={e =>
-          setProfile({ ...profile, email: e.target.value })
-        }
-      />
-    </div>
+              {/* Email */}
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Email</label>
+                <Input
+                  value={profile.email}
+                  onChange={e =>
+                    setProfile({ ...profile, email: e.target.value })
+                  }
+                />
+              </div>
 
-    {/* Bio */}
-    <div className="space-y-1">
-      <label className="text-sm font-medium">Bio</label>
-      <textarea
-        rows={3}
-        value={profile.bio}
-        onChange={e =>
-          setProfile({ ...profile, bio: e.target.value })
-        }
-        className="w-full rounded-xl bg-card elev-sm px-3 py-2 text-sm ui-transition focus:outline-none focus:elev-lg"
-      />
-    </div>
+              {/* Bio */}
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Bio</label>
+                <textarea
+                  rows={3}
+                  value={profile.bio || ''}
+                  onChange={e =>
+                    setProfile({ ...profile, bio: e.target.value })
+                  }
+                  className="w-full rounded-xl bg-muted px-3 py-2 text-sm ui-transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
 
-    <Button onClick={saveProfile} loading={loading} className="gap-2">
-      <Save className="h-4 w-4" />
-      Save Profile
-    </Button>
-  </>
-)}
+              <Button onClick={saveProfile} loading={loading} className="gap-2">
+                <Save className="h-4 w-4" />
+                Save Profile
+              </Button>
+            </>
+          )}
         </div>
         {/* PASSWORD */}
         <div className="bg-card elev-sm rounded-2xl p-6 space-y-6">

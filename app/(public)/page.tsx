@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, Sparkles, Layers } from 'lucide-react'
+import { ArrowRight, Sparkles, Layers, Zap, Shield, Globe, Palette, Users, TrendingUp, UserPlus } from 'lucide-react'
 import { Suspense } from 'react'
 
 import PostCard from '@/components/PostCard'
@@ -81,6 +81,48 @@ async function CategoriesSection() {
 }
 
 /* -------------------------------------
+   WHY BLUEBLOG FEATURES
+------------------------------------- */
+const features = [
+  {
+    icon: Zap,
+    title: 'Lightning Fast',
+    description: 'Built on Next.js with edge-ready performance. Your content loads instantly.',
+    gradient: 'from-amber-500 to-orange-500',
+  },
+  {
+    icon: Shield,
+    title: 'Secure & Reliable',
+    description: 'Enterprise-grade security with encrypted data and secure authentication.',
+    gradient: 'from-emerald-500 to-teal-500',
+  },
+  {
+    icon: Palette,
+    title: 'Beautiful Design',
+    description: 'Modern, responsive design that looks stunning on every device.',
+    gradient: 'from-violet-500 to-purple-500',
+  },
+  {
+    icon: Globe,
+    title: 'Global Reach',
+    description: 'SEO optimized to help your content reach audiences worldwide.',
+    gradient: 'from-blue-500 to-cyan-500',
+  },
+  {
+    icon: Users,
+    title: 'Community Driven',
+    description: 'Join a growing community of writers and readers who love quality content.',
+    gradient: 'from-pink-500 to-rose-500',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Grow Your Audience',
+    description: 'Built-in tools to help you track, engage, and grow your readership.',
+    gradient: 'from-indigo-500 to-violet-500',
+  },
+]
+
+/* -------------------------------------
    PAGE
 ------------------------------------- */
 export default function Home() {
@@ -123,13 +165,106 @@ export default function Home() {
               </Button>
             </Link>
 
-            <Link href="/about" aria-label="Learn more about BlueBlog platform">
+            <Link href="/register" aria-label="Create your account on BlueBlog">
               <Button
                 size="lg"
                 variant="outline"
                 className="border-white text-white hover:bg-white/10"
               >
-                About BlueBlog
+                <UserPlus className="mr-2 h-4 w-4" />
+                Get Started
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= WHY BLUEBLOG ================= */}
+      <section className="relative py-24 overflow-hidden">
+        {/* Background decorations */}
+        <div className="absolute -top-32 -right-32 h-80 w-80 rounded-full bg-indigo-100/50 blur-3xl" />
+        <div className="absolute -bottom-32 -left-32 h-80 w-80 rounded-full bg-violet-100/50 blur-3xl" />
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="mb-16 text-center animate-fade-in">
+            <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-100 to-violet-100 px-4 py-2 text-indigo-700">
+              <Sparkles className="h-4 w-4" />
+              Why choose us
+            </div>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Why <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">BlueBlog</span>?
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Everything you need to create, share, and grow your content in one powerful platform.
+            </p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map((feature, index) => (
+              <div
+                key={feature.title}
+                className={`
+                  group
+                  relative
+                  rounded-2xl
+                  bg-white
+                  p-8
+                  border border-gray-100
+                  shadow-sm
+                  ui-transition
+                  hover:shadow-xl
+                  hover:-translate-y-1
+                  hover-glow
+                  card-shine
+                  animate-fade-in-up
+                  stagger-${Math.min(index + 1, 6)}
+                `}
+              >
+                {/* Icon */}
+                <div className={`
+                  mb-5
+                  inline-flex
+                  h-14 w-14
+                  items-center justify-center
+                  rounded-xl
+                  bg-gradient-to-br ${feature.gradient}
+                  text-white
+                  shadow-lg
+                  ui-transition
+                  group-hover:scale-110
+                  group-hover:shadow-xl
+                `}>
+                  <feature.icon className="h-7 w-7" />
+                </div>
+
+                {/* Content */}
+                <h3 className="mb-3 text-xl font-semibold text-gray-900 group-hover:text-indigo-600 ui-transition">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-600 leading-relaxed">
+                  {feature.description}
+                </p>
+
+                {/* Decorative gradient line */}
+                <div className={`
+                  absolute bottom-0 left-0 right-0 h-1
+                  bg-gradient-to-r ${feature.gradient}
+                  rounded-b-2xl
+                  opacity-0
+                  ui-transition
+                  group-hover:opacity-100
+                `} />
+              </div>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div className="mt-16 text-center animate-fade-in">
+            <Link href="/register">
+              <Button size="lg" className="gap-2 hover-glow">
+                <UserPlus className="h-5 w-5" />
+                Start Writing Today
+                <ArrowRight className="h-5 w-5" />
               </Button>
             </Link>
           </div>
@@ -177,6 +312,35 @@ export default function Home() {
             >
               <CategoriesSection />
             </Suspense>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= FINAL CTA ================= */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-600 py-24">
+        {/* Decorative elements */}
+        <div className="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-white/10 blur-3xl animate-blob" />
+        <div className="absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-pink-400/20 blur-3xl animate-blob animation-delay-2000" />
+
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <h2 className="text-4xl font-bold text-white mb-6 animate-fade-in-up">
+            Ready to start your journey?
+          </h2>
+          <p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto animate-fade-in-up stagger-2">
+            Join thousands of writers who are already sharing their stories on BlueBlog.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up stagger-3">
+            <Link href="/register">
+              <Button size="lg" className="bg-white text-indigo-600 hover:bg-gray-100 hover-glow gap-2">
+                <UserPlus className="h-5 w-5" />
+                Create Free Account
+              </Button>
+            </Link>
+            <Link href="/blog">
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                Explore Blog
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

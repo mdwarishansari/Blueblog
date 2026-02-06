@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, X, LogIn } from 'lucide-react'
+import { Menu, X, LogIn, UserPlus } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 
 export default function Header() {
@@ -119,6 +119,19 @@ export default function Header() {
 
           {/* ACTIONS */}
           <div className="flex items-center gap-2">
+            {/* Register Button */}
+            <Link href="/register" className="hidden sm:block">
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-indigo-200 text-indigo-600 hover:bg-indigo-50"
+              >
+                <UserPlus className="mr-2 h-4 w-4" />
+                Register
+              </Button>
+            </Link>
+
+            {/* Login Button */}
             <Link href="/login">
               <Button
                 size="sm"
@@ -168,6 +181,17 @@ export default function Header() {
                 </Button>
               </Link>
             ))}
+
+            {/* Mobile Register Link */}
+            <Link href="/register" onClick={() => setOpen(false)}>
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-indigo-600"
+              >
+                <UserPlus className="mr-2 h-4 w-4" />
+                Register
+              </Button>
+            </Link>
           </div>
         </div>
       )}

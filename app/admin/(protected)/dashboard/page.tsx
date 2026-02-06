@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import {
   FileText,
   Users,
@@ -8,10 +9,13 @@ import {
   Eye,
   Calendar,
   Sparkles,
+  Clock,
+  ArrowRight,
 } from 'lucide-react'
 import { requireAuth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import StatCard from '@/components/StatCard'
+import { Button } from '@/components/ui/Button'
 import { formatDate } from '@/lib/utils'
 
 export default async function AdminDashboard() {
@@ -28,18 +32,28 @@ export default async function AdminDashboard() {
   const [
     postsCount,
     publishedPostsCount,
+    pendingVerificationCount,
     categoriesCount,
     usersCount,
     imagesCount,
     messagesCount,
     recentPosts,
     recentMessages,
+    pendingPosts,
   ] = await Promise.all([
     prisma.post.count({ where: isWriter ? { authorId: user.id } : {} }),
 
     prisma.post.count({
       where: {
         status: 'PUBLISHED',
+        ...(isWriter ? { authorId: user.id } : {}),
+      },
+    }),
+
+    // Verification pending count - for admin/editor show all, for writer show their own
+    prisma.post.count({
+      where: {
+        status: 'VERIFICATION_PENDING',
         ...(isWriter ? { authorId: user.id } : {}),
       },
     }),
@@ -66,7 +80,31 @@ export default async function AdminDashboard() {
         where: { isRead: false },
       })
       : [],
+
+    // Pending posts for admin/editor review
+    (isAdmin || isEditor)
+      ? prisma.post.findMany({
+        where: { status: 'VERIFICATION_PENDING' },
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          author: { select: { name: true } },
+        },
+      })
+      : [],
   ])
+
+  // Status badge styling
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case 'PUBLISHED':
+        return 'bg-green-100 text-green-700'
+      case 'VERIFICATION_PENDING':
+        return 'bg-orange-100 text-orange-700'
+      default:
+        return 'bg-yellow-100 text-yellow-700'
+    }
+  }
 
   return (
     <div className="space-y-10">
@@ -93,7 +131,7 @@ export default async function AdminDashboard() {
 
       {/* ===== STATS ===== */}
       <section>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           <div className="animate-fade-in-up stagger-1">
             <StatCard title="Total Posts" value={postsCount} icon={FileText} />
           </div>
@@ -101,20 +139,30 @@ export default async function AdminDashboard() {
             <StatCard title="Published" value={publishedPostsCount} icon={Eye} color="green" />
           </div>
 
+          {/* Verification Pending Card - show to all */}
+          <div className="animate-fade-in-up stagger-3">
+            <StatCard
+              title="Pending Review"
+              value={pendingVerificationCount}
+              icon={Clock}
+              color="yellow"
+            />
+          </div>
+
           {(isAdmin || isEditor) && (
-            <div className="animate-fade-in-up stagger-3">
+            <div className="animate-fade-in-up stagger-4">
               <StatCard title="Categories" value={categoriesCount} icon={Folder} color="blue" />
             </div>
           )}
 
           {isAdmin && (
-            <div className="animate-fade-in-up stagger-4">
+            <div className="animate-fade-in-up stagger-5">
               <StatCard title="Users" value={usersCount} icon={Users} color="purple" />
             </div>
           )}
 
           {isAdmin && (
-            <div className="animate-fade-in-up stagger-5">
+            <div className="animate-fade-in-up stagger-6">
               <StatCard title="Media Files" value={imagesCount} icon={Image} color="yellow" />
             </div>
           )}
@@ -127,6 +175,54 @@ export default async function AdminDashboard() {
         </div>
       </section>
 
+      {/* ===== PENDING VERIFICATION (Admin/Editor only) ===== */}
+      {(isAdmin || isEditor) && pendingPosts.length > 0 && (
+        <section className="animate-fade-in">
+          <div className="rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 p-6 elev-sm">
+            <div className="mb-6 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100">
+                  <Clock className="h-5 w-5 text-orange-600" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-fg">Pending Verification</h2>
+                  <p className="text-sm text-muted-foreground">Posts awaiting your review</p>
+                </div>
+              </div>
+              <Link href="/admin/posts?status=VERIFICATION_PENDING">
+                <Button variant="outline" size="sm" className="gap-2">
+                  View All
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+
+            <div className="space-y-3">
+              {pendingPosts.map((post, index) => (
+                <div
+                  key={post.id}
+                  className={`rounded-xl bg-white border border-orange-100 p-4 ui-transition hover:shadow-md hover:-translate-y-0.5 animate-fade-in-up stagger-${Math.min(index + 1, 6)}`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="font-medium text-fg">{post.title}</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        By {post.author.name} • {formatDate(post.createdAt)}
+                      </p>
+                    </div>
+                    <Link href={`/admin/posts/${post.id}/edit`}>
+                      <Button size="sm" variant="outline" className="text-orange-600 border-orange-200 hover:bg-orange-50">
+                        Review
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ===== RECENT ACTIVITY ===== */}
       <section className={`grid gap-8 ${isAdmin ? 'lg:grid-cols-2' : ''}`}>
         {/* Recent Posts */}
@@ -137,32 +233,36 @@ export default async function AdminDashboard() {
           </div>
 
           <div className="space-y-4">
-            {recentPosts.map((post, index) => (
-              <div
-                key={post.id}
-                className={`rounded-xl border border-border bg-white p-4 ui-transition hover:bg-muted hover:shadow-md hover:-translate-y-0.5 animate-fade-in-up stagger-${Math.min(index + 1, 6)}`}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="font-medium text-fg">{post.title}</h3>
-                    <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                      <span>By {post.author.name}</span>
-                      <span>•</span>
-                      <span>{formatDate(post.createdAt)}</span>
+            {recentPosts.length > 0 ? (
+              recentPosts.map((post, index) => (
+                <div
+                  key={post.id}
+                  className={`rounded-xl border border-border bg-white p-4 ui-transition hover:bg-muted hover:shadow-md hover:-translate-y-0.5 animate-fade-in-up stagger-${Math.min(index + 1, 6)}`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="font-medium text-fg">{post.title}</h3>
+                      <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                        <span>By {post.author.name}</span>
+                        <span>•</span>
+                        <span>{formatDate(post.createdAt)}</span>
+                      </div>
                     </div>
-                  </div>
 
-                  <span
-                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ui-transition ${post.status === 'PUBLISHED'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-yellow-100 text-yellow-700'
-                      }`}
-                  >
-                    {post.status}
-                  </span>
+                    <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ui-transition ${getStatusStyle(post.status)}`}>
+                      {post.status === 'VERIFICATION_PENDING' ? 'Pending' : post.status}
+                    </span>
+                  </div>
                 </div>
+              ))
+            ) : (
+              <div className="rounded-xl border border-dashed border-border p-10 text-center animate-fade-in">
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 animate-pulse-glow">
+                  <FileText className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <p className="text-sm text-muted-foreground">No posts yet</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
 

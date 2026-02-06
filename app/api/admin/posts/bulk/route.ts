@@ -5,7 +5,7 @@ import { requireAuth } from '@/lib/auth'
 
 const bulkSchema = z.object({
   ids: z.array(z.string().min(1)),
-  action: z.enum(['DELETE', 'PUBLISH', 'DRAFT']),
+  action: z.enum(['DELETE', 'PUBLISH', 'DRAFT', 'VERIFICATION_PENDING']),
 })
 
 export async function POST(req: NextRequest) {
@@ -15,22 +15,39 @@ export async function POST(req: NextRequest) {
 
     const user = await requireAuth()
 
-if (user.role === 'WRITER' && action !== 'DELETE') {
-  return NextResponse.json(
-    { message: 'Writers cannot bulk publish' },
-    { status: 403 }
-  )
-}
-if (user.role === 'WRITER') {
-  await prisma.post.deleteMany({
-    where: {
-      id: { in: ids },
-      authorId: user.id,
-    },
-  })
-  return NextResponse.json({ success: true })
-}
+    // Writers can only delete their own posts or send for verification
+    if (user.role === 'WRITER') {
+      if (action === 'DELETE') {
+        await prisma.post.deleteMany({
+          where: {
+            id: { in: ids },
+            authorId: user.id,
+          },
+        })
+        return NextResponse.json({ success: true })
+      }
 
+      if (action === 'VERIFICATION_PENDING') {
+        await prisma.post.updateMany({
+          where: {
+            id: { in: ids },
+            authorId: user.id,
+            status: 'DRAFT',
+          },
+          data: {
+            status: 'VERIFICATION_PENDING',
+          },
+        })
+        return NextResponse.json({ success: true })
+      }
+
+      return NextResponse.json(
+        { message: 'Writers cannot bulk publish' },
+        { status: 403 }
+      )
+    }
+
+    // Admin/Editor actions
     if (action === 'DELETE') {
       await prisma.post.deleteMany({
         where: { id: { in: ids } },
@@ -53,6 +70,15 @@ if (user.role === 'WRITER') {
         data: {
           status: 'DRAFT',
           publishedAt: null,
+        },
+      })
+    }
+
+    if (action === 'VERIFICATION_PENDING') {
+      await prisma.post.updateMany({
+        where: { id: { in: ids } },
+        data: {
+          status: 'VERIFICATION_PENDING',
         },
       })
     }
