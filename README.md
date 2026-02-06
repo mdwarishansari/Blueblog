@@ -1,7 +1,7 @@
 # 🚀 BlueBlog — Modern Blogging Platform
 
 👉 **LIVE URL:**  
-🔗 [https://blueblog-eight.vercel.app](https://blueblog-eight.vercel.app/)
+🔗 [Live](https://blueblog-v1.vercel.app/)
 
 ---
 
