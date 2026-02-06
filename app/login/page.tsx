@@ -28,7 +28,7 @@ export default function LoginPage() {
         if (data?.siteName) setSiteName(data.siteName)
         if (data?.siteLogo) setSiteLogo(data.siteLogo)
       })
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -56,25 +56,31 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-violet-50 to-purple-100 px-4 flex items-center justify-center">
-      
-      {/* Decorative blobs */}
-      <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-purple-400/30 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-indigo-400/30 blur-3xl" />
+
+      {/* Decorative blobs with animations */}
+      <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-purple-400/30 blur-3xl animate-blob" />
+      <div className="pointer-events-none absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-indigo-400/30 blur-3xl animate-blob animation-delay-2000" />
+      <div className="pointer-events-none absolute top-1/4 right-1/4 h-48 w-48 rounded-full bg-pink-300/20 blur-2xl animate-float" />
 
       {/* Soft center glow */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <div className="h-72 w-72 rounded-full bg-white/40 blur-3xl" />
+        <div className="h-72 w-72 rounded-full bg-white/40 blur-3xl animate-pulse-glow" />
       </div>
 
       <motion.div
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
         className="relative z-10 w-full max-w-md"
       >
         {/* BRAND */}
-        <div className="mb-10 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-500 shadow-lg">
+        <motion.div
+          className="mb-10 text-center"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1, duration: 0.4 }}
+        >
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-500 shadow-lg ui-transition hover:scale-105 hover:shadow-[0_0_30px_rgba(139,92,246,0.5)]">
             {siteLogo ? (
               <img
                 src={siteLogo}
@@ -94,14 +100,23 @@ export default function LoginPage() {
           <p className="mt-1 text-sm text-slate-600">
             Sign in to your account
           </p>
-        </div>
+        </motion.div>
 
         {/* CARD */}
-        <div className="rounded-2xl bg-white p-8 shadow-xl">
+        <motion.div
+          className="rounded-2xl bg-white p-8 shadow-xl hover-glow"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.4 }}
+        >
           <form onSubmit={handleSubmit} className="space-y-6">
 
             {/* Email */}
-            <div>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3, duration: 0.3 }}
+            >
               <label className="mb-1.5 block text-sm font-medium text-slate-700">
                 Email address
               </label>
@@ -118,69 +133,84 @@ export default function LoginPage() {
                   required
                 />
               </div>
-            </div>
+            </motion.div>
 
             {/* Password */}
-            <div>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4, duration: 0.3 }}
+            >
               <label className="mb-1.5 block text-sm font-medium text-slate-700">
                 Password
               </label>
               <div className="relative">
-  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
 
-  <Input
-    type={showPassword ? 'text' : 'password'}
-    placeholder="••••••••"
-    value={formData.password}
-    onChange={(e) =>
-      setFormData({ ...formData, password: e.target.value })
-    }
-    className="pl-10 pr-10"
-    required
-  />
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                  className="pl-10 pr-10"
+                  required
+                />
 
-  <button
-    type="button"
-    aria-label={showPassword ? 'Hide password' : 'Show password'}
-    onClick={() => setShowPassword(!showPassword)}
-    className="
+                <button
+                  type="button"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="
       absolute right-3 top-1/2 -translate-y-1/2
       text-slate-400 hover:text-slate-700
-      transition
+      ui-transition
     "
-  >
-    {showPassword ? (
-      <EyeOff className="h-4.5 w-4.5" />
-    ) : (
-      <Eye className="h-4.5 w-4.5" />
-    )}
-  </button>
-</div>
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4.5 w-4.5" />
+                  ) : (
+                    <Eye className="h-4.5 w-4.5" />
+                  )}
+                </button>
+              </div>
 
-            </div>
+            </motion.div>
 
             {/* Submit */}
-            <Button
-              type="submit"
-              loading={loading}
-              className="w-full gap-2"
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.3 }}
             >
-              <LogIn className="h-4.5 w-4.5" />
-              Sign in
-            </Button>
+              <Button
+                type="submit"
+                loading={loading}
+                className="w-full gap-2"
+              >
+                <LogIn className="h-4.5 w-4.5" />
+                Sign in
+              </Button>
+            </motion.div>
           </form>
-        </div>
+        </motion.div>
 
         {/* BACK */}
-        <div className="mt-8 text-center">
+        <motion.div
+          className="mt-8 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6, duration: 0.3 }}
+        >
           <Link
-  href="/"
-  aria-label="Back to BlueBlog home page"
-  className="text-sm text-slate-600 hover:text-slate-900 transition"
->
-  ← Back to home
-</Link>
-        </div>
+            href="/"
+            aria-label="Back to BlueBlog home page"
+            className="text-sm text-slate-600 hover:text-indigo-600 ui-transition"
+          >
+            ← Back to home
+          </Link>
+        </motion.div>
       </motion.div>
     </div>
   )

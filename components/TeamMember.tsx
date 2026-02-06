@@ -22,6 +22,7 @@ export default function TeamMember({ member }: TeamMemberProps) {
   return (
     <div
       className="
+        group
         bg-card
         rounded-2xl
         p-6
@@ -30,6 +31,8 @@ export default function TeamMember({ member }: TeamMemberProps) {
         ui-transition
         ui-lift
         hover:elev-lg
+        hover-glow
+        card-shine
       "
     >
       {/* Avatar */}
@@ -40,16 +43,19 @@ export default function TeamMember({ member }: TeamMemberProps) {
             h-24 w-24
             rounded-full
             bg-gradient-to-br
-            from-accentStart
-            via-accentMid
-            to-accentEnd
+            from-indigo-500
+            via-violet-500
+            to-pink-500
             p-[3px]
+            ui-transition
+            group-hover:scale-105
+            group-hover:shadow-[0_0_30px_rgba(139,92,246,0.4)]
           "
         >
           <div className="h-full w-full rounded-full bg-card flex items-center justify-center overflow-hidden">
             {member.profileImage ? (
               <div
-                className="h-full w-full bg-cover bg-center"
+                className="h-full w-full bg-cover bg-center ui-transition group-hover:scale-110"
                 style={{ backgroundImage: `url(${member.profileImage})` }}
               />
             ) : (
@@ -60,7 +66,7 @@ export default function TeamMember({ member }: TeamMemberProps) {
       </div>
 
       {/* Name */}
-      <h3 className="text-lg font-semibold text-fg">
+      <h3 className="text-lg font-semibold text-fg ui-transition group-hover:text-indigo-600">
         {member.name}
       </h3>
 
@@ -74,6 +80,7 @@ export default function TeamMember({ member }: TeamMemberProps) {
             px-3 py-1
             text-xs
             font-medium
+            ui-transition
             ${roleStyles[member.role]}
           `}
         >

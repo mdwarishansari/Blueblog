@@ -7,6 +7,7 @@ import {
   MessageSquare,
   Eye,
   Calendar,
+  Sparkles,
 } from 'lucide-react'
 import { requireAuth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
@@ -60,51 +61,68 @@ export default async function AdminDashboard() {
 
     isAdmin
       ? prisma.contactMessage.findMany({
-          take: 5,
-          orderBy: { createdAt: 'desc' },
-          where: { isRead: false },
-        })
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        where: { isRead: false },
+      })
       : [],
   ])
 
   return (
     <div className="space-y-10">
       {/* ===== HERO / WELCOME ===== */}
-      <section className="relative overflow-hidden rounded-2xl gradient-bg p-8 text-white elev-md">
+      <section className="relative overflow-hidden rounded-2xl gradient-bg p-8 text-white elev-md animate-fade-in">
         <div className="relative z-10">
-          <h1 className="text-2xl font-bold tracking-tight">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-sm text-white/90 mb-3 animate-fade-in-down">
+            <Sparkles className="h-3.5 w-3.5" />
+            Dashboard Overview
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight animate-fade-in-up">
             Welcome back, {user.name}
           </h1>
-          <p className="mt-2 max-w-xl text-white/90">
-            Here’s a quick overview of what’s happening across your workspace today.
+          <p className="mt-2 max-w-xl text-white/90 animate-fade-in-up stagger-2">
+            Here's a quick overview of what's happening across your workspace today.
           </p>
         </div>
 
         {/* decorative blobs */}
         <div className="absolute -top-12 -right-12 h-40 w-40 rounded-full bg-white/10 blur-2xl animate-blob" />
         <div className="absolute bottom-0 left-10 h-32 w-32 rounded-full bg-white/10 blur-2xl animate-blob animation-delay-2000" />
+        <div className="absolute top-1/2 right-1/4 h-24 w-24 rounded-full bg-white/5 blur-xl animate-float" />
       </section>
 
       {/* ===== STATS ===== */}
       <section>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          <StatCard title="Total Posts" value={postsCount} icon={FileText} />
-          <StatCard title="Published" value={publishedPostsCount} icon={Eye} color="green" />
+          <div className="animate-fade-in-up stagger-1">
+            <StatCard title="Total Posts" value={postsCount} icon={FileText} />
+          </div>
+          <div className="animate-fade-in-up stagger-2">
+            <StatCard title="Published" value={publishedPostsCount} icon={Eye} color="green" />
+          </div>
 
           {(isAdmin || isEditor) && (
-            <StatCard title="Categories" value={categoriesCount} icon={Folder} color="blue" />
+            <div className="animate-fade-in-up stagger-3">
+              <StatCard title="Categories" value={categoriesCount} icon={Folder} color="blue" />
+            </div>
           )}
 
           {isAdmin && (
-            <StatCard title="Users" value={usersCount} icon={Users} color="purple" />
+            <div className="animate-fade-in-up stagger-4">
+              <StatCard title="Users" value={usersCount} icon={Users} color="purple" />
+            </div>
           )}
 
           {isAdmin && (
-            <StatCard title="Media Files" value={imagesCount} icon={Image} color="yellow" />
+            <div className="animate-fade-in-up stagger-5">
+              <StatCard title="Media Files" value={imagesCount} icon={Image} color="yellow" />
+            </div>
           )}
 
           {isAdmin && (
-            <StatCard title="Messages" value={messagesCount} icon={MessageSquare} color="red" />
+            <div className="animate-fade-in-up stagger-6">
+              <StatCard title="Messages" value={messagesCount} icon={MessageSquare} color="red" />
+            </div>
           )}
         </div>
       </section>
@@ -112,17 +130,17 @@ export default async function AdminDashboard() {
       {/* ===== RECENT ACTIVITY ===== */}
       <section className={`grid gap-8 ${isAdmin ? 'lg:grid-cols-2' : ''}`}>
         {/* Recent Posts */}
-        <div className="rounded-2xl bg-card p-6 elev-sm">
+        <div className="rounded-2xl bg-card p-6 elev-sm hover-glow animate-fade-in-left">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-fg">Recent Posts</h2>
             <Calendar className="h-5 w-5 text-muted-foreground" />
           </div>
 
           <div className="space-y-4">
-            {recentPosts.map(post => (
+            {recentPosts.map((post, index) => (
               <div
                 key={post.id}
-                className="rounded-xl border border-border bg-white p-4 ui-transition hover:bg-muted"
+                className={`rounded-xl border border-border bg-white p-4 ui-transition hover:bg-muted hover:shadow-md hover:-translate-y-0.5 animate-fade-in-up stagger-${Math.min(index + 1, 6)}`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -135,11 +153,10 @@ export default async function AdminDashboard() {
                   </div>
 
                   <span
-                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${
-                      post.status === 'PUBLISHED'
+                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ui-transition ${post.status === 'PUBLISHED'
                         ? 'bg-green-100 text-green-700'
                         : 'bg-yellow-100 text-yellow-700'
-                    }`}
+                      }`}
                   >
                     {post.status}
                   </span>
@@ -151,7 +168,7 @@ export default async function AdminDashboard() {
 
         {/* Recent Messages */}
         {isAdmin && (
-          <div className="rounded-2xl bg-card p-6 elev-sm">
+          <div className="rounded-2xl bg-card p-6 elev-sm hover-glow animate-fade-in-right">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-fg">Recent Messages</h2>
               <MessageSquare className="h-5 w-5 text-muted-foreground" />
@@ -159,10 +176,10 @@ export default async function AdminDashboard() {
 
             <div className="space-y-4">
               {recentMessages.length > 0 ? (
-                recentMessages.map(msg => (
+                recentMessages.map((msg, index) => (
                   <div
                     key={msg.id}
-                    className="rounded-xl border border-border bg-blue-50 p-4"
+                    className={`rounded-xl border border-border bg-gradient-to-br from-blue-50 to-indigo-50 p-4 ui-transition hover:shadow-md hover:-translate-y-0.5 animate-fade-in-up stagger-${Math.min(index + 1, 6)}`}
                   >
                     <h3 className="font-medium text-fg">{msg.name}</h3>
                     <p className="text-sm text-muted-foreground">{msg.email}</p>
@@ -175,9 +192,11 @@ export default async function AdminDashboard() {
                   </div>
                 ))
               ) : (
-                <div className="rounded-xl border border-dashed border-border p-10 text-center">
-                  <MessageSquare className="mx-auto h-10 w-10 text-muted-foreground" />
-                  <p className="mt-3 text-sm text-muted-foreground">
+                <div className="rounded-xl border border-dashed border-border p-10 text-center animate-fade-in">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 animate-pulse-glow">
+                    <MessageSquare className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
                     No new messages
                   </p>
                 </div>

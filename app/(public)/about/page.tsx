@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import TeamMember from '@/components/TeamMember'
 import { generateSEO } from '@/lib/seo'
 import TeamMemberSkeleton from '@/components/skeletons/TeamMemberSkeleton'
-import Link from 'next/link'  
+import Link from 'next/link'
 export const revalidate = 60
 
 export const metadata = generateSEO({
@@ -40,8 +40,13 @@ async function TeamSection() {
 
   return (
     <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-      {teamMembers.map(member => (
-        <TeamMember key={member.id} member={member} />
+      {teamMembers.map((member, index) => (
+        <div
+          key={member.id}
+          className={`animate-fade-in-up stagger-${Math.min(index + 1, 6)}`}
+        >
+          <TeamMember member={member} />
+        </div>
       ))}
     </div>
   )
@@ -55,12 +60,18 @@ export default async function AboutPage() {
       {/* ================= HERO ================= */}
       <section className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-violet-600 to-pink-500 py-24">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
+
+        {/* Floating blobs */}
+        <div className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-pink-400/30 blur-3xl animate-blob" />
+        <div className="absolute top-1/3 -right-24 h-80 w-80 rounded-full bg-indigo-400/30 blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute bottom-0 left-1/4 h-64 w-64 rounded-full bg-white/10 blur-2xl animate-float" />
+
         <div className="container relative">
           <div className="mx-auto max-w-3xl text-center text-white">
-            <h1 className="mb-6 text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
+            <h1 className="mb-6 text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl animate-fade-in-up">
               About BlueBlog
             </h1>
-            <p className="text-xl text-white/90">
+            <p className="text-xl text-white/90 animate-fade-in-up stagger-2">
               A modern blogging platform built for creators, by creators
             </p>
           </div>
@@ -73,8 +84,8 @@ export default async function AboutPage() {
           <div className="grid gap-14 lg:grid-cols-2">
 
             {/* Mission */}
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-2 text-indigo-700">
+            <div className="space-y-6 animate-fade-in-left">
+              <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-2 text-indigo-700 hover-glow">
                 <Target className="h-5 w-5" />
                 <span className="text-sm font-medium">Our Mission</span>
               </div>
@@ -96,8 +107,8 @@ export default async function AboutPage() {
             </div>
 
             {/* Vision */}
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full bg-violet-50 px-4 py-2 text-violet-700">
+            <div className="space-y-6 animate-fade-in-right">
+              <div className="inline-flex items-center gap-2 rounded-full bg-violet-50 px-4 py-2 text-violet-700 hover-glow">
                 <Globe className="h-5 w-5" />
                 <span className="text-sm font-medium">Our Vision</span>
               </div>
@@ -118,12 +129,12 @@ export default async function AboutPage() {
                   ['500+', 'Published Authors'],
                   ['10K+', 'Articles Published'],
                   ['50+', 'Countries Reached'],
-                ].map(([value, label]) => (
+                ].map(([value, label], index) => (
                   <div
                     key={label}
-                    className="rounded-xl bg-card p-6 elev-sm"
+                    className={`rounded-xl bg-card p-6 elev-sm ui-transition hover:elev-md hover-glow animate-fade-in-up stagger-${index + 1}`}
                   >
-                    <div className="text-3xl font-bold text-indigo-600">
+                    <div className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-violet-600 to-pink-600 bg-clip-text text-transparent">
                       {value}
                     </div>
                     <div className="mt-2 text-sm text-slate-600">
@@ -141,7 +152,7 @@ export default async function AboutPage() {
       {/* ================= VALUES ================= */}
       <section className="bg-card py-20">
         <div className="container">
-          <div className="mx-auto mb-14 max-w-3xl text-center">
+          <div className="mx-auto mb-14 max-w-3xl text-center animate-fade-in">
             <h2 className="text-3xl font-bold tracking-tight text-fg">
               Our Values
             </h2>
@@ -170,13 +181,13 @@ export default async function AboutPage() {
                   'We help creators reach audiences worldwide with global distribution.',
                 color: 'violet',
               },
-            ].map(({ icon: Icon, title, text, color }) => (
+            ].map(({ icon: Icon, title, text, color }, index) => (
               <div
                 key={title}
-                className="rounded-2xl bg-[var(--muted)] p-8 text-center ui-transition hover:elev-md"
+                className={`rounded-2xl bg-[var(--muted)] p-8 text-center ui-transition hover:elev-md hover-glow card-shine animate-fade-in-up stagger-${index + 1}`}
               >
                 <div
-                  className={`mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-${color}-100 text-${color}-600`}
+                  className={`mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-${color}-100 text-${color}-600 ui-transition group-hover:scale-110`}
                 >
                   <Icon className="h-8 w-8" />
                 </div>
@@ -197,7 +208,7 @@ export default async function AboutPage() {
       {/* ================= TEAM (SUSPENSE) ================= */}
       <section className="py-20">
         <div className="container">
-          <div className="mx-auto mb-14 max-w-3xl text-center">
+          <div className="mx-auto mb-14 max-w-3xl text-center animate-fade-in">
             <h2 className="text-3xl font-bold tracking-tight text-fg">
               Meet Our Team
             </h2>
@@ -223,32 +234,38 @@ export default async function AboutPage() {
       {/* ================= CTA ================= */}
       <section className="py-20">
         <div className="container">
-          <div className="rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-600 to-pink-500 p-14 text-center text-white elev-lg">
-            <h2 className="mb-4 text-3xl font-bold">
-              Ready to Start Writing?
-            </h2>
-            <p className="mx-auto mb-10 max-w-2xl text-lg text-white/90">
-              Join thousands of creators who are already sharing their stories
-              with the world.
-            </p>
+          <div className="rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-600 to-pink-500 p-14 text-center text-white elev-lg animate-fade-in-up relative overflow-hidden">
+            {/* Floating decorative elements */}
+            <div className="absolute -top-12 -right-12 h-40 w-40 rounded-full bg-white/10 blur-2xl animate-blob" />
+            <div className="absolute bottom-0 left-10 h-32 w-32 rounded-full bg-white/10 blur-2xl animate-blob animation-delay-2000" />
 
-            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-  <Link
-    href="/blog"
-    aria-label="Read blog posts on BlueBlog"
-    className="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 font-medium text-indigo-600 ui-transition hover:bg-slate-100"
-  >
-    Read Our Blog
-  </Link>
+            <div className="relative z-10">
+              <h2 className="mb-4 text-3xl font-bold">
+                Ready to Start Writing?
+              </h2>
+              <p className="mx-auto mb-10 max-w-2xl text-lg text-white/90">
+                Join thousands of creators who are already sharing their stories
+                with the world.
+              </p>
 
-  <Link
-    href="/contact"
-    aria-label="Contact the BlueBlog team"
-    className="inline-flex items-center justify-center rounded-lg bg-white/20 px-6 py-3 font-medium text-white backdrop-blur-sm ui-transition hover:bg-white/30"
-  >
-    Contact Us
-  </Link>
-</div>
+              <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+                <Link
+                  href="/blog"
+                  aria-label="Read blog posts on BlueBlog"
+                  className="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 font-medium text-indigo-600 ui-transition hover:bg-slate-100 hover-glow"
+                >
+                  Read Our Blog
+                </Link>
+
+                <Link
+                  href="/contact"
+                  aria-label="Contact the BlueBlog team"
+                  className="inline-flex items-center justify-center rounded-lg bg-white/20 px-6 py-3 font-medium text-white backdrop-blur-sm ui-transition hover:bg-white/30"
+                >
+                  Contact Us
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>

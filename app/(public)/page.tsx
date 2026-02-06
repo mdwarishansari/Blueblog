@@ -7,8 +7,8 @@ import CategoryCard from '@/components/CategoryCard'
 import { Button } from '@/components/ui/Button'
 import { generateSEO } from '@/lib/seo'
 
-// import SiteNameHero from '@/components/SiteNameHero'
-// import SiteNameSkeleton from '@/components/skeletons/SiteNameSkeleton'
+import SiteNameHero from '@/components/SiteNameHero'
+import SiteNameSkeleton from '@/components/skeletons/SiteNameSkeleton'
 import PostCardSkeleton from '@/components/skeletons/PostCardSkeleton'
 import CategoryCardSkeleton from '@/components/skeletons/CategoryCardSkeleton'
 
@@ -19,7 +19,7 @@ export const dynamic = 'force-dynamic'
 export const metadata = generateSEO({
   title: 'BlueBlog – Modern Tech Blogging Platform',
   description:
-  'BlueBlog is a modern tech blogging platform featuring tutorials, guides, and insights for developers and engineers.',
+    'BlueBlog is a modern tech blogging platform featuring tutorials, guides, and insights for developers and engineers.',
   url: '/',
 })
 
@@ -45,8 +45,13 @@ async function FeaturedPostsSection() {
 
   return (
     <>
-      {posts.map(post => (
-        <PostCard key={post.id} post={post} />
+      {posts.map((post, index) => (
+        <div
+          key={post.id}
+          className={`animate-fade-in-up stagger-${index + 1}`}
+        >
+          <PostCard post={post} />
+        </div>
       ))}
     </>
   )
@@ -63,8 +68,13 @@ async function CategoriesSection() {
 
   return (
     <>
-      {categories.map(category => (
-        <CategoryCard key={category.id} category={category} />
+      {categories.map((category, index) => (
+        <div
+          key={category.id}
+          className={`animate-fade-in-up stagger-${Math.min(index + 1, 6)}`}
+        >
+          <CategoryCard category={category} />
+        </div>
       ))}
     </>
   )
@@ -81,44 +91,46 @@ export default function Home() {
       <section className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-500 py-28 text-white">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
 
+        {/* Enhanced floating blobs */}
         <div className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-pink-400/30 blur-3xl animate-blob" />
         <div className="absolute top-1/3 -right-24 h-96 w-96 rounded-full bg-indigo-400/30 blur-3xl animate-blob animation-delay-2000" />
         <div className="absolute bottom-0 left-1/3 h-96 w-96 rounded-full bg-purple-400/30 blur-3xl animate-blob animation-delay-4000" />
+        <div className="absolute top-1/2 left-1/4 h-64 w-64 rounded-full bg-white/10 blur-2xl animate-float" />
 
         <div className="container relative z-10 mx-auto px-4 text-center">
-          <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm backdrop-blur">
+          <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm backdrop-blur animate-fade-in-down">
             <Sparkles className="h-4 w-4" />
             Modern blogging platform
           </div>
 
-          <h1 className="mb-6 text-5xl font-extrabold tracking-tight sm:text-6xl">
-  Welcome to BlueBlog
-</h1>
+          <h1 className="mb-6 text-5xl font-extrabold tracking-tight sm:text-6xl animate-fade-in-up">
+            Welcome to{' '}
+            <Suspense fallback={<SiteNameSkeleton />}>
+              <SiteNameHero />
+            </Suspense>
+          </h1>
 
-          <p className="mx-auto mb-10 max-w-2xl text-lg text-white/90">
+          <p className="mx-auto mb-10 max-w-2xl text-lg text-white/90 animate-fade-in-up stagger-2">
             Write, publish, and grow your audience with a platform built for
             creators who care about quality and performance.
           </p>
 
-          <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+          <div className="flex flex-col gap-4 sm:flex-row sm:justify-center animate-fade-in-up stagger-3">
             <Link href="/blog" aria-label="Read all blog posts on BlueBlog">
-
-              <Button size="lg" className="bg-white text-indigo-600 hover:bg-gray-100">
+              <Button size="lg" className="bg-white text-indigo-600 hover:bg-gray-100 hover-glow">
                 Read Blog
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
 
             <Link href="/about" aria-label="Learn more about BlueBlog platform">
-
               <Button
-  size="lg"
-  variant="outline"
-  className="border-white text-white hover:bg-white/10"
->
-  About BlueBlog
-</Button>
-
+                size="lg"
+                variant="outline"
+                className="border-white text-white hover:bg-white/10"
+              >
+                About BlueBlog
+              </Button>
             </Link>
           </div>
         </div>
@@ -126,12 +138,11 @@ export default function Home() {
 
       {/* ================= FEATURED POSTS ================= */}
       <section className="container mx-auto py-24 px-4 bg-white">
-        <div className="mb-12 flex items-center justify-between">
+        <div className="mb-12 flex items-center justify-between animate-fade-in">
           <h2 className="text-3xl font-bold text-gray-900">Featured Posts</h2>
           <Link href="/blog" aria-label="View all published blog posts on BlueBlog">
-  <Button variant="ghost">View all</Button>
-</Link>
-
+            <Button variant="ghost">View all</Button>
+          </Link>
         </div>
 
         <div className="grid gap-8 md:grid-cols-3">
@@ -148,7 +159,7 @@ export default function Home() {
       {/* ================= CATEGORIES ================= */}
       <section className="bg-gray-50 py-24">
         <div className="container mx-auto px-4">
-          <div className="mb-14 text-center">
+          <div className="mb-14 text-center animate-fade-in">
             <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full bg-indigo-100 px-4 py-2 text-indigo-700">
               <Layers className="h-4 w-4" />
               Explore topics

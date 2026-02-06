@@ -38,9 +38,9 @@ export default async function BlogPostsGrid({
 
   if (posts.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-300 bg-card p-14 text-center">
+      <div className="rounded-2xl border border-dashed border-slate-300 bg-card p-14 text-center animate-fade-in">
         <div className="mx-auto max-w-md">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-slate-100 to-slate-200 animate-pulse-glow">
             <Search className="h-7 w-7 text-slate-400" />
           </div>
           <h3 className="mb-2 text-xl font-semibold text-fg">
@@ -56,8 +56,13 @@ export default async function BlogPostsGrid({
 
   return (
     <div className="grid gap-8 md:grid-cols-2">
-      {posts.map(post => (
-        <PostCard key={post.id} post={post} />
+      {posts.map((post, index) => (
+        <div
+          key={post.id}
+          className={`animate-fade-in-up stagger-${Math.min(index + 1, 6)}`}
+        >
+          <PostCard post={post} />
+        </div>
       ))}
     </div>
   )

@@ -24,15 +24,15 @@ export default function Header() {
 
   /* Site settings */
   useEffect(() => {
-  fetch('/api/public/settings')
-    .then(r => r.json())
-    .then(d => {
-      if (d?.siteName) setSiteName(d.siteName)
-      if (d?.siteLogo) setSiteLogo(d.siteLogo)
-    })
-    .catch(() => {})
-    .finally(() => setLoadingSettings(false))
-}, [])
+    fetch('/api/public/settings')
+      .then(r => r.json())
+      .then(d => {
+        if (d?.siteName) setSiteName(d.siteName)
+        if (d?.siteLogo) setSiteLogo(d.siteLogo)
+      })
+      .catch(() => { })
+      .finally(() => setLoadingSettings(false))
+  }, [])
 
 
   const nav = [
@@ -51,7 +51,7 @@ export default function Header() {
       className={`
         sticky top-0 z-50
         bg-card backdrop-blur-xl
-        transition-all
+        transition-all duration-300
         ${scrolled ? 'shadow-[0_12px_30px_rgba(0,0,0,0.25)]' : ''}
       `}
     >
@@ -60,43 +60,43 @@ export default function Header() {
 
           {/* LOGO */}
           <Link href="/" className="flex items-center gap-3">
-  {loadingSettings ? (
-    <>
-      {/* Logo skeleton */}
-      <div
-  className="
+            {loadingSettings ? (
+              <>
+                {/* Logo skeleton */}
+                <div
+                  className="
     h-8 w-8 rounded-full
     bg-muted
     animate-pulse
     shadow-[inset_0_1px_2px_rgba(0,0,0,0.12),_0_2px_6px_rgba(0,0,0,0.12)]
   "
-/>
-      
-      {/* Site name skeleton */}
-      <div
-  className="
+                />
+
+                {/* Site name skeleton */}
+                <div
+                  className="
     h-5 w-28 rounded
     bg-muted
     animate-pulse
     shadow-[inset_0_1px_2px_rgba(0,0,0,0.12),_0_2px_6px_rgba(0,0,0,0.12)]
   "
-/>
-    </>
-  ) : (
-    <>
-      {siteLogo && (
-        <img
-          src={siteLogo}
-          alt="Logo"
-          className="h-8 w-8 object-contain"
-        />
-      )}
-      <span className="text-lg sm:text-xl font-bold text-slate-900">
-        {siteName}
-      </span>
-    </>
-  )}
-</Link>
+                />
+              </>
+            ) : (
+              <>
+                {siteLogo && (
+                  <img
+                    src={siteLogo}
+                    alt="Logo"
+                    className="h-8 w-8 object-contain"
+                  />
+                )}
+                <span className="text-lg sm:text-xl font-bold text-slate-900">
+                  {siteName}
+                </span>
+              </>
+            )}
+          </Link>
 
 
           {/* DESKTOP NAV */}

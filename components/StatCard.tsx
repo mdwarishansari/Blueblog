@@ -48,12 +48,13 @@ export default function StatCard({
   return (
     <div
       className="
-        relative overflow-hidden
+        group relative overflow-hidden
         rounded-2xl bg-card
         p-6
         elev-sm
         ui-transition ui-lift
         hover:elev-md
+        hover-glow
       "
     >
       {/* subtle gradient glow */}

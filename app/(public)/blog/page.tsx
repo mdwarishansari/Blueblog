@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { Filter } from 'lucide-react'
+import { Filter, BookOpen } from 'lucide-react'
 import BlogSearchInput from '@/components/blog/BlogSearchInput'
 import { generateSEO } from '@/lib/seo'
 
@@ -30,18 +30,30 @@ export default async function BlogPage({
       {/* ===============================
         HERO (INSTANT)
       =============================== */}
-      <section className="bg-bg py-20">
-        <div className="container">
+      <section className="relative overflow-hidden bg-gradient-to-br from-indigo-50 via-violet-50 to-purple-50 py-20">
+        {/* Decorative elements */}
+        <div className="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-indigo-200/50 blur-3xl animate-blob" />
+        <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-violet-200/50 blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-32 w-32 rounded-full bg-pink-200/30 blur-2xl animate-float" />
+
+        <div className="container relative z-10">
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-fg">
+            <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-indigo-700 backdrop-blur-sm shadow-sm animate-fade-in-down">
+              <BookOpen className="h-4 w-4" />
+              <span className="text-sm font-medium">Latest Articles</span>
+            </div>
+
+            <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-fg animate-fade-in-up">
               Our Blog
             </h1>
-            <p className="mb-10 text-lg text-slate-600">
+            <p className="mb-10 text-lg text-slate-600 animate-fade-in-up stagger-2">
               Discover insights, tutorials, and stories from our team
             </p>
 
             {/* Search loads instantly */}
-            <BlogSearchInput />
+            <div className="animate-fade-in-up stagger-3">
+              <BlogSearchInput />
+            </div>
           </div>
         </div>
       </section>
@@ -54,9 +66,9 @@ export default async function BlogPage({
           <div className="grid gap-10 lg:grid-cols-4">
 
             {/* ================= Sidebar ================= */}
-            <aside className="lg:col-span-1">
+            <aside className="lg:col-span-1 animate-fade-in-left">
               <div className="sticky top-28">
-                <div className="rounded-2xl bg-card p-6 elev-sm">
+                <div className="rounded-2xl bg-card p-6 elev-sm hover-glow">
                   <div className="mb-5 flex items-center justify-between">
                     <h3 className="text-sm font-semibold tracking-wide text-fg">
                       Categories
@@ -83,9 +95,9 @@ export default async function BlogPage({
                 }
               >
                 <BlogPostsGrid
-  {...(params.category ? { category: params.category } : {})}
-  {...(params.q ? { q: params.q } : {})}
-/>
+                  {...(params.category ? { category: params.category } : {})}
+                  {...(params.q ? { q: params.q } : {})}
+                />
 
               </Suspense>
             </div>

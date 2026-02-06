@@ -25,10 +25,10 @@ export default function PostCard({ post }: PostCardProps) {
 
   return (
     <article
-  itemScope
-  itemType="https://schema.org/BlogPosting"
-  className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-card elev-sm ui-transition hover:-translate-y-1 hover:elev-lg"
->
+      itemScope
+      itemType="https://schema.org/BlogPosting"
+      className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-card elev-sm ui-transition hover:-translate-y-1 hover:elev-lg hover-glow card-shine"
+    >
 
       {/* top gradient accent */}
       <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-indigo-500 via-violet-500 to-pink-500" />
@@ -109,9 +109,9 @@ export default function PostCard({ post }: PostCardProps) {
 
             <div className="flex items-center gap-1.5">
               <Calendar className="h-4 w-4" />
-              <time 
+              <time
                 itemProp="datePublished"
-              dateTime={post.publishedAt?.toISOString()}>
+                dateTime={post.publishedAt?.toISOString()}>
                 {post.publishedAt
                   ? formatDate(post.publishedAt)
                   : 'Draft'}

@@ -147,6 +147,7 @@ body {
   animation: skeleton-shimmer 1.2s linear infinite;
   border-radius: 0.5rem;
 }
+
 @keyframes blob {
   0% {
     transform: translate(0px, 0px) scale(1);
@@ -176,6 +177,7 @@ body {
 .animation-delay-4000 {
   animation-delay: 4s;
 }
+
 @keyframes skeleton-shimmer {
   to {
     background-position-x: -200%;
@@ -192,4 +194,374 @@ body {
   margin-right: auto;
   padding-left: 1rem;
   padding-right: 1rem;
+}
+
+/* =====================================================
+   ENHANCED ANIMATION SYSTEM
+   ===================================================== */
+
+/* Fade-in animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Scale animations */
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  70% {
+    transform: scale(0.9);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Floating animation */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Pulse glow animation */
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.5);
+  }
+}
+
+/* Shimmer sweep animation */
+@keyframes shimmer-sweep {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Gradient shift animation */
+@keyframes gradient-shift {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* =====================================================
+   ANIMATION UTILITIES
+   ===================================================== */
+
+.animate-fade-in {
+  animation: fade-in 0.5s var(--ease) forwards;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s var(--ease) forwards;
+}
+
+.animate-fade-in-down {
+  animation: fade-in-down 0.6s var(--ease) forwards;
+}
+
+.animate-fade-in-left {
+  animation: fade-in-left 0.6s var(--ease) forwards;
+}
+
+.animate-fade-in-right {
+  animation: fade-in-right 0.6s var(--ease) forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s var(--ease) forwards;
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.6s var(--ease) forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+/* =====================================================
+   STAGGER ANIMATION DELAYS
+   ===================================================== */
+
+.stagger-1 {
+  animation-delay: 0.1s;
+  opacity: 0;
+}
+
+.stagger-2 {
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+.stagger-3 {
+  animation-delay: 0.3s;
+  opacity: 0;
+}
+
+.stagger-4 {
+  animation-delay: 0.4s;
+  opacity: 0;
+}
+
+.stagger-5 {
+  animation-delay: 0.5s;
+  opacity: 0;
+}
+
+.stagger-6 {
+  animation-delay: 0.6s;
+  opacity: 0;
+}
+
+/* =====================================================
+   HOVER GLOW EFFECTS
+   ===================================================== */
+
+.hover-glow {
+  transition: box-shadow 0.3s var(--ease);
+}
+
+.hover-glow:hover {
+  box-shadow:
+    0 0 20px rgba(99, 102, 241, 0.25),
+    0 0 40px rgba(139, 92, 246, 0.15),
+    0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.hover-glow-purple:hover {
+  box-shadow:
+    0 0 20px rgba(139, 92, 246, 0.3),
+    0 0 40px rgba(236, 72, 153, 0.2),
+    0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* =====================================================
+   GLASSMORPHISM
+   ===================================================== */
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-card-dark {
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* =====================================================
+   ENHANCED SKELETON SHIMMER
+   ===================================================== */
+
+.skeleton-enhanced {
+  background: linear-gradient(90deg,
+      #e2e8f0 0%,
+      #f1f5f9 25%,
+      #e2e8f0 50%,
+      #f1f5f9 75%,
+      #e2e8f0 100%);
+  background-size: 400% 100%;
+  animation: shimmer-sweep 1.5s linear infinite;
+  border-radius: 0.5rem;
+}
+
+.skeleton-gradient {
+  background: linear-gradient(90deg,
+      rgba(99, 102, 241, 0.1) 0%,
+      rgba(139, 92, 246, 0.15) 25%,
+      rgba(99, 102, 241, 0.1) 50%,
+      rgba(236, 72, 153, 0.1) 75%,
+      rgba(99, 102, 241, 0.1) 100%);
+  background-size: 400% 100%;
+  animation: shimmer-sweep 2s linear infinite;
+  border-radius: 0.5rem;
+}
+
+/* Hero skeleton with white tint for dark backgrounds */
+.skeleton-hero {
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.2) 0%,
+      rgba(255, 255, 255, 0.4) 25%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 255, 255, 0.4) 75%,
+      rgba(255, 255, 255, 0.2) 100%);
+  background-size: 400% 100%;
+  animation: shimmer-sweep 1.5s linear infinite;
+  border-radius: 0.5rem;
+}
+
+/* =====================================================
+   GRADIENT BORDERS
+   ===================================================== */
+
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg,
+      var(--accent-start),
+      var(--accent-mid),
+      var(--accent-end));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s var(--ease);
+  pointer-events: none;
+}
+
+.gradient-border:hover::before {
+  opacity: 1;
+}
+
+/* =====================================================
+   CARD ENHANCEMENTS
+   ===================================================== */
+
+.card-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-shine::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.1) 50%,
+      transparent 60%);
+  transform: translateX(-100%) rotate(45deg);
+  transition: transform 0.6s var(--ease);
+  pointer-events: none;
+}
+
+.card-shine:hover::after {
+  transform: translateX(100%) rotate(45deg);
 }
