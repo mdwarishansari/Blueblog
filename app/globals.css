@@ -565,3 +565,151 @@ body {
 .card-shine:hover::after {
   transform: translateX(100%) rotate(45deg);
 }
+
+/* =====================================================
+   BLOG CONTENT STYLING (MATCHES ADMIN EDITOR)
+   ===================================================== */
+
+/* Blog article prose container */
+.prose h1,
+.blog-content h1 {
+  font-size: 2rem !important;
+  font-weight: 800 !important;
+  margin: 1.5rem 0 1rem 0 !important;
+  line-height: 1.2 !important;
+  color: #1e293b !important;
+  background: linear-gradient(135deg, #1e293b 0%, #4f46e5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.prose h2,
+.blog-content h2 {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  margin: 1.25rem 0 0.75rem 0 !important;
+  line-height: 1.3 !important;
+  color: #334155 !important;
+}
+
+.prose h3,
+.blog-content h3 {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  margin: 1rem 0 0.5rem 0 !important;
+  line-height: 1.4 !important;
+  color: #475569 !important;
+}
+
+.prose p,
+.blog-content p {
+  margin: 0.75rem 0 !important;
+  line-height: 1.8 !important;
+  color: #475569 !important;
+}
+
+.prose ul,
+.blog-content ul {
+  list-style: disc !important;
+  padding-left: 1.5rem !important;
+  margin: 0.75rem 0 !important;
+}
+
+.prose ol,
+.blog-content ol {
+  list-style: decimal !important;
+  padding-left: 1.5rem !important;
+  margin: 0.75rem 0 !important;
+}
+
+.prose li,
+.blog-content li {
+  margin: 0.25rem 0 !important;
+  line-height: 1.7 !important;
+  color: #475569 !important;
+}
+
+.prose li p,
+.blog-content li p {
+  margin: 0 !important;
+}
+
+.prose strong,
+.blog-content strong {
+  font-weight: 700 !important;
+  color: #1e293b !important;
+}
+
+.prose em,
+.blog-content em {
+  font-style: italic !important;
+  color: #64748b !important;
+}
+
+.prose blockquote,
+.blog-content blockquote {
+  border-left: 4px solid #6366f1 !important;
+  padding: 1rem 1rem 1rem 1.5rem !important;
+  margin: 1rem 0 !important;
+  font-style: italic !important;
+  color: #64748b !important;
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.05) 0%, transparent 100%) !important;
+  border-radius: 0 0.5rem 0.5rem 0 !important;
+}
+
+.prose hr,
+.blog-content hr {
+  border: none !important;
+  height: 2px !important;
+  background: linear-gradient(90deg, #e2e8f0 0%, #c7d2fe 50%, #e2e8f0 100%) !important;
+  margin: 2rem 0 !important;
+  border-radius: 1px !important;
+}
+
+.prose code,
+.blog-content code {
+  background: #f1f5f9 !important;
+  padding: 0.2rem 0.4rem !important;
+  border-radius: 0.25rem !important;
+  font-family: ui-monospace, monospace !important;
+  font-size: 0.9em !important;
+  color: #e11d48 !important;
+}
+
+.prose pre,
+.blog-content pre {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  padding: 1rem !important;
+  border-radius: 0.75rem !important;
+  overflow-x: auto !important;
+  margin: 1rem 0 !important;
+}
+
+.prose pre code,
+.blog-content pre code {
+  background: none !important;
+  color: inherit !important;
+  padding: 0 !important;
+}
+
+.prose a,
+.blog-content a {
+  color: #4f46e5 !important;
+  text-decoration: none !important;
+  font-weight: 500 !important;
+}
+
+.prose a:hover,
+.blog-content a:hover {
+  text-decoration: underline !important;
+  color: #ec4899 !important;
+}
+
+.prose img,
+.blog-content img {
+  border-radius: 1rem !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18) !important;
+  margin: 2rem 0 !important;
+}
