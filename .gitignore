@@ -47,4 +47,4 @@ prisma/*.db-journal
 # =========================
 uploads/
 tmp/
-ExampleData.node_modules
+ExampleData.md
