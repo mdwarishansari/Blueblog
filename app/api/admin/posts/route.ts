@@ -13,7 +13,7 @@ const postSchema = z.object({
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
   canonicalUrl: z.string().optional(),
-  status: z.enum(['DRAFT', 'PUBLISHED']).default('DRAFT'),
+  status: z.enum(['DRAFT', 'PUBLISHED','VERIFICATION_PENDING']).default('DRAFT'),
   publishedAt: z.string().optional().transform(str => str ? new Date(str) : null),
 })
 

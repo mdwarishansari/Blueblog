@@ -9,7 +9,7 @@ const postSchema = z.object({
   excerpt: z.string().optional(),
   content: z.any(),
   bannerImageId: z.string().nullable().optional(),
-  status: z.enum(['DRAFT', 'PUBLISHED']),
+  status: z.enum(['DRAFT', 'PUBLISHED','VERIFICATION_PENDING']),
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
   canonicalUrl: z.string().optional(),
