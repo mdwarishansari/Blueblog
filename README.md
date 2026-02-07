@@ -410,3 +410,5 @@ It demonstrates:
 ## 💡 This is not a small CRUD project.
 
 It is a structured, production-capable, scalable blogging platform.
+
+---
