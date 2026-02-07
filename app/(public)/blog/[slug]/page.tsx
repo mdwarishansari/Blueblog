@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Calendar, User, Tag, ArrowLeft, Clock, Share2, BookOpen } from 'lucide-react'
+import { Calendar, User, Tag, ArrowLeft, Clock, BookOpen } from 'lucide-react'
 
 import { prisma } from '@/lib/prisma'
 import { formatDate } from '@/lib/utils'
