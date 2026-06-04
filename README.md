@@ -204,8 +204,8 @@ BlueBlog protects the CMS area using Next.js edge middleware and validates role 
 | Submit Draft for Verification | ✅ | ✅ | ✅ |
 | Publish / Unpublish Posts | ❌ | ✅ | ✅ |
 | Manage Categories | ❌ | ✅ | ✅ |
-| View Inbox Messages | ❌ | ✅ | ✅ |
-| Manage Media Storage | ✅ | ✅ | ✅ |
+| View Inbox Messages | ❌ | ❌ | ✅ |
+| Manage Media Storage | ❌ | ❌ | ✅ |
 | Manage Users & Roles | ❌ | ❌ | ✅ |
 | Site-wide Configuration | ❌ | ❌ | ✅ |
 
