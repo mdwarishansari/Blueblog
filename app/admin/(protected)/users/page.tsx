@@ -28,7 +28,7 @@ export default function AdminUsersPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    role: 'WRITER',
+    role: 'EDITOR',
     password: '',
   })
 
