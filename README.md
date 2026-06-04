@@ -1,210 +1,216 @@
-# 🚀 BlueBlog — Modern Blogging Platform
+# 🚀 BlueBlog — Production-Grade Blogging Platform
 
-> ⚡ A production-ready, SEO-first blogging platform with a full CMS, role-based access control, and real-world deployment architecture.
+> **BlueBlog** is a production-ready, SEO-optimized tech blogging platform and Content Management System (CMS). Built with Next.js 16 (App Router) and React 19, it features strict Role-Based Access Control (RBAC), media management, dynamic search filters, and an editorial lifecycle workflow.
 
-🔗 **Live URL:** [https://blueblog-v1.vercel.app/](https://blueblog-v1.vercel.app/)
+<div align="center">
 
----
+[![Next.js](https://img.shields.io/badge/Next.js-16.1.1-black?style=for-the-badge&logo=nextdotjs)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19.2.3-blue?style=for-the-badge&logo=react)](https://react.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.x-38bdf8?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
+[![Prisma](https://img.shields.io/badge/Prisma-6.x-2d3748?style=for-the-badge&logo=prisma)](https://prisma.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-336791?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
+[![Cloudinary](https://img.shields.io/badge/Cloudinary-Media-orange?style=for-the-badge&logo=cloudinary)](https://cloudinary.com/)
 
-# 📚 Table of Contents
-
-- 🌟 Project Overview
-- ✨ Key Features
-- 🏗️ Architecture
-- 🧰 Tech Stack
-- ⚙️ Local Setup
-- 🔐 Auth & Role System
-- 🗄️ Database & Prisma
-- 🌱 Seeding Strategy
-- 🖼️ Image Handling (Cloudinary)
-- 🚀 Deployment (Vercel)
-- 🔎 SEO & Performance
-- 🛡 Security Model
-- 🧪 Debugging & Common Issues
-- 🔮 Future Roadmap
+</div>
 
 ---
 
-# 🌟 Project Overview
+## 📚 Table of Contents
 
-**BlueBlog** is not a demo project.
-It is a **fully structured, production-style blogging system** with:
-
-- 🌐 Public website (SEO optimized)
-- 🛠️ Admin CMS (role-based & secure)
-- 🧠 Post verification workflow
-- 🗄️ PostgreSQL + Prisma ORM
-- ☁️ Cloudinary media storage
-- 🚀 Serverless deployment (Vercel)
-- ⚡ Performance optimizations
-- 🔒 JWT-based authentication
-- 📊 Lighthouse-optimized pages (~100 scores)
-
-This project follows real-world architectural patterns used in production applications.
-
----
-
-# ✨ Key Features
-
-## 🌐 Public Website
-
-- 📰 Blog listing page
-- 📂 Category filtering
-- 🔗 Slug-based dynamic routing
-- 📊 Structured JSON-LD data
-- 🖼️ Open Graph metadata
-- ⚡ Skeleton loading states
-- 📱 Fully responsive design
+- [🌟 Project Overview](#-project-overview)
+- [✨ Key Features](#-key-features)
+- [🏗️ System Architecture](#%EF%B8%8F-system-architecture)
+- [🧰 Tech Stack](#-tech-stack)
+- [⚙️ Local Setup & Installation](#%EF%B8%8F-local-setup--installation)
+- [🔐 Authentication & RBAC System](#-authentication--rbac-system)
+- [🗄️ Database & Prisma Schema](#%EF%B8%8F-database--prisma-schema)
+- [🌱 Seeding Guard Strategy](#-seeding-guard-strategy)
+- [🖼️ Media Pipeline](#%EF%B8%8F-media-pipeline)
+- [🚀 Production Deployment](#-production-deployment)
+- [🔎 SEO & Performance Optimizations](#-seo--performance-optimizations)
+- [🛡️ Security Architecture](#%EF%B8%8F-security-architecture)
+- [🧪 Common Debugging Tips](#-common-debugging-tips)
+- [🔮 Roadmap](#-roadmap)
 
 ---
 
-## 🛠️ Admin CMS
+## 🌟 Project Overview
 
-- 📝 Create / Edit / Delete posts
-- 📦 Draft → Verification → Publish workflow
-- 🗂️ Category management
-- 🖼️ Media management
-- ⚙️ Site settings (logo, site name, description)
-- 👤 Account management (name, bio, password)
-- 👥 User management (Admin only)
-- 📩 Contact message inbox
+BlueBlog is a fully realized, commercial-grade CMS designed to support multi-role content creation pipelines. 
 
----
-
-## 🧠 Editorial Workflow
-
-Post status lifecycle:
-
-```
-DRAFT → VERIFICATION_PENDING → PUBLISHED
-```
-
-### 👤 WRITER
-
-- Can create posts
-- Can edit own posts
-- Can submit for verification
-- ❌ Cannot publish directly
-
-### ✏️ EDITOR
-
-- Can review posts
-- Can publish posts
-- Can manage categories
-
-### 👑 ADMIN
-
-- Full control
-- Manage users
-- Manage settings
-- Publish / Delete any post
-
-Permission enforcement is done:
-
-- ✅ UI-level
-- ✅ Server-level (mandatory validation)
+Unlike basic blog templates, BlueBlog includes:
+- 👤 **Role-Based Access Control (RBAC)** (Writers, Editors, Admins)
+- 🔄 **Editorial review states** (`DRAFT` ➔ `VERIFICATION_PENDING` ➔ `PUBLISHED`)
+- 📄 **Block-based rich-text content storage** (Prisma JSON-LD tree using Tiptap)
+- 🔑 **Secure session management** (Secure, HTTP-Only cookies with rotating JWT tokens)
+- ⚡ **Lighthouse Performance score targeting 100/100**
 
 ---
 
-# 🏗️ Architecture
+## ✨ Key Features
 
-```
-Next.js App Router
-├── app/
-│   ├── (public)       → Blog pages
-│   ├── admin          → CMS (protected)
-│   ├── api            → REST API
-│
-├── components/        → UI, SEO, skeletons
-├── lib/               → Auth, Prisma, utils
-├── prisma/            → Schema & migrations
-├── scripts/           → Seed script
+### 📰 Public-Facing Website
+- **Dynamic Search & Filtering**: Client-side filtering by categories and search queries.
+- **Slug-Based Routing**: Clean, semantic, and human-readable URLs for high-ranking SEO indexability.
+- **Optimized Loading**: Skeleton screens and React Suspense boundaries prevent layout shifts (CLS).
+- **Responsive Theme**: Tailored Tailwind CSS theme featuring responsive glassmorphism styles and color systems.
+
+### 🛠️ CMS Admin Dashboard
+- **Content Creation**: Full Tiptap editor integration with structured block generation.
+- **Verification Pipeline**: Custom dashboard to submit, review, publish, or reject articles.
+- **Media Upload Manager**: Integrated Cloudinary uploads with progress indicators, size validation, and asset metadata.
+- **Global Configuration**: Edit site-wide branding properties (logos, headers, descriptions) dynamically.
+- **User Management**: Administrative control of user accounts, bios, profiles, and role allocation.
+- **Contact Inbox**: Built-in messaging center with read status indicators.
+
+---
+
+## 🏗️ System Architecture
+
+```mermaid
+graph TD
+    Client[Web Browser Client] -->|HTTP Request| Middleware[Next.js Middleware /admin/*]
+    Middleware -->|Unauthenticated| Redirect[Redirect to /admin/login]
+    Middleware -->|Valid Session Cookie| AppRouter[Next.js App Router]
+    
+    subgraph Frontend Interfaces
+        Public[Public Pages / & /blog]
+        CMS[Protected CMS /admin/dashboard]
+        Editor[Tiptap WYSIWYG Editor]
+    end
+    
+    AppRouter --> Public
+    AppRouter --> CMS
+    CMS --> Editor
+    
+    subgraph Backend Services
+        API[API Endpoints /api/*]
+        Auth[JWT Session & Cookie Helpers]
+        Prisma[Prisma ORM Client]
+    end
+    
+    Public -->|Client-side search/filters| API
+    CMS -->|Zod Validated Mutation requests| API
+    CMS -->|Direct Server Component Data Fetching| Prisma
+    API --> Auth
+    API --> Prisma
+    
+    subgraph Infrastructure
+        DB[(PostgreSQL / Neon)]
+        CDN[Cloudinary Media CDN]
+    end
+    
+    Prisma --> DB
+    API -->|Optimized Upload Stream| CDN
 ```
 
-### 🧩 Design Philosophy
+### Directory Structure
 
-- Server components for secure logic
-- Client components only when needed
-- Clear separation of UI & business logic
-- API validation via Zod
-- Prisma as single source of truth
-
----
-
-# 🧰 Tech Stack
-
-| Layer    | Technology                 |
-| -------- | -------------------------- |
-| Frontend | ⚛️ Next.js 16 (App Router) |
-| Language | 🟦 TypeScript              |
-| Styling  | 🎨 Tailwind CSS            |
-| Database | 🗄️ PostgreSQL (Neon)       |
-| ORM      | 🔺 Prisma                  |
-| Editor   | ✍️ Tiptap                  |
-| Media    | ☁️ Cloudinary              |
-| Auth     | 🔐 JWT                     |
-| Hosting  | 🚀 Vercel                  |
+```
+├── app/                  # Next.js App Router Core
+│   ├── (public)/         # SEO-first blog routes and homepage
+│   ├── admin/            # CMS Dashboard & Login routes
+│   └── api/              # API Endpoints (Auth, Posts, Categories, Media, Contact)
+├── components/           # UI Design System & Skeletons
+│   ├── admin/            # Admin widgets (PostManager, Search, etc.)
+│   ├── skeletons/        # Cumulative Layout Shift (CLS) prevention skeletons
+│   └── ui/               # Primary UI primitives (Buttons, Inputs, Dialogs)
+├── lib/                  # Shared Utility Modules (Auth, Cloudinary, SEO)
+├── prisma/               # Schema specifications and SQL migration history
+├── scripts/              # Seed scripts
+└── public/               # Static assets
+```
 
 ---
 
-# ⚙️ Local Setup
+## 🧰 Tech Stack
 
-## 1️⃣ Clone
+| Domain | Technology | Description |
+| :--- | :--- | :--- |
+| **Framework** | Next.js 16.1.1 (App Router) | Server-side rendering (SSR), dynamic edge routes |
+| **Styling** | Tailwind CSS 4.x + PostCSS | Theme-driven variables, responsive glassmorphism |
+| **Database** | PostgreSQL (Neon Database) | Relational SQL storage |
+| **ORM** | Prisma Client 6.19.1 | Type-safe queries and automated schema migrations |
+| **Editor** | Tiptap StarterKit 3.15.0 | Block-based rich-text content node tree |
+| **Media Host**| Cloudinary CDN | Asset optimization, AVIF/WebP auto-formatting |
+| **Auth** | JWT & bcryptjs | Cookie session cookies, 12 rounds password hashing |
+| **Validation**| Zod 4.3.4 | API schema contract verification |
 
+---
+
+## ⚙️ Local Setup & Installation
+
+### 1. Clone & Install Dependencies
 ```bash
-git clone <repo>
-cd blueblog
-```
-
-## 2️⃣ Install
-
-```bash
+git clone <repo-url>
+cd Blueblog
 npm install
 ```
 
-## 3️⃣ Setup ENV
-
-Create `.env`:
-
+### 2. Configure Environment Variables
+Create a `.env` file in the root directory based on `.env.example`:
 ```env
-DATABASE_URL=
-JWT_SECRET=
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
-ADMIN_EMAIL=
-ADMIN_PASSWORD=
+# Database Credentials
+DATABASE_URL="postgresql://postgres:Warish%40786@localhost:5432/blueblog?schema=public"
+
+# Auth Keys
+JWT_ACCESS_SECRET="local_development_jwt_access_secret_key_32_chars_long"
+JWT_REFRESH_SECRET="local_development_jwt_refresh_secret_key_32_chars_long"
+ACCESS_TOKEN_EXPIRES_IN="1d"
+REFRESH_TOKEN_EXPIRES_IN="7d"
+
+# Cloudinary CDN Configuration
+CLOUDINARY_CLOUD_NAME="your_cloud_name"
+CLOUDINARY_API_KEY="your_api_key"
+CLOUDINARY_API_SECRET="your_api_secret"
+
+# Admin Bootstrap Account
+ADMIN_EMAIL="admin@blueblog.local"
+ADMIN_PASSWORD="AdminPassword123!"
+ADMIN_NAME="Administrator"
 ```
 
-## 4️⃣ Prisma
+> [!TIP]
+> If your local PostgreSQL password contains special characters like `@`, you must URL-encode it (e.g., `@` becomes `%40`).
 
+### 3. Setup Database Schema & Seed Data
 ```bash
 npx prisma generate
 npx prisma migrate dev
-npx prisma db seed
+npm run prisma:seed
 ```
 
-## 5️⃣ Run
-
+### 4. Run Development Server
 ```bash
 npm run dev
 ```
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ---
 
-# 🗄️ Database & Prisma
+## 🔐 Authentication & RBAC System
 
-## 🔹 Core Models
+BlueBlog protects the CMS area using Next.js edge middleware and validates role permissions on every data operation.
 
-- `User`
-- `Post`
-- `Category`
-- `Image`
-- `Setting`
-- `ContactMessage`
-- `RefreshToken`
+### Role Permissions Matrix
+| Feature | Writer | Editor | Admin |
+| :--- | :---: | :---: | :---: |
+| Access CMS Dashboard | ✅ | ✅ | ✅ |
+| Create / Edit Own Posts | ✅ | ✅ | ✅ |
+| Edit Anyone's Posts | ❌ | ✅ | ✅ |
+| Submit Draft for Verification | ✅ | ✅ | ✅ |
+| Publish / Unpublish Posts | ❌ | ✅ | ✅ |
+| Manage Categories | ❌ | ✅ | ✅ |
+| View Inbox Messages | ❌ | ✅ | ✅ |
+| Manage Media Storage | ✅ | ✅ | ✅ |
+| Manage Users & Roles | ❌ | ❌ | ✅ |
+| Site-wide Configuration | ❌ | ❌ | ✅ |
 
-## 🔹 Enums
+---
+
+## 🗄️ Database & Prisma Schema
+
+Core relational models and validation enums inside `prisma/schema.prisma`:
 
 ```prisma
 enum UserRole {
@@ -220,193 +226,93 @@ enum PostStatus {
 }
 ```
 
-### 💡 Best Practice Used
-
-Instead of hardcoding Zod enum:
-
-```ts
-z.nativeEnum(PostStatus);
-```
-
-Prevents schema mismatch bugs.
+- **`User`**: Account profiles, authentication passwords, bios, and references to posts.
+- **`Post`**: Title, slug, excerpt, content (stored as JSON), SEO metadata, status, author, and categories relation.
+- **`Category`**: Custom tags mapped to a unique URL slug and cover image.
+- **`Image`**: Cloudinary asset dimensions, URLs, alt texts, and captions.
+- **`Setting`**: Dynamic key-value pairs governing global site configuration.
+- **`ContactMessage`**: Stores name, email, query text, and read status.
 
 ---
 
-# 🌱 Seeding Strategy (Production Safe)
+## 🌱 Seeding Guard Strategy
 
-Seed script includes guard:
+To prevent accidental duplicate data insertion or database schema corruption on redeployments, the seed script contains an early exit validation block:
 
-```ts
+```typescript
+const adminExists = await prisma.user.findFirst({
+  where: { role: UserRole.ADMIN },
+})
+
 if (adminExists) {
-  console.log("Database already seeded. Skipping.");
-  return;
+  console.log('ℹ️ Database already seeded. Skipping seed.')
+  return
 }
 ```
 
-### ✅ First Deploy
+---
 
-Creates admin + base data
+## 🖼️ Media Pipeline
 
-### ✅ Future Deploys
-
-Skips safely (no duplicate data)
+Images are optimized, processed, and validated before storage:
+- **Size Limitation**: Rejects files exceeding **5MB**.
+- **Type Restriction**: Validates mime types restricting uploads to JPEG/PNG formats.
+- **On-the-Fly CDN Optimization**: Images are served through Cloudinary's dynamic parameter transformation:
+  ```typescript
+  transformation: [{ quality: 'auto', fetch_format: 'auto' }]
+  ```
+  Forces CDN compression and converts images to next-generation formats (AVIF/WebP) based on client browser support.
 
 ---
 
-# 🖼️ Image Handling (Cloudinary)
+## 🚀 Production Deployment
 
-- Client-side image compression
-- JPG / PNG validation
-- 5MB limit
-- Upload progress bar
-- Replace / Remove image support
-- Image metadata (alt, title, caption)
-
----
-
-# 🚀 Vercel Deployment
-
-### Required Build Command
-
+### Build Hook Command
+When deploying to platforms like Vercel, use the following build command pipeline to generate types, execute migration scripts, run seeds, and compile Next.js client files:
 ```bash
 npx prisma generate && npx prisma migrate deploy && npx prisma db seed && npm run build
 ```
 
-### Production Notes
+---
 
-- Use Neon pooled DB URL
-- Never expose secrets
-- Set environment variables in Vercel dashboard
+## 🔎 SEO & Performance Optimizations
+
+### 🔍 Metadata Engine
+- **JSON-LD Schema Integration**: Injects structural Google Search-friendly schemas (e.g. `BlogPosting` or `Article` configurations) on article pages.
+- **Social Graph Engine**: Dynamic Open Graph and Twitter Card layouts generated programmatically based on the post's featured banner and custom meta descriptions.
+
+### ⚡ Speed Optimizations
+- **Suspense Boundaries**: Async database reads are wrapped in React `Suspense` loaders, serving CSS shimmers to keep Largest Contentful Paint (LCP) times minimal.
+- **Database Indexing**: Performance indexes are active on frequently referenced search fields: `slug`, `status`, `publishedAt`, and `authorId`.
 
 ---
 
-# 🔎 SEO & Performance
-
-SEO is first-class citizen in BlueBlog.
-
-## 🧠 Post-Level SEO
-
-- SEO Title
-- Meta Description
-- Canonical URL
-- Open Graph
-- JSON-LD structured data
-- Slug derived from SEO title
+## 🛡️ Security Architecture
+- **HTTP-Only Cookies**: Prevents client-side scripts from reading active access tokens (mitigates XSS).
+- **Zod Data Contracts**: Validates request body, query parameters, and param paths.
+- **Edge Route Guards**: Validates JWT signature at the routing middleware level.
 
 ---
 
-## 📊 Lighthouse Scores
+## 🧪 Common Debugging Tips
 
-Public pages consistently score:
-
-- ⚡ Performance: ~100
-- ♿ Accessibility: ~100
-- ✅ Best Practices: ~100
-- 🔍 SEO: ~100
-
-Tested on production build.
-
----
-
-# ⚡ Performance Optimizations
-
-- Server-side rendering
-- Skeleton loading components
-- Indexed Prisma queries
-- Optimized Cloudinary images
-- Minimal client-side JS
-- Dynamic rendering only where needed
-
----
-
-# 🔐 Security Model
-
-- JWT authentication
-- Secure cookies
-- Protected admin routes
-- Server-side role validation
-- Zod payload validation
-- Enum validation via Prisma
-
-Never trust client input.
-
----
-
-# 🧪 Common Issues & Fixes
-
-### ❗ Zod status error
-
-Cause:
-
-```
-Invalid option: expected DRAFT | PUBLISHED
+### 1. Zod native enum validation error
+If updating schema enums yields Zod parsing failures:
+```typescript
+// Correct pattern: binds the Prisma enum directly
+status: z.nativeEnum(PostStatus)
 ```
 
-Fix:
-
-```
-z.nativeEnum(PostStatus)
-```
-
----
-
-### ❗ params.id undefined
-
-Fix:
-
-```ts
+### 2. Next.js App Router dynamic props are async
+App Router parameters are async. You must await params in layout or page files:
+```typescript
 const { id } = await params;
 ```
 
-(App Router dynamic param is async)
-
 ---
 
-### ❗ Role undefined in client
-
-Fix:
-Pass role from server wrapper:
-
-```tsx
-<EditPostClient userRole={user.role} />
-```
-
----
-
-# 🔮 Future Roadmap
-
-- 📅 Scheduled publishing
-- 📝 Autosave drafts
-- 📊 Analytics dashboard
-- 🧾 Audit logs
-- 🔔 Notifications
-- 🌍 Multi-tenant blog support
-
----
-
-# 🏁 Final Notes
-
-BlueBlog is:
-
-- 🏗️ Architected like a real SaaS system
-- 🔐 Secure
-- 🚀 Deployable
-- 🧠 SEO-driven
-- 📦 Database-structured
-- 👥 Role-based
-- 📊 Performance-optimized
-
-It demonstrates:
-
-- Full-stack architecture
-- Production-level patterns
-- Real-world deployment strategy
-- ORM + migrations + guarded seeding
-- Role-based CMS workflow
-- Advanced SEO implementation
-
----
-
-## 💡 This is not a small CRUD project.
-
-It is a structured, production-capable, scalable blogging platform.
+## 🔮 Roadmap
+- [ ] Scheduled publishing via Vercel Crons
+- [ ] Autosave draft functionality
+- [ ] Analytics dashboard integration (Post view counters)
+- [ ] Multi-tenant blog hosting configuration
