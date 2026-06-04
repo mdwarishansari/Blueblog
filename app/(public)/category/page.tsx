@@ -4,6 +4,8 @@ import CategoryGrid from '@/components/CategoryGrid'
 import CategoryCardSkeleton from '@/components/skeletons/CategoryCardSkeleton'
 import { Grid3X3 } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = generateSEO({
   title: 'Categories – Browse Topics on BlueBlog',
   description:

@@ -1,11 +1,10 @@
 import Link from 'next/link'
 import { requireAuth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import PostTable from '@/components/PostTable'
 import { Button } from '@/components/ui/Button'
 import { Plus, Clock } from 'lucide-react'
 import { Prisma } from '@prisma/client'
-import PostSearchInput from '@/components/admin/PostSearchInput'
+import PostManager from '@/components/admin/PostManager'
 
 export default async function AdminPostsPage({
   searchParams,
@@ -66,39 +65,9 @@ export default async function AdminPostsPage({
 
   const totalPages = Math.ceil(total / limit)
 
-  const query = new URLSearchParams({
-    ...(params.search && { search: params.search }),
-    ...(status && { status }),
-  }).toString()
 
-  const safeTotalPages = Math.max(1, totalPages)
-
-  const hasPrev = page > 1
-  const hasNext = page < safeTotalPages
 
   const isAdminOrEditor = user.role === 'ADMIN' || user.role === 'EDITOR'
-
-  // Filter tabs
-  const filterTabs = [
-    { label: 'All', href: '/admin/posts', active: !status },
-    {
-      label: 'Published',
-      href: '/admin/posts?status=PUBLISHED',
-      active: status === 'PUBLISHED',
-    },
-    {
-      label: 'Drafts',
-      href: '/admin/posts?status=DRAFT',
-      active: status === 'DRAFT',
-    },
-    {
-      label: 'Pending',
-      href: '/admin/posts?status=VERIFICATION_PENDING',
-      active: status === 'VERIFICATION_PENDING',
-      badge: pendingCount > 0 ? pendingCount : undefined,
-      badgeColor: 'bg-orange-500',
-    },
-  ]
 
   return (
     /* 🔒 ABSOLUTE WIDTH LOCK */
@@ -140,89 +109,18 @@ export default async function AdminPostsPage({
         </div>
       )}
 
-      {/* ================= FILTERS ================= */}
-      <div className="rounded-2xl bg-card p-5 elev-sm space-y-4 max-w-full overflow-x-hidden">
-        <PostSearchInput />
-
-        <div className="flex flex-wrap gap-2 rounded-xl bg-muted/60 p-1 shadow-inner">
-          {filterTabs.map(tab => (
-            <Link key={tab.label} href={tab.href}>
-              <Button
-                size="sm"
-                variant={tab.active ? 'default' : 'ghost'}
-                className={`${tab.active ? 'btn-glow' : ''} relative`}
-              >
-                {tab.label}
-                {tab.badge && (
-                  <span className={`ml-2 px-1.5 py-0.5 text-xs rounded-full text-white ${tab.badgeColor}`}>
-                    {tab.badge}
-                  </span>
-                )}
-              </Button>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* ================= TABLE ================= */}
-      {/* 🔥 TABLE SCROLLS — PAGE NEVER DOES */}
-      <div className="rounded-2xl bg-card elev-md overflow-x-hidden md:overflow-x-auto">
-        <div className="w-full md:min-w-[900px]">
-          <PostTable
-            posts={posts}
-            user={user}
-            showBulkActions={isAdminOrEditor && status === 'VERIFICATION_PENDING'}
-          />
-        </div>
-      </div>
-
-      {/* ================= PAGINATION ================= */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        {/* INFO */}
-        <p className="text-sm text-muted-foreground">
-          {total === 0
-            ? 'No posts found'
-            : `Showing ${skip + 1} – ${Math.min(skip + limit, total)} of ${total}`}
-        </p>
-
-        {/* CONTROLS */}
-        <div className="flex items-center gap-3">
-          {/* PREVIOUS */}
-          {hasPrev ? (
-            <Link
-              href={`/admin/posts?page=${page - 1}${query ? `&${query}` : ''}`}
-            >
-              <Button size="sm" variant="outline">
-                Previous
-              </Button>
-            </Link>
-          ) : (
-            <Button size="sm" variant="outline" disabled>
-              Previous
-            </Button>
-          )}
-
-          {/* PAGE INFO */}
-          <span className="text-sm text-muted-foreground">
-            Page {page} of {safeTotalPages}
-          </span>
-
-          {/* NEXT */}
-          {hasNext ? (
-            <Link
-              href={`/admin/posts?page=${page + 1}${query ? `&${query}` : ''}`}
-            >
-              <Button size="sm" variant="outline">
-                Next
-              </Button>
-            </Link>
-          ) : (
-            <Button size="sm" variant="outline" disabled>
-              Next
-            </Button>
-          )}
-        </div>
-      </div>
+      {/* ================= MAIN CONTAINER ================= */}
+      <PostManager
+        initialPosts={posts}
+        user={user}
+        pendingCount={pendingCount}
+        total={total}
+        page={page}
+        limit={limit}
+        totalPages={totalPages}
+        initialStatus={status}
+        initialSearch={params.search}
+      />
     </section>
   )
 }

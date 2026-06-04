@@ -5,6 +5,9 @@ import { prisma } from '@/lib/prisma'
 import PostCard from '@/components/PostCard'
 import { generateSEO } from '@/lib/seo'
 
+export const dynamic = 'force-dynamic'
+
+
 /* ---------------- DATA ---------------- */
 async function getCategory(slug: string) {
   return prisma.category.findUnique({

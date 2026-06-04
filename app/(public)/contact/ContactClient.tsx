@@ -76,7 +76,7 @@ export default function ContactClient() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="animate-fade-in-up stagger-1">
+              <div>
                 <Input
                   aria-label="Your name"
                   placeholder="Your name"
@@ -88,7 +88,7 @@ export default function ContactClient() {
                 />
               </div>
 
-              <div className="animate-fade-in-up stagger-2">
+              <div>
                 <Input
                   aria-label="Your email"
                   type="email"
@@ -101,7 +101,7 @@ export default function ContactClient() {
                 />
               </div>
 
-              <div className="animate-fade-in-up stagger-3">
+              <div>
                 <textarea
                   aria-label="Your message"
                   className="
@@ -127,7 +127,7 @@ export default function ContactClient() {
                 />
               </div>
 
-              <div className="animate-fade-in-up stagger-4">
+              <div>
                 <Button
                   loading={loading}
                   className="w-full gap-2"
