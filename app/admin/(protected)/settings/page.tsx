@@ -30,6 +30,9 @@ interface SiteSettings {
     instagram?: string
     github?: string
   }
+  contact_phone: string
+  contact_location: string
+  contact_hours: string
 }
 
 export default function AdminSettingsPage() {
@@ -43,6 +46,9 @@ export default function AdminSettingsPage() {
     footer_text: '',
     site_logo: '',
     social_links: {},
+    contact_phone: '',
+    contact_location: '',
+    contact_hours: '',
   })
 
   useEffect(() => {
@@ -66,6 +72,7 @@ export default function AdminSettingsPage() {
     setUploadingLogo(true)
     const form = new FormData()
     form.append('file', file)
+    form.append('folderType', 'logo')
 
     try {
       const res = await fetch('/api/upload/cloudinary', {
@@ -211,6 +218,42 @@ export default function AdminSettingsPage() {
                   onChange={e =>
                     setSettings({ ...settings, contact_email: e.target.value })
                   }
+                />
+              </div>
+
+              {/* PHONE */}
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-ink-charcoal">Contact Phone</label>
+                <Input
+                  value={settings.contact_phone || ''}
+                  onChange={e =>
+                    setSettings({ ...settings, contact_phone: e.target.value })
+                  }
+                  placeholder="e.g. +1 (555) 123-4567"
+                />
+              </div>
+
+              {/* LOCATION */}
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-ink-charcoal">Location</label>
+                <Input
+                  value={settings.contact_location || ''}
+                  onChange={e =>
+                    setSettings({ ...settings, contact_location: e.target.value })
+                  }
+                  placeholder="e.g. San Francisco, CA"
+                />
+              </div>
+
+              {/* HOURS */}
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-ink-charcoal">Working Hours</label>
+                <Input
+                  value={settings.contact_hours || ''}
+                  onChange={e =>
+                    setSettings({ ...settings, contact_hours: e.target.value })
+                  }
+                  placeholder="e.g. Mon–Fri, 9am–6pm"
                 />
               </div>
             </>

@@ -110,18 +110,50 @@ graph TD
 ### Directory Structure
 
 ```
-├── app/                  # Next.js App Router Core
-│   ├── (public)/         # SEO-first blog routes and homepage
-│   ├── admin/            # CMS Dashboard & Login routes
-│   └── api/              # API Endpoints (Auth, Posts, Categories, Media, Contact)
-├── components/           # UI Design System & Skeletons
-│   ├── admin/            # Admin widgets (PostManager, Search, etc.)
-│   ├── skeletons/        # Cumulative Layout Shift (CLS) prevention skeletons
-│   └── ui/               # Primary UI primitives (Buttons, Inputs, Dialogs)
-├── lib/                  # Shared Utility Modules (Auth, Cloudinary, SEO)
-├── prisma/               # Schema specifications and SQL migration history
-├── scripts/              # Seed scripts
-└── public/               # Static assets
+├── app/                      # Next.js App Router Core
+│   ├── (public)/             # SEO-first blog routes and homepage
+│   │   ├── about/            # About page
+│   │   ├── blog/             # Blog list & single post details
+│   │   ├── category/         # Browse categories & single category filter
+│   │   ├── contact/          # Contact form & dynamic details
+│   │   ├── layout.tsx        # Public layout wrapper
+│   │   └── page.tsx          # Animated spotlight homepage
+│   ├── admin/                # CMS Dashboard & login routes
+│   │   ├── (protected)/      # Protected administrative dashboard pages
+│   │   │   ├── account/      # Profile avatar, bio, and settings
+│   │   │   ├── categories/   # Category creator & image selector
+│   │   │   ├── images/       # Media library uploads with usage badges
+│   │   │   ├── messages/     # Admin inbox contact reader
+│   │   │   ├── posts/        # Post list, creation editor & real-time html preview
+│   │   │   ├── settings/     # Site name, logo, contact settings
+│   │   │   ├── users/        # User role administration
+│   │   │   ├── layout.tsx    # Admin layout & dynamic sidebar
+│   │   │   └── page.tsx      # Dashboard quick statistics
+│   │   ├── login/            # Split-screen admin login page
+│   │   └── register/         # Split-screen registration page
+│   ├── api/                  # REST API Endpoints (Auth, Posts, Categories, Media, Contact)
+│   ├── layout.tsx            # Global app layout & NextTheme injection
+│   └── globals.css           # Custom design tokens & CSS keyframe animations
+├── components/               # UI Design System Components
+│   ├── admin/                # Specialized CMS controls
+│   ├── blog/                 # Public blog views (TOC, Share buttons, etc.)
+│   ├── skeletons/            # Shimmer placeholders preventing layout shift (CLS)
+│   ├── ui/                   # Primitive UI tokens (Button, Card, Input, Modal)
+│   ├── Editor.tsx            # Tiptap Rich Text & Raw HTML Source editor
+│   └── CategoryCard.tsx      # Square aspect category display cards
+├── lib/                      # Shared Utility Modules
+│   ├── auth.ts               # JWT sign, validation, and session cookies
+│   ├── cloudinary.ts         # Lazy-loaded runtime Cloudinary configuration
+│   ├── prisma.ts             # Prisma ORM client singleton
+│   ├── renderContent.ts      # Tiptap JSON to HTML parser utility
+│   └── seo.ts                # Dynamic metadata & JSON-LD schema builder
+├── prisma/                   # DB Schema & migrations
+│   ├── schema.prisma         # Relational schema specifications
+│   └── migrations/           # Automated SQL migration history
+├── scripts/                  # TSX CLI Utilities (e.g. database seeders)
+├── public/                   # Static media resources
+├── styles/                   # Design token definitions
+└── proxy.ts                  # Edge security route guards / middleware
 ```
 
 ---
@@ -316,6 +348,6 @@ const { id } = await params;
 
 ## 🔮 Roadmap
 - [ ] Scheduled publishing via Vercel Crons
-- [ ] Autosave draft functionality
+- [x] Autosave draft functionality
 - [ ] Analytics dashboard integration (Post view counters)
 - [ ] Multi-tenant blog hosting configuration

@@ -55,7 +55,13 @@ export default async function Footer() {
   const social = settings.social_links || {}
 
   return (
-    <footer className="relative mt-20 bg-ink-charcoal border-t border-mid-graphite overflow-hidden">
+    <footer className="relative mt-0 bg-ink-charcoal border-t border-mid-graphite overflow-hidden">
+      {/* Premium Gradient Line Separator */}
+      <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-electric-cobalt via-vivid-violet to-electric-cobalt" />
+      
+      {/* Decorative Glow */}
+      <div className="absolute -top-40 right-10 w-[300px] h-[300px] bg-electric-cobalt/10 rounded-full blur-[100px] pointer-events-none animate-glow-pulse-1" />
+
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-16 relative z-10">
         {/* ===============================
             Main grid

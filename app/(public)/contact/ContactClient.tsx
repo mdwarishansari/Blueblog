@@ -10,7 +10,11 @@ import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import toast from 'react-hot-toast'
 
-export default function ContactClient() {
+export default function ContactClient({ settings }: { settings: any }) {
+  const email = settings?.contact_email || 'contact@blueblog.com'
+  const phone = settings?.contact_phone || '+1 (555) 123-4567'
+  const location = settings?.contact_location || 'San Francisco, CA'
+  const hours = settings?.contact_hours || 'Mon–Fri, 9am–6pm'
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [formData, setFormData] = useState({
@@ -145,10 +149,10 @@ export default function ContactClient() {
 
           {/* ================= INFO ================= */}
           <div className="space-y-4">
-            <InfoCard icon={<Mail className="h-5 w-5" />} title="Email" value="contact@blueblog.com" />
-            <InfoCard icon={<Phone className="h-5 w-5" />} title="Phone" value="+1 (555) 123-4567" />
-            <InfoCard icon={<MapPin className="h-5 w-5" />} title="Location" value="San Francisco, CA" />
-            <InfoCard icon={<Clock className="h-5 w-5" />} title="Hours" value="Mon–Fri, 9am–6pm" />
+            <InfoCard icon={<Mail className="h-5 w-5" />} title="Email" value={email} />
+            <InfoCard icon={<Phone className="h-5 w-5" />} title="Phone" value={phone} />
+            <InfoCard icon={<MapPin className="h-5 w-5" />} title="Location" value={location} />
+            <InfoCard icon={<Clock className="h-5 w-5" />} title="Hours" value={hours} />
           </div>
         </Container>
       </Section>

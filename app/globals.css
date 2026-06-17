@@ -143,11 +143,13 @@ body {
 }
 
 /* ---------- BLOG CONTENT STYLING (PROSE & TYPOGRAPHY) ---------- */
-.blog-content {
+.blog-content,
+.ProseMirror {
   font-family: var(--font-roobert);
 }
 
-.blog-content h1 {
+.blog-content h1,
+.ProseMirror h1 {
   font-size: var(--text-heading-xl) !important;
   font-weight: var(--font-weight-semibold) !important;
   line-height: var(--leading-heading-xl) !important;
@@ -156,7 +158,8 @@ body {
   margin-bottom: 1.5rem !important;
 }
 
-.blog-content h2 {
+.blog-content h2,
+.ProseMirror h2 {
   font-size: var(--text-heading-lg) !important;
   font-weight: var(--font-weight-semibold) !important;
   line-height: var(--leading-heading-lg) !important;
@@ -165,7 +168,8 @@ body {
   margin-bottom: 1.25rem !important;
 }
 
-.blog-content h3 {
+.blog-content h3,
+.ProseMirror h3 {
   font-size: var(--text-heading) !important;
   font-weight: var(--font-weight-semibold) !important;
   line-height: var(--leading-heading) !important;
@@ -174,7 +178,8 @@ body {
   margin-bottom: 1rem !important;
 }
 
-.blog-content p {
+.blog-content p,
+.ProseMirror p {
   font-size: var(--text-body) !important;
   line-height: var(--leading-body) !important;
   color: var(--color-ink-charcoal) !important;
@@ -182,7 +187,8 @@ body {
   margin-bottom: 1.25rem !important;
 }
 
-.blog-content ul {
+.blog-content ul,
+.ProseMirror ul {
   list-style-type: disc !important;
   padding-left: 1.5rem !important;
   margin-top: 1rem !important;
@@ -190,7 +196,8 @@ body {
   color: var(--color-ink-charcoal) !important;
 }
 
-.blog-content ol {
+.blog-content ol,
+.ProseMirror ol {
   list-style-type: decimal !important;
   padding-left: 1.5rem !important;
   margin-top: 1rem !important;
@@ -198,13 +205,15 @@ body {
   color: var(--color-ink-charcoal) !important;
 }
 
-.blog-content li {
+.blog-content li,
+.ProseMirror li {
   margin-top: 0.5rem !important;
   margin-bottom: 0.5rem !important;
   line-height: var(--leading-body) !important;
 }
 
-.blog-content blockquote {
+.blog-content blockquote,
+.ProseMirror blockquote {
   border-left: 4px solid var(--color-electric-cobalt) !important;
   padding: 1rem 1.5rem !important;
   margin: 1.5rem 0 !important;
@@ -213,7 +222,8 @@ body {
   border-radius: 0 8px 8px 0 !important;
 }
 
-.blog-content pre {
+.blog-content pre,
+.ProseMirror pre {
   background-color: var(--color-deep-ink) !important;
   color: var(--color-canvas-cream) !important;
   padding: 1.5rem !important;
@@ -222,7 +232,8 @@ body {
   margin: 1.5rem 0 !important;
 }
 
-.blog-content code {
+.blog-content code,
+.ProseMirror code {
   background-color: var(--color-surface-ivory) !important;
   color: var(--color-vivid-violet) !important;
   padding: 0.2rem 0.4rem !important;
@@ -231,31 +242,115 @@ body {
   border: 1px solid var(--color-hairline) !important;
 }
 
-.blog-content pre code {
+.blog-content pre code,
+.ProseMirror pre code {
   background-color: transparent !important;
   border: none !important;
   padding: 0 !important;
   color: inherit !important;
 }
 
-.blog-content a {
+.blog-content a,
+.ProseMirror a {
   color: var(--color-electric-cobalt) !important;
   text-decoration: none !important;
   border-bottom: 1px solid transparent !important;
 }
 
-.blog-content a:hover {
+.blog-content a:hover,
+.ProseMirror a:hover {
   border-bottom-color: var(--color-electric-cobalt) !important;
 }
 
-.blog-content img {
+.blog-content img,
+.ProseMirror img {
   border-radius: var(--radius-images) !important;
   box-shadow: var(--shadow-lg) !important;
   margin: 2rem 0 !important;
   border: 1px solid var(--color-hairline) !important;
 }
 
-/* TipTap Editor focused style */
+/* TipTap Editor focused style & empty state guide */
 .ProseMirror-focused {
   outline: none !important;
 }
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #a5a5a5;
+  pointer-events: none;
+  height: 0;
+  font-style: italic;
+}
+
+/* ---------- CUSTOM HERO & TRANSITION ANIMATIONS ---------- */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.15;
+    transform: scale(1) translate(0px, 0px);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(1.1) translate(10px, -10px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-fade-up {
+  animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-glow-pulse-1 {
+  animation: glow-pulse 8s ease-in-out infinite;
+}
+
+.animate-glow-pulse-2 {
+  animation: glow-pulse 12s ease-in-out infinite alternate;
+}
+
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-500 {
+  animation-delay: 500ms;
+}
+
+.stagger-1 { animation-delay: 100ms; }
+.stagger-2 { animation-delay: 200ms; }
+.stagger-3 { animation-delay: 300ms; }
+.stagger-4 { animation-delay: 400ms; }
+.stagger-5 { animation-delay: 500ms; }
+.stagger-6 { animation-delay: 600ms; }

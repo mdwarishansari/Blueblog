@@ -21,6 +21,9 @@ interface ImageData {
   width: number | null
   height: number | null
   createdAt: string
+  usageType?: 'avatar' | 'logo' | 'category' | 'post' | 'other'
+  usageName?: string | null
+  derivedTitle?: string
 }
 
 export default function AdminImagesPage() {
@@ -185,19 +188,24 @@ export default function AdminImagesPage() {
               </div>
 
               <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
-                <div>
-                  {image.title ? (
-                    <h3 className="text-sm font-semibold text-ink-charcoal truncate">
-                      {image.title}
-                    </h3>
-                  ) : (
-                    <h3 className="text-sm font-medium italic text-slate-gray truncate">
-                      Untitled Image
-                    </h3>
+                <div className="space-y-1">
+                  <h3
+                    className="text-sm font-semibold text-ink-charcoal truncate"
+                    title={image.derivedTitle || image.title || 'Untitled Image'}
+                  >
+                    {image.derivedTitle || image.title || 'Untitled Image'}
+                  </h3>
+
+                  {image.usageType && image.usageType !== 'other' && (
+                    <div className="mt-0.5">
+                      <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-bold bg-lavender-mist text-vivid-violet border border-vivid-violet/10 rounded-full">
+                        {image.usageType.toUpperCase()}: {image.usageName}
+                      </span>
+                    </div>
                   )}
 
                   {image.altText && (
-                    <p className="text-xs text-slate-gray truncate">
+                    <p className="text-xs text-slate-gray truncate pt-0.5">
                       Alt: {image.altText}
                     </p>
                   )}

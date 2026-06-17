@@ -15,6 +15,9 @@ export async function GET() {
       contact_email: '',
       footer_text: '',
       social_links: {},
+      contact_phone: '',
+      contact_location: '',
+      contact_hours: '',
     }
 
     for (const row of rows) {
@@ -56,6 +59,9 @@ export async function PUT(req: NextRequest) {
       ['footer_text', body.footer_text || ''],
       ['site_logo', body.site_logo || ''], 
       ['social_links', JSON.stringify(body.social_links || {})],
+      ['contact_phone', body.contact_phone || ''],
+      ['contact_location', body.contact_location || ''],
+      ['contact_hours', body.contact_hours || ''],
     ]
 
     for (const [key, value] of entries) {

@@ -31,7 +31,7 @@ export default function CategoryCard({ category }: CategoryCardProps) {
       >
         {/* Media */}
         {imageUrl ? (
-          <div className="relative h-48 w-full overflow-hidden rounded-t-[16px]">
+          <div className="relative aspect-square w-full overflow-hidden rounded-t-[16px]">
             <Image
               src={imageUrl}
               alt={category.image?.altText || category.name}
@@ -41,7 +41,7 @@ export default function CategoryCard({ category }: CategoryCardProps) {
             />
           </div>
         ) : (
-          <div className="relative h-48 w-full overflow-hidden bg-lavender-mist rounded-t-[16px]">
+          <div className="relative aspect-square w-full overflow-hidden bg-lavender-mist rounded-t-[16px]">
             <div className="absolute inset-0 flex items-center justify-center">
               <Folder className="h-16 w-16 text-vivid-violet/50" />
             </div>

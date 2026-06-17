@@ -35,6 +35,7 @@ export function ImageUploadField({
   const [error, setError] = useState<string | null>(null)
   const [lastSelectedFile, setLastSelectedFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const isWidescreen = typeLabel === 'Post Image' || typeLabel === 'Category Image'
 
   // Format allowed types for display helper text
   const displayExtensions = allowedTypes
@@ -159,7 +160,7 @@ export function ImageUploadField({
           'relative border-2 border-dashed border-hairline rounded-[16px] p-6 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center min-h-[180px] bg-canvas-cream/50 hover:bg-pure-white hover:border-electric-cobalt/40',
           dragActive && 'border-electric-cobalt bg-pure-white ring-4 ring-electric-cobalt/5',
           error && 'border-rose-300 hover:border-rose-400 bg-rose-50/10',
-          isAvatar && 'rounded-full aspect-square w-32 h-32 min-h-0 p-0 overflow-hidden mx-auto',
+          isAvatar && 'rounded-full aspect-square w-48 h-48 min-h-0 p-0 overflow-hidden mx-auto',
           uploading && 'cursor-not-allowed pointer-events-none'
         )}
       >
@@ -220,11 +221,18 @@ export function ImageUploadField({
         ) : activeImage ? (
           /* Preview state (current image or newly selected file) */
           <div className={cn('relative group w-full flex flex-col items-center justify-center', isAvatar && 'h-full w-full')}>
-            <div className={cn('relative max-h-[220px] rounded-[12px] overflow-hidden border border-hairline bg-pure-white flex items-center justify-center p-2', isAvatar && 'h-full w-full max-h-none rounded-none border-none p-0')}>
+            <div className={cn(
+              'relative rounded-[12px] overflow-hidden border border-hairline bg-pure-white flex items-center justify-center p-2',
+              isWidescreen ? 'aspect-video w-full' : 'max-h-[220px]',
+              isAvatar && 'h-full w-full max-h-none rounded-none border-none p-0'
+            )}>
               <img
                 src={activeImage}
                 alt={`${typeLabel} preview`}
-                className={cn('max-h-[190px] w-auto object-contain rounded-[8px]', isAvatar && 'h-full w-full max-h-none rounded-none object-cover')}
+                className={cn(
+                  isWidescreen ? 'h-full w-full object-cover rounded-[8px]' : 'max-h-[190px] w-auto object-contain rounded-[8px]',
+                  isAvatar && 'h-full w-full max-h-none rounded-none object-cover'
+                )}
               />
               
               {/* Overlay controls */}
@@ -264,7 +272,7 @@ export function ImageUploadField({
                   <span className="text-electric-cobalt hover:underline font-bold">browse files</span>
                 </p>
                 <p className="text-xs text-slate-gray mt-1">
-                  Supports: {displayExtensions}
+                  Supports: {displayExtensions} {typeLabel === 'Post Image' && '• Recommended aspect ratio: 16:9'}
                 </p>
               </div>
             )}
@@ -276,7 +284,12 @@ export function ImageUploadField({
       {!isAvatar && !error && !uploading && (
         <p className="text-xs text-slate-gray px-1 flex items-center gap-1">
           <ImageIcon className="h-3 w-3 text-slate-gray/60" />
-          <span>Allowed: <strong>{displayExtensions}</strong> (Max size: <strong>{maxSizeMB}MB</strong>)</span>
+          <span>
+            Allowed: <strong>{displayExtensions}</strong> (Max size: <strong>{maxSizeMB}MB</strong>)
+            {typeLabel === 'Post Image' && (
+              <> | Recommended aspect ratio: <strong>16:9</strong> (e.g. 1920 × 1080 px)</>
+            )}
+          </span>
         </p>
       )}
     </div>

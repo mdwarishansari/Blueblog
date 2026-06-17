@@ -1,9 +1,6 @@
-import { Suspense } from 'react'
 import { Users, Target, Award, Globe } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
-import TeamMember from '@/components/TeamMember'
 import { generateSEO } from '@/lib/seo'
-import TeamMemberSkeleton from '@/components/skeletons/TeamMemberSkeleton'
 import Link from 'next/link'
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
@@ -19,45 +16,7 @@ export const metadata = generateSEO({
   url: '/about',
 })
 
-/* ================= TEAM DATA ================= */
-async function getTeamMembers() {
-  return prisma.user.findMany({
-    where: {
-      role: { in: ['ADMIN', 'EDITOR'] },
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      bio: true,
-      role: true,
-      profileImage: true,
-      createdAt: true,
-    },
-    orderBy: { createdAt: 'asc' },
-  })
-}
 
-/* ================= TEAM SECTION (ASYNC) ================= */
-async function TeamSection() {
-  const teamMembers = await getTeamMembers()
-
-  if (teamMembers.length === 0) {
-    return (
-      <div className="col-span-full py-12 text-center text-slate-gray">
-        No team members found.
-      </div>
-    )
-  }
-
-  return (
-    <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-      {teamMembers.map((member) => (
-        <TeamMember key={member.id} member={member} />
-      ))}
-    </div>
-  )
-}
 
 /* ================= PAGE ================= */
 export default async function AboutPage() {
@@ -205,31 +164,7 @@ export default async function AboutPage() {
         </Container>
       </Section>
 
-      {/* ================= TEAM (SUSPENSE) ================= */}
-      <Section>
-        <Container>
-          <div className="mx-auto mb-12 max-w-3xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-ink-charcoal">
-              Meet Our Team
-            </h2>
-            <p className="mt-2 text-sm text-slate-gray">
-              The passionate people behind BlueBlog
-            </p>
-          </div>
 
-          <Suspense
-            fallback={
-              <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <TeamMemberSkeleton key={i} />
-                ))}
-              </div>
-            }
-          >
-            <TeamSection />
-          </Suspense>
-        </Container>
-      </Section>
 
       {/* ================= CTA ================= */}
       <section className="relative overflow-hidden bg-gradient-to-br from-canvas-cream via-powder-blue to-electric-cobalt py-20 border-t border-hairline">

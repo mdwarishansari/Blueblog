@@ -40,6 +40,7 @@ export default function AccountPage() {
     setUploadingImage(true)
     const form = new FormData()
     form.append('file', file)
+    form.append('folderType', 'dp')
 
     try {
       const res = await fetch('/api/upload/cloudinary', {

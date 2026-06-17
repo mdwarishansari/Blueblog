@@ -124,6 +124,7 @@ export default function AdminCategoriesPage() {
     try {
       const fd = new FormData()
       fd.append('file', file)
+      fd.append('folderType', 'categories')
 
       const res = await fetch('/api/upload/cloudinary', {
         method: 'POST',
@@ -389,19 +390,19 @@ export default function AdminCategoriesPage() {
           {images.length > 0 && (
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-gray block">Or Choose Existing</label>
-              <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto p-1 bg-canvas-cream border border-hairline rounded-[16px]">
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5 max-h-72 overflow-y-auto p-2 bg-canvas-cream border border-hairline rounded-[16px]">
                 {images.map(img => (
                   <button
                     key={img.id}
                     type="button"
                     onClick={() => setFormData(f => ({ ...f, imageId: img.id }))}
-                    className={`rounded-[12px] overflow-hidden border transition-all duration-200 ${
+                    className={`relative aspect-video rounded-[12px] overflow-hidden border transition-all duration-200 bg-pure-white flex items-center justify-center p-1.5 ${
                       formData.imageId === img.id
-                        ? 'border-electric-cobalt ring-2 ring-electric-cobalt'
-                        : 'border-hairline opacity-80 hover:opacity-100'
+                        ? 'border-electric-cobalt ring-2 ring-electric-cobalt scale-95 shadow-sm'
+                        : 'border-hairline opacity-80 hover:opacity-100 hover:scale-102'
                     }`}
                   >
-                    <img src={img.url} className="h-16 w-full object-cover" alt={img.altText || ''} />
+                    <img src={img.url} className="h-full w-full object-contain rounded-[6px]" alt={img.altText || ''} />
                   </button>
                 ))}
               </div>

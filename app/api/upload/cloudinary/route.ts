@@ -55,8 +55,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const folderType = formData.get('folderType') as string || 'general'
+    
+    let targetFolder = 'blueblog'
+    if (folderType === 'dp') targetFolder = 'blueblog/dp'
+    else if (folderType === 'logo') targetFolder = 'blueblog/logo'
+    else if (folderType === 'categories') targetFolder = 'blueblog/categories'
+    else if (folderType === 'posts') targetFolder = 'blueblog/posts'
+    else targetFolder = 'blueblog/general'
+
     // Upload to Cloudinary
-    const uploadResult = await uploadImage(file, 'blueblog')
+    const uploadResult = await uploadImage(file, targetFolder)
 
     // Store image metadata in database
     const image = await prisma.image.create({
@@ -150,12 +159,148 @@ export async function GET(request: NextRequest) {
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
+        include: {
+          posts: {
+            select: {
+              title: true
+            }
+          },
+          categories: {
+            select: {
+              name: true
+            }
+          }
+        }
       }),
       prisma.image.count({ where }),
     ])
 
+    const urls = images.map(img => img.url)
+
+    // Fetch matching users
+    const users = await prisma.user.findMany({
+      where: {
+        profileImage: {
+          in: urls
+        }
+      },
+      select: {
+        name: true,
+        profileImage: true
+      }
+    })
+
+    // Fetch matching settings
+    const settings = await prisma.setting.findMany({
+      where: {
+        key: 'site_logo',
+        value: {
+          in: urls
+        }
+      },
+      select: {
+        value: true
+      }
+    })
+
+    // Fetch site name setting
+    const siteNameSetting = await prisma.setting.findFirst({
+      where: { key: 'site_name' },
+      select: { value: true }
+    })
+    const siteName = siteNameSetting?.value || 'BlueBlog'
+
+    const enrichedImages = images.map(img => {
+      // 1. Profile Avatar
+      const matchingUser = users.find(u => u.profileImage === img.url)
+      if (matchingUser) {
+        return {
+          id: img.id,
+          url: img.url,
+          altText: img.altText,
+          title: img.title,
+          caption: img.caption,
+          width: img.width,
+          height: img.height,
+          createdAt: img.createdAt,
+          usageType: 'avatar',
+          usageName: matchingUser.name,
+          derivedTitle: `Avatar: ${matchingUser.name}`
+        }
+      }
+
+      // 2. Site Logo
+      const matchingSetting = settings.find(s => s.value === img.url)
+      if (matchingSetting) {
+        return {
+          id: img.id,
+          url: img.url,
+          altText: img.altText,
+          title: img.title,
+          caption: img.caption,
+          width: img.width,
+          height: img.height,
+          createdAt: img.createdAt,
+          usageType: 'logo',
+          usageName: siteName,
+          derivedTitle: `Logo: ${siteName}`
+        }
+      }
+
+      // 3. Category image
+      if (img.categories && img.categories.length > 0 && img.categories[0]) {
+        const catName = img.categories[0].name
+        return {
+          id: img.id,
+          url: img.url,
+          altText: img.altText,
+          title: img.title,
+          caption: img.caption,
+          width: img.width,
+          height: img.height,
+          createdAt: img.createdAt,
+          usageType: 'category',
+          usageName: catName,
+          derivedTitle: `Category: ${catName}`
+        }
+      }
+
+      // 4. Post featured image
+      if (img.posts && img.posts.length > 0 && img.posts[0]) {
+        const postTitle = img.posts[0].title
+        return {
+          id: img.id,
+          url: img.url,
+          altText: img.altText,
+          title: img.title,
+          caption: img.caption,
+          width: img.width,
+          height: img.height,
+          createdAt: img.createdAt,
+          usageType: 'post',
+          usageName: postTitle,
+          derivedTitle: `Post: ${postTitle}`
+        }
+      }
+
+      // 5. Default
+      return {
+        id: img.id,
+        url: img.url,
+        altText: img.altText,
+        title: img.title,
+        caption: img.caption,
+        width: img.width,
+        height: img.height,
+        createdAt: img.createdAt,
+        usageType: 'other',
+        usageName: null,
+        derivedTitle: img.title || 'Untitled Image'
+      }
+    })
+
     return NextResponse.json({
-      images,
+      images: enrichedImages,
       pagination: {
         page,
         limit,

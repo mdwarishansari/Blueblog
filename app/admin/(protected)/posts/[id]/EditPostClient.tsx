@@ -12,6 +12,7 @@ import { ImageUploadField } from '@/components/ui/ImageUploadField'
 import { Category, UserRole } from '@prisma/client'
 import { useRouter } from 'next/navigation'
 import { Send, Save, CheckCircle, ImageIcon, FileText, Tag, Search } from 'lucide-react'
+import { renderTipTapContent } from '@/lib/renderContent'
 
 const Editor = dynamic(() => import('@/components/Editor'), { ssr: false })
 
@@ -223,6 +224,7 @@ export default function EditPostClient({ postId, userRole }: Props) {
 
       const formData = new FormData()
       formData.append('file', fileToUpload, file.name)
+      formData.append('folderType', 'posts')
 
       await new Promise<void>((resolve, reject) => {
         const xhr = new XMLHttpRequest()
@@ -452,6 +454,13 @@ export default function EditPostClient({ postId, userRole }: Props) {
               {(previewMode === 'write' || previewMode === 'split') && (
                 <div className="space-y-2">
                   {previewMode === 'split' && <span className="text-xs font-medium text-slate-gray">Editor</span>}
+                  {/* Guidance Tip */}
+                  <div className="text-xs text-slate-gray bg-canvas-cream/40 border border-hairline rounded-lg p-2.5 flex items-center gap-2">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-electric-cobalt/10 text-electric-cobalt font-bold">i</span>
+                    <p>
+                      Use the formatting toolbar or click <strong>Edit HTML</strong> to paste/write raw HTML code. All changes render instantly in the preview.
+                    </p>
+                  </div>
                   <Editor
                     value={post.content}
                     onChange={v => setPost({ ...post, content: v })}
@@ -461,10 +470,10 @@ export default function EditPostClient({ postId, userRole }: Props) {
               {(previewMode === 'preview' || previewMode === 'split') && (
                 <div className="space-y-2">
                   {previewMode === 'split' && <span className="text-xs font-medium text-slate-gray">Real-time Preview</span>}
-                  <div className="border border-hairline rounded-[16px] bg-canvas-cream/35 p-5 min-h-[360px] max-h-[600px] overflow-y-auto">
-                    <Editor
-                      value={post.content}
-                      readOnly
+                  <div className="border border-hairline rounded-[16px] bg-pure-white p-6 min-h-[360px] max-h-[600px] overflow-y-auto shadow-subtle">
+                    <div
+                      className="blog-content max-w-none"
+                      dangerouslySetInnerHTML={{ __html: renderTipTapContent(post.content) }}
                     />
                   </div>
                 </div>
@@ -477,12 +486,17 @@ export default function EditPostClient({ postId, userRole }: Props) {
         <div className="space-y-6">
           {/* Image Upload Card */}
           <Card variant="white" className="space-y-4">
-            <label className="text-sm font-semibold flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-canvas-cream border border-hairline">
-                <ImageIcon className="h-4 w-4 text-electric-cobalt" />
-              </div>
-              Featured Image
-            </label>
+            <div>
+              <label className="text-sm font-semibold flex items-center gap-2 mb-1">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-canvas-cream border border-hairline">
+                  <ImageIcon className="h-4 w-4 text-electric-cobalt" />
+                </div>
+                Featured Image
+              </label>
+              <p className="text-[11px] text-slate-gray pl-10">
+                Recommended aspect ratio: <strong>16:9</strong> (e.g. 1920 × 1080 px)
+              </p>
+            </div>
             <ImageUploadField
               typeLabel="Post Image"
               currentImageUrl={image?.url}
@@ -539,7 +553,7 @@ export default function EditPostClient({ postId, userRole }: Props) {
               </div>
               Categories
             </label>
-            <div className="space-y-2 max-h-48 overflow-y-auto">
+            <div className="space-y-2 max-h-[460px] overflow-y-auto">
               {categories.map(c => (
                 <label key={c.id} className="flex items-center gap-3 p-2 rounded-[12px] hover:bg-surface-ivory cursor-pointer ui-transition">
                   <input

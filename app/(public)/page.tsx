@@ -137,33 +137,37 @@ export default async function Home() {
   ])
 
   return (
-    <div className="min-h-screen bg-canvas-cream relative">
+    <div className="min-h-screen bg-canvas-cream relative overflow-x-hidden">
       {/* Dynamic Background Gradients and Floating Decorative Elements */}
-      <div className="absolute top-12 left-[10%] w-[320px] h-[320px] bg-electric-cobalt/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute top-40 right-[8%] w-[420px] h-[420px] bg-vivid-violet/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-12 left-[10%] w-[320px] h-[320px] bg-electric-cobalt/10 rounded-full blur-[120px] pointer-events-none animate-glow-pulse-1" />
+      <div className="absolute top-40 right-[8%] w-[420px] h-[420px] bg-vivid-violet/10 rounded-full blur-[140px] pointer-events-none animate-glow-pulse-2" />
       
       {/* ================= HERO ================= */}
       <section className="relative pt-24 pb-28 overflow-hidden">
         <Container className="relative z-10 text-center">
-          <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full bg-pure-white border border-hairline px-4 py-1.5 text-xs font-semibold text-vivid-violet shadow-sm hover:scale-102 transition-transform duration-200">
+          <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full bg-pure-white border border-hairline px-4 py-1.5 text-xs font-semibold text-vivid-violet shadow-sm hover:scale-102 active:scale-98 transition-all duration-200 opacity-0 animate-fade-up">
             <Sparkles className="h-3.5 w-3.5 text-electric-cobalt animate-pulse" />
             <span>Modern SaaS-quality blog platform</span>
           </div>
 
-          <h1 className="mb-6 text-[44px] sm:text-[64px] md:text-[88px] font-extrabold tracking-tight text-ink-charcoal leading-[1.04] max-w-[960px] mx-auto bg-clip-text">
+          <h1 className="mb-6 text-[44px] sm:text-[64px] md:text-[88px] font-extrabold tracking-tight text-ink-charcoal leading-[1.04] max-w-[960px] mx-auto bg-clip-text opacity-0 animate-fade-up delay-100">
             Welcome to{' '}
             <Suspense fallback={<SiteNameSkeleton />}>
               <SiteNameHero />
             </Suspense>
           </h1>
 
-          <p className="mx-auto mb-10 max-w-[660px] text-lg sm:text-xl text-slate-gray leading-relaxed font-normal">
+          <p className="mx-auto mb-10 max-w-[660px] text-lg sm:text-xl text-slate-gray leading-relaxed font-normal opacity-0 animate-fade-up delay-200">
             Write, publish, and grow your audience with an engineering-focused platform built for creators who care about code, speed, and clean typography.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-16">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 opacity-0 animate-fade-up delay-300">
             <Link href="/blog" aria-label="Read all blog posts on BlueBlog">
-              <Button variant="default" size="lg" className="rounded-full shadow-md hover:scale-105 transition-transform duration-200">
+              <Button
+                variant="default"
+                size="lg"
+                className="rounded-full shadow-lg shadow-electric-cobalt/20 bg-gradient-to-r from-electric-cobalt to-vivid-violet hover:from-deep-cobalt hover:to-vivid-violet text-pure-white border-0 hover:scale-105 active:scale-95 transition-all duration-200 px-8"
+              >
                 Read Blog
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -173,7 +177,7 @@ export default async function Home() {
               <Button
                 variant="secondary"
                 size="lg"
-                className="bg-pure-white border-hairline shadow-sm rounded-full hover:scale-105 transition-transform duration-200"
+                className="bg-pure-white/80 backdrop-blur-sm border-hairline shadow-sm rounded-full hover:scale-105 active:scale-95 hover:border-vivid-violet/30 hover:text-vivid-violet transition-all duration-200 px-8"
               >
                 Get Started
               </Button>
@@ -181,7 +185,7 @@ export default async function Home() {
           </div>
 
           {/* Real Metrics Glassmorphic Spotlight Card */}
-          <div className="mx-auto max-w-3xl grid grid-cols-3 gap-4 rounded-[24px] bg-pure-white/45 backdrop-blur-md border border-hairline p-6 sm:p-8 shadow-subtle hover:shadow-md transition-shadow duration-300">
+          <div className="mx-auto max-w-3xl grid grid-cols-3 gap-4 rounded-[24px] bg-pure-white/45 backdrop-blur-md border border-hairline p-6 sm:p-8 shadow-subtle hover:shadow-md transition-all duration-300 animate-float opacity-0 animate-fade-up delay-500">
             <div className="text-center">
               <p className="text-3xl sm:text-4xl font-extrabold text-electric-cobalt">{postCount}</p>
               <p className="text-[11px] sm:text-xs font-bold text-slate-gray uppercase tracking-wider mt-1">Articles</p>
@@ -296,22 +300,32 @@ export default async function Home() {
       </Section>
 
       {/* ================= FINAL CTA ================= */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-canvas-cream via-powder-blue to-electric-cobalt py-24 border-t border-hairline">
+      <section className="relative overflow-hidden bg-gradient-to-br from-canvas-cream via-powder-blue/40 to-electric-cobalt/35 py-24 pb-16 border-t border-hairline">
+        {/* Glow effect */}
+        <div className="absolute bottom-0 left-[20%] w-[400px] h-[250px] bg-electric-cobalt/10 rounded-full blur-[100px] pointer-events-none animate-glow-pulse-1" />
         <Container className="relative z-10 text-center">
-          <h2 className="text-3xl sm:text-[48px] font-bold text-ink-charcoal tracking-tight mb-6 leading-[1.2]">
+          <h2 className="text-3xl sm:text-[48px] font-bold text-ink-charcoal tracking-tight mb-6 leading-[1.2] opacity-0 animate-fade-up">
             Ready to start your journey?
           </h2>
-          <p className="text-base sm:text-lg text-ink-charcoal/85 mb-10 max-w-xl mx-auto font-normal">
+          <p className="text-base sm:text-lg text-ink-charcoal/85 mb-10 max-w-xl mx-auto font-normal opacity-0 animate-fade-up delay-100">
             Join thousands of writers who are already sharing their stories on BlueBlog.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center opacity-0 animate-fade-up delay-200">
             <Link href="/register">
-              <Button size="lg" variant="default" className="rounded-full shadow-md">
+              <Button
+                size="lg"
+                variant="default"
+                className="rounded-full shadow-lg shadow-electric-cobalt/20 bg-gradient-to-r from-electric-cobalt to-vivid-violet hover:from-deep-cobalt hover:to-vivid-violet border-0 hover:scale-105 active:scale-95 transition-all duration-200 px-8"
+              >
                 Create Free Account
               </Button>
             </Link>
             <Link href="/blog">
-              <Button size="lg" variant="secondary" className="bg-pure-white border-hairline shadow-sm rounded-full">
+              <Button
+                size="lg"
+                variant="secondary"
+                className="bg-pure-white border-hairline shadow-sm rounded-full hover:scale-105 active:scale-95 hover:border-vivid-violet/30 hover:text-vivid-violet transition-all duration-200 px-8"
+              >
                 Explore Blog
               </Button>
             </Link>
