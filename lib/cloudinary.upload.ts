@@ -1,5 +1,5 @@
 // lib/cloudinary.upload.ts
-import cloudinary from './cloudinary'
+import { getCloudinary } from './cloudinary'
 
 export interface UploadResult {
   url: string
@@ -17,6 +17,7 @@ export async function uploadImage(
   const buffer = Buffer.from(bytes)
   const base64Image = `data:${file.type};base64,${buffer.toString('base64')}`
 
+  const cloudinary = getCloudinary()
   const result = await cloudinary.uploader.upload(base64Image, {
     folder,
     resource_type: 'auto',

@@ -14,7 +14,7 @@ import { Modal } from '@/components/ui/Modal'
 import { Card } from '@/components/ui/Card'
 import { SearchInput } from '@/components/ui/SearchInput'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { ImageUploadPreview } from '@/components/ui/ImageUploadPreview'
+import { ImageUploadField } from '@/components/ui/ImageUploadField'
 import toast from 'react-hot-toast'
 
 /* ------------------------------------------------------------------ */
@@ -375,7 +375,7 @@ export default function AdminCategoriesPage() {
           {/* UPLOAD */}
           <div className="space-y-2">
             <label className="text-xs font-semibold text-slate-gray block">Featured Image</label>
-            <ImageUploadPreview
+            <ImageUploadField
               typeLabel="Category Image"
               currentImageUrl={images.find(img => img.id === formData.imageId)?.url}
               onFileSelect={uploadImage}

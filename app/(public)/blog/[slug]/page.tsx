@@ -13,6 +13,7 @@ import { renderTipTapContent } from '@/lib/renderContent'
 import PostCard from '@/components/PostCard'
 import ReadingProgressBar from '@/components/blog/ReadingProgressBar'
 import TableOfContents from '@/components/blog/TableOfContents'
+import ShareButtons from '@/components/blog/ShareButtons'
 
 interface Heading {
   id: string
@@ -257,6 +258,7 @@ export default async function BlogPostPage({
                 itemProp="articleBody"
                 dangerouslySetInnerHTML={{ __html: html }}
               />
+              <ShareButtons title={post.title} slug={post.slug} />
             </Card>
           </div>
 

@@ -10,14 +10,51 @@ export default function CategoryFilter({ categories }: { categories: any[] }) {
 
   function selectCategory(slug: string) {
     const params = new URLSearchParams(searchParams.toString())
-    params.set('category', slug)
+    if (active === slug) {
+      params.delete('category')
+    } else {
+      params.set('category', slug)
+    }
 
     router.push(`/blog?${params.toString()}`)
     router.refresh() // intentional
   }
 
+  const totalPostsCount = categories.reduce((sum, cat) => sum + cat._count.posts, 0)
+
   return (
     <ul className="space-y-1.5">
+      {/* All Categories Option */}
+      <li>
+        <button
+          type="button"
+          onClick={() => {
+            const params = new URLSearchParams(searchParams.toString())
+            params.delete('category')
+            router.push(`/blog?${params.toString()}`)
+            router.refresh()
+          }}
+          className={cn(
+            'group flex w-full items-center justify-between rounded-full px-4 py-2 text-sm font-medium transition-all duration-200',
+            !active
+              ? 'bg-surface-ivory border border-hairline text-ink-charcoal shadow-sm'
+              : 'text-slate-gray hover:text-ink-charcoal hover:bg-canvas-cream'
+          )}
+        >
+          <span className="truncate">All Categories</span>
+          <span
+            className={cn(
+              'ml-3 inline-flex min-w-[1.75rem] items-center justify-center rounded-full px-2 py-0.5 text-xs transition-colors duration-150',
+              !active
+                ? 'bg-pure-white text-ink-charcoal border border-hairline'
+                : 'bg-canvas-cream text-slate-gray group-hover:bg-pure-white group-hover:text-ink-charcoal group-hover:border group-hover:border-hairline'
+            )}
+          >
+            {totalPostsCount}
+          </span>
+        </button>
+      </li>
+
       {categories.map((cat) => {
         const isActive = active === cat.slug
 

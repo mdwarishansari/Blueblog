@@ -42,11 +42,11 @@ export function Logo({ src: propSrc, alt = 'Logo', variant, className }: LogoPro
       <div
         className={cn(
           'skeleton animate-pulse bg-surface-ivory rounded-lg',
-          variant === 'header' && 'h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16',
-          variant === 'auth' && 'h-20 w-20 sm:h-24 sm:w-24 md:h-[100px] md:w-[100px]',
-          variant === 'sidebar' && 'h-14 w-14 sm:h-16 sm:w-16 md:h-[72px] md:w-[72px]',
-          variant === 'admin-header' && 'h-12 w-12 sm:h-13 sm:w-13 md:h-14 md:w-14',
-          variant === 'footer' && 'h-12 w-12',
+          variant === 'header' && 'h-[56px] w-[56px]',
+          variant === 'auth' && 'h-[96px] w-[96px]',
+          variant === 'sidebar' && 'h-[72px] w-[72px]',
+          variant === 'admin-header' && 'h-[64px] w-[64px]',
+          variant === 'footer' && 'h-[56px] w-[56px]',
           className
         )}
       />
@@ -61,11 +61,11 @@ export function Logo({ src: propSrc, alt = 'Logo', variant, className }: LogoPro
       <div
         className={cn(
           'flex items-center justify-center font-bold text-ink-charcoal bg-surface-ivory border border-hairline select-none rounded-[12px]',
-          variant === 'header' && 'h-12 w-12 text-lg sm:h-14 sm:w-14 md:h-16 md:w-16',
-          variant === 'auth' && 'h-20 w-20 text-2xl sm:h-24 sm:w-24 md:h-[100px] md:w-[100px]',
-          variant === 'sidebar' && 'h-14 w-14 text-xl sm:h-16 sm:w-16 md:h-[72px] md:w-[72px]',
-          variant === 'admin-header' && 'h-12 w-12 text-lg sm:h-13 sm:w-13 md:h-14 md:w-14',
-          variant === 'footer' && 'h-12 w-12 text-lg bg-mid-graphite border-mid-graphite text-pure-white',
+          variant === 'header' && 'h-[56px] w-[56px] text-xl',
+          variant === 'auth' && 'h-[96px] w-[96px] text-3xl',
+          variant === 'sidebar' && 'h-[72px] w-[72px] text-2xl',
+          variant === 'admin-header' && 'h-[64px] w-[64px] text-xl',
+          variant === 'footer' && 'h-[56px] w-[56px] text-xl bg-mid-graphite border-mid-graphite text-pure-white',
           className
         )}
       >
@@ -81,11 +81,11 @@ export function Logo({ src: propSrc, alt = 'Logo', variant, className }: LogoPro
       onError={() => setError(true)}
       className={cn(
         'object-contain',
-        variant === 'header' && 'h-12 sm:h-14 md:h-16 w-auto max-w-[180px]',
-        variant === 'auth' && 'h-[72px] sm:h-20 md:h-[100px] w-auto max-w-[220px]',
-        variant === 'sidebar' && 'h-14 sm:h-16 md:h-[72px] w-auto max-w-[180px]',
-        variant === 'admin-header' && 'h-12 sm:h-13 md:h-14 w-auto max-w-[160px]',
-        variant === 'footer' && 'h-12 w-auto max-w-[150px]',
+        variant === 'header' && 'h-[56px] w-auto max-w-[180px]',
+        variant === 'auth' && 'h-[96px] w-auto max-w-[220px]',
+        variant === 'sidebar' && 'h-[72px] w-auto max-w-[180px]',
+        variant === 'admin-header' && 'h-[64px] w-auto max-w-[160px]',
+        variant === 'footer' && 'h-[56px] w-auto max-w-[150px]',
         className
       )}
     />

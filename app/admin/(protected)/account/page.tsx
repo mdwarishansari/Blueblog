@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
 import { Textarea } from '@/components/ui/Textarea'
-import { ImageUploadPreview } from '@/components/ui/ImageUploadPreview'
+import { ImageUploadField } from '@/components/ui/ImageUploadField'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 
@@ -154,7 +154,7 @@ export default function AccountPage() {
               {/* Avatar */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-ink-charcoal">Profile Picture</label>
-                <ImageUploadPreview
+                <ImageUploadField
                   typeLabel="Profile Image"
                   currentImageUrl={profile.profileImage}
                   onFileSelect={uploadImage}

@@ -8,10 +8,10 @@ import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
-import { ImageUploadPreview } from '@/components/ui/ImageUploadPreview'
+import { ImageUploadField } from '@/components/ui/ImageUploadField'
 import { Category, UserRole } from '@prisma/client'
 import { useRouter } from 'next/navigation'
-import { Send, Save, CheckCircle, ImageIcon, FileText, Tag, Search, Sparkles, Clock } from 'lucide-react'
+import { Send, Save, CheckCircle, ImageIcon, FileText, Tag, Search } from 'lucide-react'
 
 const Editor = dynamic(() => import('@/components/Editor'), { ssr: false })
 
@@ -92,6 +92,8 @@ export default function EditPostClient({ postId, userRole }: Props) {
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
   const [currentStatus, setCurrentStatus] = useState<string>('DRAFT')
+  const [autoSavedTime, setAutoSavedTime] = useState<string | null>(null)
+  const [previewMode, setPreviewMode] = useState<'write' | 'preview' | 'split'>('write')
 
   const [post, setPost] = useState<any>({
     title: '',
@@ -118,7 +120,8 @@ export default function EditPostClient({ postId, userRole }: Props) {
         const postData = await postRes.json()
 
         setCategories(cats)
-        setPost({
+
+        let initialPost = {
           title: postData.title,
           slug: postData.slug,
           excerpt: postData.excerpt || '',
@@ -127,9 +130,23 @@ export default function EditPostClient({ postId, userRole }: Props) {
           seoTitle: postData.seoTitle || '',
           seoDescription: postData.seoDescription || '',
           canonicalUrl: postData.canonicalUrl || '',
-        })
+        }
+        let initialImage = postData.bannerImage || null
 
-        setImage(postData.bannerImage || null)
+        // Check if there is an auto-saved draft
+        const saved = localStorage.getItem(`blueblog_draft_${postId}`)
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved)
+            initialPost = parsed.post
+            if (parsed.image) initialImage = parsed.image
+            setAutoSavedTime(parsed.time)
+            toast.success('Restored auto-saved draft')
+          } catch {}
+        }
+
+        setPost(initialPost)
+        setImage(initialImage)
         setCurrentStatus(postData.status || 'DRAFT')
       } catch {
         toast.error('Failed to load post')
@@ -140,6 +157,23 @@ export default function EditPostClient({ postId, userRole }: Props) {
 
     load()
   }, [postId])
+
+  // Auto-save changes to localStorage
+  useEffect(() => {
+    if (loading) return
+    if (!post.title && !post.excerpt && (!post.content || !post.content.content || post.content.content.length === 0)) return
+
+    const t = setTimeout(() => {
+      const timeStr = new Date().toLocaleTimeString()
+      localStorage.setItem(
+        `blueblog_draft_${postId}`,
+        JSON.stringify({ post, image, time: timeStr })
+      )
+      setAutoSavedTime(timeStr)
+    }, 1500)
+
+    return () => clearTimeout(t)
+  }, [post, image, loading, postId])
 
   useEffect(() => {
     if (!slugTouched && post.title) {
@@ -271,6 +305,9 @@ export default function EditPostClient({ postId, userRole }: Props) {
     toast.success(messages[status])
     setSaving(false)
 
+    // Clear auto-saved draft on successful save
+    localStorage.removeItem(`blueblog_draft_${postId}`)
+
     // Always redirect after any action
     router.replace('/admin/posts')
   }
@@ -303,281 +340,339 @@ export default function EditPostClient({ postId, userRole }: Props) {
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-3 animate-fade-in">
-      {/* ================= MAIN CONTENT ================= */}
-      <div className="lg:col-span-2 space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-canvas-cream border border-hairline">
-            <FileText className="h-5 w-5 text-electric-cobalt" />
+    <div className="relative pb-24 min-h-full flex flex-col justify-between">
+      <div className="grid gap-8 lg:grid-cols-3 animate-fade-in">
+        {/* ================= MAIN CONTENT ================= */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Header */}
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-canvas-cream border border-hairline">
+              <FileText className="h-5 w-5 text-electric-cobalt" />
+            </div>
+            <div className="flex-1">
+              <h1 className="text-xl font-bold text-ink-charcoal">Edit Post</h1>
+              <p className="text-sm text-slate-gray">
+                {isWriter ? 'Edit and submit for review' : 'Edit and publish content'}
+              </p>
+            </div>
+            <Badge variant={getStatusBadgeVariant()} className="px-3.5 py-1.5 text-sm rounded-full">
+              {getStatusLabel()}
+            </Badge>
           </div>
-          <div className="flex-1">
-            <h1 className="text-xl font-bold text-ink-charcoal">Edit Post</h1>
-            <p className="text-sm text-slate-gray">
-              {isWriter ? 'Edit and submit for review' : 'Edit and publish content'}
-            </p>
-          </div>
-          <Badge variant={getStatusBadgeVariant()} className="px-3.5 py-1.5 text-sm rounded-full">
-            {getStatusLabel()}
-          </Badge>
+
+          {/* Title Card */}
+          <Card variant="white" className="space-y-4">
+            <label className="block text-sm font-semibold text-ink-charcoal">
+              Post Title
+            </label>
+            <Input
+              value={post.title}
+              onChange={e => setPost({ ...post, title: e.target.value })}
+              placeholder="Enter an engaging title..."
+              className="text-lg font-medium"
+            />
+          </Card>
+
+          {/* Slug Card */}
+          <Card variant="white" className="space-y-4">
+            <label className="block text-sm font-semibold text-ink-charcoal">
+              URL Slug
+            </label>
+            <div className="flex items-center gap-2 rounded-[16px] bg-canvas-cream border border-hairline px-3 py-2">
+              <span className="text-sm text-slate-gray">/blog/</span>
+              <input
+                value={post.slug}
+                onChange={e => {
+                  setSlugTouched(true)
+                  setPost({ ...post, slug: slugify(e.target.value) })
+                }}
+                className="flex-1 bg-transparent outline-none text-sm font-mono text-ink-charcoal"
+                placeholder="your-post-slug"
+              />
+            </div>
+          </Card>
+
+          {/* Excerpt Card */}
+          <Card variant="white" className="space-y-4">
+            <label className="block text-sm font-semibold text-ink-charcoal">
+              Excerpt
+            </label>
+            <Textarea
+              value={post.excerpt}
+              onChange={e => setPost({ ...post, excerpt: e.target.value })}
+              placeholder="Write a brief summary that appears in post previews..."
+              className="bg-pure-white"
+            />
+          </Card>
+
+          {/* Content Card */}
+          <Card variant="white" className="space-y-4">
+            <div className="flex items-center justify-between border-b border-hairline pb-3">
+              <label className="block text-sm font-semibold text-ink-charcoal">
+                Content
+              </label>
+              <div className="flex items-center gap-1 bg-canvas-cream border border-hairline p-1 rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode('write')}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                    previewMode === 'write'
+                      ? 'bg-pure-white text-ink-charcoal shadow-sm border border-hairline'
+                      : 'text-slate-gray hover:text-ink-charcoal'
+                  }`}
+                >
+                  Write
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode('preview')}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                    previewMode === 'preview'
+                      ? 'bg-pure-white text-ink-charcoal shadow-sm border border-hairline'
+                      : 'text-slate-gray hover:text-ink-charcoal'
+                  }`}
+                >
+                  Preview
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode('split')}
+                  className={`hidden md:block px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                    previewMode === 'split'
+                      ? 'bg-pure-white text-ink-charcoal shadow-sm border border-hairline'
+                      : 'text-slate-gray hover:text-ink-charcoal'
+                  }`}
+                >
+                  Split
+                </button>
+              </div>
+            </div>
+
+            <div className={previewMode === 'split' ? 'grid grid-cols-1 lg:grid-cols-2 gap-4' : ''}>
+              {(previewMode === 'write' || previewMode === 'split') && (
+                <div className="space-y-2">
+                  {previewMode === 'split' && <span className="text-xs font-medium text-slate-gray">Editor</span>}
+                  <Editor
+                    value={post.content}
+                    onChange={v => setPost({ ...post, content: v })}
+                  />
+                </div>
+              )}
+              {(previewMode === 'preview' || previewMode === 'split') && (
+                <div className="space-y-2">
+                  {previewMode === 'split' && <span className="text-xs font-medium text-slate-gray">Real-time Preview</span>}
+                  <div className="border border-hairline rounded-[16px] bg-canvas-cream/35 p-5 min-h-[360px] max-h-[600px] overflow-y-auto">
+                    <Editor
+                      value={post.content}
+                      readOnly
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </Card>
         </div>
 
-        {/* Title Card */}
-        <Card variant="white" className="space-y-4">
-          <label className="block text-sm font-semibold text-ink-charcoal">
-            Post Title
-          </label>
-          <Input
-            value={post.title}
-            onChange={e => setPost({ ...post, title: e.target.value })}
-            placeholder="Enter an engaging title..."
-            className="text-lg font-medium"
-          />
-        </Card>
-
-        {/* Slug Card */}
-        <Card variant="white" className="space-y-4">
-          <label className="block text-sm font-semibold text-ink-charcoal">
-            URL Slug
-          </label>
-          <div className="flex items-center gap-2 rounded-[16px] bg-canvas-cream border border-hairline px-3 py-2">
-            <span className="text-sm text-slate-gray">/blog/</span>
-            <input
-              value={post.slug}
-              onChange={e => {
-                setSlugTouched(true)
-                setPost({ ...post, slug: slugify(e.target.value) })
-              }}
-              className="flex-1 bg-transparent outline-none text-sm font-mono text-ink-charcoal"
-              placeholder="your-post-slug"
+        {/* ================= SIDEBAR ================= */}
+        <div className="space-y-6">
+          {/* Image Upload Card */}
+          <Card variant="white" className="space-y-4">
+            <label className="text-sm font-semibold flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-canvas-cream border border-hairline">
+                <ImageIcon className="h-4 w-4 text-electric-cobalt" />
+              </div>
+              Featured Image
+            </label>
+            <ImageUploadField
+              typeLabel="Post Image"
+              currentImageUrl={image?.url}
+              onFileSelect={uploadImage}
+              onClear={removeImage}
+              maxSizeMB={10}
+              allowedTypes={['image/jpeg', 'image/png', 'image/webp']}
+              uploading={uploading}
+              progress={uploadProgress}
             />
-          </div>
-        </Card>
+            {image && (
+              <div className="space-y-3 mt-4 pt-4 border-t border-hairline">
+                <div>
+                  <label className="block text-xs font-medium text-slate-gray mb-1.5">
+                    Alt Text (SEO)
+                  </label>
+                  <Input
+                    placeholder="Describe the image..."
+                    value={image.altText || ''}
+                    onChange={e => setImage({ ...image, altText: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-gray mb-1.5">
+                    Title
+                  </label>
+                  <Input
+                    placeholder="Image title..."
+                    value={image.title || ''}
+                    onChange={e => setImage({ ...image, title: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-gray mb-1.5">
+                    Caption
+                  </label>
+                  <Textarea
+                    placeholder="Optional caption..."
+                    value={image.caption || ''}
+                    onChange={e => setImage({ ...image, caption: e.target.value })}
+                    className="bg-pure-white min-h-[60px]"
+                    rows={2}
+                  />
+                </div>
+              </div>
+            )}
+          </Card>
 
-        {/* Excerpt Card */}
-        <Card variant="white" className="space-y-4">
-          <label className="block text-sm font-semibold text-ink-charcoal">
-            Excerpt
-          </label>
-          <Textarea
-            value={post.excerpt}
-            onChange={e => setPost({ ...post, excerpt: e.target.value })}
-            placeholder="Write a brief summary that appears in post previews..."
-            className="bg-pure-white"
-          />
-        </Card>
-
-        {/* Content Card */}
-        <Card variant="white" className="space-y-4">
-          <label className="block text-sm font-semibold text-ink-charcoal">
-            Content
-          </label>
-          <Editor
-            value={post.content}
-            onChange={v => setPost({ ...post, content: v })}
-          />
-        </Card>
-
-        <Button variant="ghost" onClick={() => router.push('/admin/posts')} className="gap-2 self-start">
-          ← Back to Posts
-        </Button>
-      </div>
-
-      {/* ================= SIDEBAR ================= */}
-      <div className="space-y-6">
-        {/* Image Upload Card */}
-        <Card variant="white" className="space-y-4">
-          <label className="text-sm font-semibold flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-canvas-cream border border-hairline">
-              <ImageIcon className="h-4 w-4 text-electric-cobalt" />
+          {/* Categories Card */}
+          <Card variant="white" className="space-y-4">
+            <label className="text-sm font-semibold flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-canvas-cream border border-hairline">
+                <Tag className="h-4 w-4 text-electric-cobalt" />
+              </div>
+              Categories
+            </label>
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {categories.map(c => (
+                <label key={c.id} className="flex items-center gap-3 p-2 rounded-[12px] hover:bg-surface-ivory cursor-pointer ui-transition">
+                  <input
+                    type="checkbox"
+                    checked={post.categoryIds.includes(c.id)}
+                    onChange={e =>
+                      setPost((p: any) => ({
+                        ...p,
+                        categoryIds: e.target.checked
+                          ? [...p.categoryIds, c.id]
+                          : p.categoryIds.filter((x: string) => x !== c.id),
+                      }))
+                    }
+                    className="h-4 w-4 rounded-[4px] border-hairline text-electric-cobalt focus:ring-electric-cobalt"
+                  />
+                  <span className="text-sm text-ink-charcoal">{c.name}</span>
+                </label>
+              ))}
             </div>
-            Featured Image
-          </label>
-          <ImageUploadPreview
-            typeLabel="Post Image"
-            currentImageUrl={image?.url}
-            onFileSelect={uploadImage}
-            onClear={removeImage}
-            maxSizeMB={10}
-            allowedTypes={['image/jpeg', 'image/png', 'image/webp']}
-            uploading={uploading}
-            progress={uploadProgress}
-          />
-          {image && (
-            <div className="space-y-3 mt-4 pt-4 border-t border-hairline">
+          </Card>
+
+          {/* SEO Card */}
+          <Card variant="white" className="space-y-4">
+            <label className="text-sm font-semibold flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-canvas-cream border border-hairline">
+                <Search className="h-4 w-4 text-electric-cobalt" />
+              </div>
+              SEO Settings
+            </label>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs text-slate-gray">SEO Score</span>
+                <span className={`text-xs font-semibold ${seoScore >= 70 ? 'text-forest' : seoScore >= 40 ? 'text-electric-cobalt' : 'text-slate-gray'}`}>
+                  {seoScore}%
+                </span>
+              </div>
+              <div className="h-2 rounded-full bg-canvas-cream border border-hairline overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-500 ${seoScore >= 70 ? 'bg-forest' : seoScore >= 40 ? 'bg-electric-cobalt' : 'bg-slate-gray'}`}
+                  style={{ width: `${seoScore}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-3">
               <div>
                 <label className="block text-xs font-medium text-slate-gray mb-1.5">
-                  Alt Text (SEO)
+                  SEO Title (40–60 chars)
                 </label>
                 <Input
-                  placeholder="Describe the image..."
-                  value={image.altText || ''}
-                  onChange={e => setImage({ ...image, altText: e.target.value })}
+                  placeholder="Optimized page title..."
+                  value={post.seoTitle}
+                  onChange={e => setPost({ ...post, seoTitle: e.target.value })}
                 />
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-gray mb-1.5">
-                  Title
-                </label>
-                <Input
-                  placeholder="Image title..."
-                  value={image.title || ''}
-                  onChange={e => setImage({ ...image, title: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-gray mb-1.5">
-                  Caption
+                  Meta Description (120–160 chars)
                 </label>
                 <Textarea
-                  placeholder="Optional caption..."
-                  value={image.caption || ''}
-                  onChange={e => setImage({ ...image, caption: e.target.value })}
-                  className="bg-pure-white min-h-[60px]"
-                  rows={2}
+                  placeholder="Compelling description for search results..."
+                  value={post.seoDescription}
+                  onChange={e => setPost({ ...post, seoDescription: e.target.value })}
+                  className="bg-pure-white"
+                  rows={3}
                 />
               </div>
             </div>
+          </Card>
+        </div>
+      </div>
+
+      {/* Sticky Bottom Action Bar */}
+      <div className="sticky bottom-0 -mx-6 -mb-6 mt-8 border-t border-hairline bg-pure-white/90 backdrop-blur-md px-6 py-4 flex items-center justify-between z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.03)] rounded-b-[24px]">
+        <Button
+          variant="ghost"
+          onClick={() => {
+            if (confirm('Discard changes and leave?')) {
+              localStorage.removeItem(`blueblog_draft_${postId}`)
+              router.push('/admin/posts')
+            }
+          }}
+          className="gap-2 hover:bg-canvas-cream border border-hairline rounded-full"
+        >
+          Cancel
+        </Button>
+
+        <div className="flex items-center gap-4">
+          {autoSavedTime && (
+            <span className="text-xs text-slate-gray flex items-center gap-1.5">
+              <span className="inline-block h-2 w-2 rounded-full bg-forest animate-pulse" />
+              Auto-saved at {autoSavedTime}
+            </span>
           )}
-        </Card>
 
-        {/* Categories Card */}
-        <Card variant="white" className="space-y-4">
-          <label className="text-sm font-semibold flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-canvas-cream border border-hairline">
-              <Tag className="h-4 w-4 text-electric-cobalt" />
-            </div>
-            Categories
-          </label>
-          <div className="space-y-2 max-h-48 overflow-y-auto">
-            {categories.map(c => (
-              <label key={c.id} className="flex items-center gap-3 p-2 rounded-[12px] hover:bg-surface-ivory cursor-pointer ui-transition">
-                <input
-                  type="checkbox"
-                  checked={post.categoryIds.includes(c.id)}
-                  onChange={e =>
-                    setPost((p: any) => ({
-                      ...p,
-                      categoryIds: e.target.checked
-                        ? [...p.categoryIds, c.id]
-                        : p.categoryIds.filter((x: string) => x !== c.id),
-                    }))
-                  }
-                  className="h-4 w-4 rounded-[4px] border-hairline text-electric-cobalt focus:ring-electric-cobalt"
-                />
-                <span className="text-sm text-ink-charcoal">{c.name}</span>
-              </label>
-            ))}
-          </div>
-        </Card>
-
-        {/* SEO Card */}
-        <Card variant="white" className="space-y-4">
-          <label className="text-sm font-semibold flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-canvas-cream border border-hairline">
-              <Search className="h-4 w-4 text-electric-cobalt" />
-            </div>
-            SEO Settings
-          </label>
-
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs text-slate-gray">SEO Score</span>
-              <span className={`text-xs font-semibold ${seoScore >= 70 ? 'text-forest' : seoScore >= 40 ? 'text-electric-cobalt' : 'text-slate-gray'}`}>
-                {seoScore}%
-              </span>
-            </div>
-            <div className="h-2 rounded-full bg-canvas-cream border border-hairline overflow-hidden">
-              <div
-                className={`h-full transition-all duration-500 ${seoScore >= 70 ? 'bg-forest' : seoScore >= 40 ? 'bg-electric-cobalt' : 'bg-slate-gray'}`}
-                style={{ width: `${seoScore}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-medium text-slate-gray mb-1.5">
-                SEO Title (40–60 chars)
-              </label>
-              <Input
-                placeholder="Optimized page title..."
-                value={post.seoTitle}
-                onChange={e => setPost({ ...post, seoTitle: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-gray mb-1.5">
-                Meta Description (120–160 chars)
-              </label>
-              <Textarea
-                placeholder="Compelling description for search results..."
-                value={post.seoDescription}
-                onChange={e => setPost({ ...post, seoDescription: e.target.value })}
-                className="bg-pure-white"
-                rows={3}
-              />
-            </div>
-          </div>
-        </Card>
-
-        {/* Actions Card */}
-        <Card variant="white" className="space-y-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-canvas-cream border border-hairline">
-              <Sparkles className="h-4 w-4 text-electric-cobalt" />
-            </div>
-            <span className="text-sm font-semibold text-ink-charcoal">Actions</span>
-          </div>
-
-          <div className="space-y-3">
-            {/* Save Draft - Available for all roles */}
             <Button
               loading={saving}
               disabled={uploading}
               onClick={() => save('DRAFT')}
               variant="outline"
-              className="w-full gap-2 border-hairline bg-pure-white hover:bg-canvas-cream text-ink-charcoal"
+              className="gap-2 border-hairline bg-pure-white hover:bg-canvas-cream text-ink-charcoal rounded-full"
             >
               <Save className="h-4 w-4" />
-              Save as Draft
+              Save Draft
             </Button>
 
-            {/* Publish - Only for Admin/Editor */}
-            {isAdminOrEditor && (
+            {isAdminOrEditor ? (
               <Button
                 loading={saving}
                 disabled={uploading}
                 onClick={() => save('PUBLISHED')}
-                className="w-full gap-2"
+                className="gap-2 rounded-full"
               >
                 <CheckCircle className="h-4 w-4" />
-                Publish Now
+                Publish
               </Button>
-            )}
-
-            {/* Send for Verification - Only for Writer (when draft or can re-submit) */}
-            {isWriter && currentStatus !== 'PUBLISHED' && (
-              <Button
-                loading={saving}
-                disabled={uploading}
-                onClick={() => save('VERIFICATION_PENDING')}
-                className="w-full gap-2"
-              >
-                <Send className="h-4 w-4" />
-                {currentStatus === 'VERIFICATION_PENDING' ? 'Resubmit for Verification' : 'Send for Verification'}
-              </Button>
-            )}
-
-            {/* Status message for pending verification */}
-            {isWriter && currentStatus === 'VERIFICATION_PENDING' && (
-              <div className="flex items-center gap-2 p-3 rounded-[12px] bg-canvas-cream border border-hairline">
-                <Clock className="h-4 w-4 text-electric-cobalt" />
-                <span className="text-sm text-slate-gray">Awaiting admin/editor review</span>
-              </div>
+            ) : (
+              isWriter && currentStatus !== 'PUBLISHED' && (
+                <Button
+                  loading={saving}
+                  disabled={uploading}
+                  onClick={() => save('VERIFICATION_PENDING')}
+                  className="gap-2 rounded-full"
+                >
+                  <Send className="h-4 w-4" />
+                  {currentStatus === 'VERIFICATION_PENDING' ? 'Resubmit Review' : 'Submit for Review'}
+                </Button>
+              )
             )}
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   )

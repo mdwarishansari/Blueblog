@@ -128,32 +128,42 @@ const features = [
 /* -------------------------------------
    PAGE
 ------------------------------------- */
-export default function Home() {
+export default async function Home() {
+  // Fetch real project metrics directly from Neon PostgreSQL database
+  const [postCount, categoryCount, authorCount] = await Promise.all([
+    prisma.post.count({ where: { status: 'PUBLISHED' } }),
+    prisma.category.count(),
+    prisma.user.count(),
+  ])
+
   return (
-    <div className="min-h-screen bg-canvas-cream">
+    <div className="min-h-screen bg-canvas-cream relative">
+      {/* Dynamic Background Gradients and Floating Decorative Elements */}
+      <div className="absolute top-12 left-[10%] w-[320px] h-[320px] bg-electric-cobalt/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-40 right-[8%] w-[420px] h-[420px] bg-vivid-violet/5 rounded-full blur-[120px] pointer-events-none" />
       
       {/* ================= HERO ================= */}
-      <section className="relative pt-20 pb-28 overflow-hidden bg-gradient-to-b from-canvas-cream via-canvas-cream to-lavender-mist">
+      <section className="relative pt-24 pb-28 overflow-hidden">
         <Container className="relative z-10 text-center">
-          <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full bg-pure-white border border-hairline px-4 py-1.5 text-xs font-semibold text-vivid-violet shadow-sm">
-            <Sparkles className="h-3.5 w-3.5" />
-            Modern blogging platform
+          <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full bg-pure-white border border-hairline px-4 py-1.5 text-xs font-semibold text-vivid-violet shadow-sm hover:scale-102 transition-transform duration-200">
+            <Sparkles className="h-3.5 w-3.5 text-electric-cobalt animate-pulse" />
+            <span>Modern SaaS-quality blog platform</span>
           </div>
 
-          <h1 className="mb-6 text-[40px] sm:text-[57px] md:text-[84px] font-bold tracking-tight text-ink-charcoal leading-[1.06] max-w-[960px] mx-auto">
+          <h1 className="mb-6 text-[44px] sm:text-[64px] md:text-[88px] font-extrabold tracking-tight text-ink-charcoal leading-[1.04] max-w-[960px] mx-auto bg-clip-text">
             Welcome to{' '}
             <Suspense fallback={<SiteNameSkeleton />}>
               <SiteNameHero />
             </Suspense>
           </h1>
 
-          <p className="mx-auto mb-10 max-w-[640px] text-lg sm:text-xl text-slate-gray leading-relaxed font-normal">
-            Write, publish, and grow your audience with a platform built for creators who care about quality and performance.
+          <p className="mx-auto mb-10 max-w-[660px] text-lg sm:text-xl text-slate-gray leading-relaxed font-normal">
+            Write, publish, and grow your audience with an engineering-focused platform built for creators who care about code, speed, and clean typography.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-16">
             <Link href="/blog" aria-label="Read all blog posts on BlueBlog">
-              <Button variant="default" size="lg">
+              <Button variant="default" size="lg" className="rounded-full shadow-md hover:scale-105 transition-transform duration-200">
                 Read Blog
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -163,11 +173,27 @@ export default function Home() {
               <Button
                 variant="secondary"
                 size="lg"
-                className="bg-pure-white border-hairline shadow-sm"
+                className="bg-pure-white border-hairline shadow-sm rounded-full hover:scale-105 transition-transform duration-200"
               >
                 Get Started
               </Button>
             </Link>
+          </div>
+
+          {/* Real Metrics Glassmorphic Spotlight Card */}
+          <div className="mx-auto max-w-3xl grid grid-cols-3 gap-4 rounded-[24px] bg-pure-white/45 backdrop-blur-md border border-hairline p-6 sm:p-8 shadow-subtle hover:shadow-md transition-shadow duration-300">
+            <div className="text-center">
+              <p className="text-3xl sm:text-4xl font-extrabold text-electric-cobalt">{postCount}</p>
+              <p className="text-[11px] sm:text-xs font-bold text-slate-gray uppercase tracking-wider mt-1">Articles</p>
+            </div>
+            <div className="text-center border-x border-hairline">
+              <p className="text-3xl sm:text-4xl font-extrabold text-vivid-violet">{categoryCount}</p>
+              <p className="text-[11px] sm:text-xs font-bold text-slate-gray uppercase tracking-wider mt-1">Topics</p>
+            </div>
+            <div className="text-center">
+              <p className="text-3xl sm:text-4xl font-extrabold text-ink-charcoal">{authorCount}</p>
+              <p className="text-[11px] sm:text-xs font-bold text-slate-gray uppercase tracking-wider mt-1">Writers</p>
+            </div>
           </div>
         </Container>
       </section>

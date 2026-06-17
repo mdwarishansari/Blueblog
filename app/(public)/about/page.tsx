@@ -61,6 +61,12 @@ async function TeamSection() {
 
 /* ================= PAGE ================= */
 export default async function AboutPage() {
+  const [postCount, authorCount, categoryCount] = await Promise.all([
+    prisma.post.count({ where: { status: 'PUBLISHED' } }),
+    prisma.user.count(),
+    prisma.category.count(),
+  ])
+
   return (
     <div className="min-h-screen bg-canvas-cream pb-12">
       
@@ -78,63 +84,62 @@ export default async function AboutPage() {
           </p>
         </Container>
       </section>
-
+ 
       {/* ================= MISSION & VISION ================= */}
       <Section>
         <Container>
           <div className="grid gap-12 lg:grid-cols-2">
-
+ 
             {/* Mission */}
             <div className="space-y-6">
               <div className="inline-flex items-center gap-1.5 rounded-full bg-lavender-mist px-3.5 py-1 text-xs font-medium text-vivid-violet">
                 <Target className="h-3.5 w-3.5" />
                 Our Mission
               </div>
-
+ 
               <h2 className="text-3xl font-bold tracking-tight text-ink-charcoal leading-tight">
                 Empowering voices in the digital age
               </h2>
-
+ 
               <p className="text-base text-slate-gray leading-relaxed">
                 BlueBlog was founded with a simple mission: to create the most
                 user-friendly, powerful, and accessible blogging platform for
                 writers of all backgrounds.
               </p>
-
+ 
               <p className="text-sm text-slate-gray leading-relaxed">
                 Our platform combines cutting-edge technology with intuitive
                 design to help you focus on what matters most—your content.
               </p>
             </div>
-
+ 
             {/* Vision */}
             <div className="space-y-6">
               <div className="inline-flex items-center gap-1.5 rounded-full bg-powder-blue/40 px-3.5 py-1 text-xs font-medium text-electric-cobalt">
                 <Globe className="h-3.5 w-3.5" />
                 Our Vision
               </div>
-
+ 
               <h2 className="text-3xl font-bold tracking-tight text-ink-charcoal leading-tight">
                 Building a global community of creators
               </h2>
-
+ 
               <p className="text-base text-slate-gray leading-relaxed mb-6">
                 We envision a world where every creator has the tools and
                 platform to share their unique perspective with a global
                 audience.
               </p>
-
-              <div className="grid grid-cols-2 gap-4">
+ 
+              <div className="grid grid-cols-3 gap-4">
                 {[
-                  ['100K+', 'Monthly Readers', 'text-electric-cobalt'],
-                  ['500+', 'Published Authors', 'text-vivid-violet'],
-                  ['10K+', 'Articles Published', 'text-forest'],
-                  ['50+', 'Countries Reached', 'text-electric-cobalt'],
+                  [postCount, 'Articles Published', 'text-electric-cobalt'],
+                  [authorCount, 'Registered Authors', 'text-vivid-violet'],
+                  [categoryCount, 'Tech Categories', 'text-forest'],
                 ].map(([value, label, colorClass]) => (
                   <Card
                     key={label}
                     variant="white"
-                    className="p-5"
+                    className="p-5 text-center"
                   >
                     <div className={`text-2xl sm:text-3xl font-bold ${colorClass}`}>
                       {value}
@@ -146,7 +151,7 @@ export default async function AboutPage() {
                 ))}
               </div>
             </div>
-
+ 
           </div>
         </Container>
       </Section>

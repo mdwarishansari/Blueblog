@@ -1,5 +1,5 @@
 // lib/cloudinary.server.ts
-import cloudinary from './cloudinary'
+import { getCloudinary } from './cloudinary'
 
 export async function deleteFromCloudinary(url: string) {
   if (!url) return
@@ -14,5 +14,6 @@ export async function deleteFromCloudinary(url: string) {
 
   if (!publicId) return
 
+  const cloudinary = getCloudinary()
   await cloudinary.uploader.destroy(publicId)
 }

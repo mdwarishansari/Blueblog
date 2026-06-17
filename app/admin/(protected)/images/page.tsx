@@ -9,7 +9,7 @@ import { Modal } from '@/components/ui/Modal'
 import { Card } from '@/components/ui/Card'
 import { SearchInput } from '@/components/ui/SearchInput'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { ImageUploadPreview } from '@/components/ui/ImageUploadPreview'
+import { ImageUploadField } from '@/components/ui/ImageUploadField'
 import toast from 'react-hot-toast'
 
 interface ImageData {
@@ -269,7 +269,7 @@ export default function AdminImagesPage() {
         <form onSubmit={handleUpload} className="space-y-4">
           {/* File selector */}
           <div className="space-y-3">
-            <ImageUploadPreview
+            <ImageUploadField
               key={isUploadModalOpen ? 'open' : 'closed'}
               typeLabel="Post Image"
               onFileSelect={(file) => setSelectedFile(file)}

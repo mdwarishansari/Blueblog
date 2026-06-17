@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
 import { Textarea } from '@/components/ui/Textarea'
-import { ImageUploadPreview } from '@/components/ui/ImageUploadPreview'
+import { ImageUploadField } from '@/components/ui/ImageUploadField'
 import toast from 'react-hot-toast'
 
 interface SiteSettings {
@@ -164,7 +164,7 @@ export default function AdminSettingsPage() {
               {/* LOGO */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-ink-charcoal">Site Logo</label>
-                <ImageUploadPreview
+                <ImageUploadField
                   typeLabel="Logo"
                   currentImageUrl={settings.site_logo}
                   onFileSelect={uploadLogo}

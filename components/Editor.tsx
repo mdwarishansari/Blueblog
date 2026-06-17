@@ -20,13 +20,15 @@ import {
 
 interface EditorProps {
   value: any
-  onChange: (value: any) => void
+  onChange?: (value: any) => void
   className?: string
+  readOnly?: boolean
 }
 
-export default function Editor({ value, onChange, className }: EditorProps) {
+export default function Editor({ value, onChange, className, readOnly = false }: EditorProps) {
   const editor = useEditor({
     immediatelyRender: false, // REQUIRED for App Router
+    editable: !readOnly,
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },
@@ -34,7 +36,9 @@ export default function Editor({ value, onChange, className }: EditorProps) {
     ],
     content: value || { type: 'doc', content: [] },
     onUpdate({ editor }) {
-      onChange(editor.getJSON())
+      if (onChange) {
+        onChange(editor.getJSON())
+      }
     },
   })
 
@@ -46,6 +50,13 @@ export default function Editor({ value, onChange, className }: EditorProps) {
       editor.commands.setContent(value, { emitUpdate: false })
     }
   }, [value, editor])
+
+  // Update editor editable state dynamically if readOnly changes
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(!readOnly)
+    }
+  }, [readOnly, editor])
 
   if (!editor) return null
 
@@ -92,93 +103,95 @@ export default function Editor({ value, onChange, className }: EditorProps) {
       )}
     >
       {/* ================= TOOLBAR ================= */}
-      <div className="flex flex-wrap items-center gap-1 border-b border-hairline bg-canvas-cream px-3 py-2">
-        {/* Text Formatting */}
-        <ToolButton
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          isActive={editor.isActive('bold')}
-          icon={Bold}
-          label="Bold (Ctrl+B)"
-        />
-        <ToolButton
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          isActive={editor.isActive('italic')}
-          icon={Italic}
-          label="Italic (Ctrl+I)"
-        />
+      {!readOnly && (
+        <div className="flex flex-wrap items-center gap-1 border-b border-hairline bg-canvas-cream px-3 py-2">
+          {/* Text Formatting */}
+          <ToolButton
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            isActive={editor.isActive('bold')}
+            icon={Bold}
+            label="Bold (Ctrl+B)"
+          />
+          <ToolButton
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            isActive={editor.isActive('italic')}
+            icon={Italic}
+            label="Italic (Ctrl+I)"
+          />
 
-        <Divider />
+          <Divider />
 
-        {/* Headings */}
-        <ToolButton
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-          isActive={editor.isActive('heading', { level: 1 })}
-          icon={Heading1}
-          label="Heading 1"
-        />
-        <ToolButton
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          isActive={editor.isActive('heading', { level: 2 })}
-          icon={Heading2}
-          label="Heading 2"
-        />
-        <ToolButton
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          isActive={editor.isActive('heading', { level: 3 })}
-          icon={Heading3}
-          label="Heading 3"
-        />
+          {/* Headings */}
+          <ToolButton
+            onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+            isActive={editor.isActive('heading', { level: 1 })}
+            icon={Heading1}
+            label="Heading 1"
+          />
+          <ToolButton
+            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+            isActive={editor.isActive('heading', { level: 2 })}
+            icon={Heading2}
+            label="Heading 2"
+            />
+          <ToolButton
+            onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+            isActive={editor.isActive('heading', { level: 3 })}
+            icon={Heading3}
+            label="Heading 3"
+          />
 
-        <Divider />
+          <Divider />
 
-        {/* Lists */}
-        <ToolButton
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          isActive={editor.isActive('bulletList')}
-          icon={List}
-          label="Bullet List"
-        />
-        <ToolButton
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          isActive={editor.isActive('orderedList')}
-          icon={ListOrdered}
-          label="Numbered List"
-        />
+          {/* Lists */}
+          <ToolButton
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            isActive={editor.isActive('bulletList')}
+            icon={List}
+            label="Bullet List"
+          />
+          <ToolButton
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            isActive={editor.isActive('orderedList')}
+            icon={ListOrdered}
+            label="Numbered List"
+          />
 
-        <Divider />
+          <Divider />
 
-        {/* Block Elements */}
-        <ToolButton
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          isActive={editor.isActive('blockquote')}
-          icon={Quote}
-          label="Blockquote"
-        />
-        <ToolButton
-          onClick={() => editor.chain().focus().setHorizontalRule().run()}
-          isActive={false}
-          icon={Minus}
-          label="Horizontal Rule"
-        />
+          {/* Block Elements */}
+          <ToolButton
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            isActive={editor.isActive('blockquote')}
+            icon={Quote}
+            label="Blockquote"
+          />
+          <ToolButton
+            onClick={() => editor.chain().focus().setHorizontalRule().run()}
+            isActive={false}
+            icon={Minus}
+            label="Horizontal Rule"
+          />
 
-        <Divider />
+          <Divider />
 
-        {/* Undo/Redo */}
-        <ToolButton
-          onClick={() => editor.chain().focus().undo().run()}
-          isActive={false}
-          disabled={!editor.can().undo()}
-          icon={Undo}
-          label="Undo (Ctrl+Z)"
-        />
-        <ToolButton
-          onClick={() => editor.chain().focus().redo().run()}
-          isActive={false}
-          disabled={!editor.can().redo()}
-          icon={Redo}
-          label="Redo (Ctrl+Y)"
-        />
-      </div>
+          {/* Undo/Redo */}
+          <ToolButton
+            onClick={() => editor.chain().focus().undo().run()}
+            isActive={false}
+            disabled={!editor.can().undo()}
+            icon={Undo}
+            label="Undo (Ctrl+Z)"
+          />
+          <ToolButton
+            onClick={() => editor.chain().focus().redo().run()}
+            isActive={false}
+            disabled={!editor.can().redo()}
+            icon={Redo}
+            label="Redo (Ctrl+Y)"
+          />
+        </div>
+      )}
 
       {/* ================= EDITOR ================= */}
       <EditorContent
