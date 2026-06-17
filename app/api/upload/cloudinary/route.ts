@@ -84,7 +84,8 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Upload error:', error)
+    console.error('Upload error:')
+    console.dir(error, { depth: null })
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
