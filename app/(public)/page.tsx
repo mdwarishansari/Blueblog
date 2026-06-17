@@ -11,6 +11,7 @@ import { Section } from '@/components/ui/Section'
 import { generateSEO } from '@/lib/seo'
 
 import SiteNameHero from '@/components/SiteNameHero'
+import AnimatedCounter from '@/components/AnimatedCounter'
 import SiteNameSkeleton from '@/components/skeletons/SiteNameSkeleton'
 import PostCardSkeleton from '@/components/skeletons/PostCardSkeleton'
 import CategoryCardSkeleton from '@/components/skeletons/CategoryCardSkeleton'
@@ -161,15 +162,15 @@ export default async function Home() {
             Write, publish, and grow your audience with an engineering-focused platform built for creators who care about code, speed, and clean typography.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 opacity-0 animate-fade-up delay-300">
+          <div className="flex flex-col sm:flex-row gap-5 justify-center mb-16 opacity-0 animate-fade-up delay-300">
             <Link href="/blog" aria-label="Read all blog posts on BlueBlog">
               <Button
                 variant="default"
                 size="lg"
-                className="rounded-full shadow-lg shadow-electric-cobalt/20 bg-gradient-to-r from-electric-cobalt to-vivid-violet hover:from-deep-cobalt hover:to-vivid-violet text-pure-white border-0 hover:scale-105 active:scale-95 transition-all duration-200 px-8"
+                className="rounded-full shadow-lg shadow-electric-cobalt/20 bg-gradient-to-r from-electric-cobalt to-vivid-violet hover:from-deep-cobalt hover:to-vivid-violet text-pure-white border-0 hover:scale-105 active:scale-95 transition-all duration-200 px-12 h-14 text-lg font-bold min-w-[220px] justify-center inline-flex items-center"
               >
                 Read Blog
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
 
@@ -177,7 +178,7 @@ export default async function Home() {
               <Button
                 variant="secondary"
                 size="lg"
-                className="bg-pure-white/80 backdrop-blur-sm border-hairline shadow-sm rounded-full hover:scale-105 active:scale-95 hover:border-vivid-violet/30 hover:text-vivid-violet transition-all duration-200 px-8"
+                className="bg-pure-white/80 backdrop-blur-sm border-hairline shadow-sm rounded-full hover:scale-105 active:scale-95 hover:border-vivid-violet/30 hover:text-vivid-violet transition-all duration-200 px-12 h-14 text-lg font-bold min-w-[220px] justify-center inline-flex items-center"
               >
                 Get Started
               </Button>
@@ -187,15 +188,21 @@ export default async function Home() {
           {/* Real Metrics Glassmorphic Spotlight Card */}
           <div className="mx-auto max-w-3xl grid grid-cols-3 gap-4 rounded-[24px] bg-pure-white/45 backdrop-blur-md border border-hairline p-6 sm:p-8 shadow-subtle hover:shadow-md transition-all duration-300 animate-float opacity-0 animate-fade-up delay-500">
             <div className="text-center">
-              <p className="text-3xl sm:text-4xl font-extrabold text-electric-cobalt">{postCount}</p>
+              <p className="text-3xl sm:text-4xl font-extrabold text-electric-cobalt">
+                <AnimatedCounter value={postCount} />
+              </p>
               <p className="text-[11px] sm:text-xs font-bold text-slate-gray uppercase tracking-wider mt-1">Articles</p>
             </div>
             <div className="text-center border-x border-hairline">
-              <p className="text-3xl sm:text-4xl font-extrabold text-vivid-violet">{categoryCount}</p>
+              <p className="text-3xl sm:text-4xl font-extrabold text-vivid-violet">
+                <AnimatedCounter value={categoryCount} />
+              </p>
               <p className="text-[11px] sm:text-xs font-bold text-slate-gray uppercase tracking-wider mt-1">Topics</p>
             </div>
             <div className="text-center">
-              <p className="text-3xl sm:text-4xl font-extrabold text-ink-charcoal">{authorCount}</p>
+              <p className="text-3xl sm:text-4xl font-extrabold text-ink-charcoal">
+                <AnimatedCounter value={authorCount} />
+              </p>
               <p className="text-[11px] sm:text-xs font-bold text-slate-gray uppercase tracking-wider mt-1">Writers</p>
             </div>
           </div>

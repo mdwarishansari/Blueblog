@@ -12,7 +12,6 @@ import { ImageUploadField } from '@/components/ui/ImageUploadField'
 import { Category, UserRole } from '@prisma/client'
 import { useRouter } from 'next/navigation'
 import { Send, Save, CheckCircle, ImageIcon, FileText, Tag, Search } from 'lucide-react'
-import { renderTipTapContent } from '@/lib/renderContent'
 
 const Editor = dynamic(() => import('@/components/Editor'), { ssr: false })
 
@@ -94,7 +93,6 @@ export default function EditPostClient({ postId, userRole }: Props) {
   const [loading, setLoading] = useState(true)
   const [currentStatus, setCurrentStatus] = useState<string>('DRAFT')
   const [autoSavedTime, setAutoSavedTime] = useState<string | null>(null)
-  const [previewMode, setPreviewMode] = useState<'write' | 'preview' | 'split'>('write')
 
   const [post, setPost] = useState<any>({
     title: '',
@@ -409,75 +407,17 @@ export default function EditPostClient({ postId, userRole }: Props) {
 
           {/* Content Card */}
           <Card variant="white" className="space-y-4">
-            <div className="flex items-center justify-between border-b border-hairline pb-3">
+            <div className="border-b border-hairline pb-3">
               <label className="block text-sm font-semibold text-ink-charcoal">
                 Content
               </label>
-              <div className="flex items-center gap-1 bg-canvas-cream border border-hairline p-1 rounded-lg">
-                <button
-                  type="button"
-                  onClick={() => setPreviewMode('write')}
-                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
-                    previewMode === 'write'
-                      ? 'bg-pure-white text-ink-charcoal shadow-sm border border-hairline'
-                      : 'text-slate-gray hover:text-ink-charcoal'
-                  }`}
-                >
-                  Write
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPreviewMode('preview')}
-                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
-                    previewMode === 'preview'
-                      ? 'bg-pure-white text-ink-charcoal shadow-sm border border-hairline'
-                      : 'text-slate-gray hover:text-ink-charcoal'
-                  }`}
-                >
-                  Preview
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPreviewMode('split')}
-                  className={`hidden md:block px-3 py-1 text-xs font-medium rounded-md transition-all ${
-                    previewMode === 'split'
-                      ? 'bg-pure-white text-ink-charcoal shadow-sm border border-hairline'
-                      : 'text-slate-gray hover:text-ink-charcoal'
-                  }`}
-                >
-                  Split
-                </button>
-              </div>
             </div>
 
-            <div className={previewMode === 'split' ? 'grid grid-cols-1 lg:grid-cols-2 gap-4' : ''}>
-              {(previewMode === 'write' || previewMode === 'split') && (
-                <div className="space-y-2">
-                  {previewMode === 'split' && <span className="text-xs font-medium text-slate-gray">Editor</span>}
-                  {/* Guidance Tip */}
-                  <div className="text-xs text-slate-gray bg-canvas-cream/40 border border-hairline rounded-lg p-2.5 flex items-center gap-2">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-electric-cobalt/10 text-electric-cobalt font-bold">i</span>
-                    <p>
-                      Use the formatting toolbar or click <strong>Edit HTML</strong> to paste/write raw HTML code. All changes render instantly in the preview.
-                    </p>
-                  </div>
-                  <Editor
-                    value={post.content}
-                    onChange={v => setPost({ ...post, content: v })}
-                  />
-                </div>
-              )}
-              {(previewMode === 'preview' || previewMode === 'split') && (
-                <div className="space-y-2">
-                  {previewMode === 'split' && <span className="text-xs font-medium text-slate-gray">Real-time Preview</span>}
-                  <div className="border border-hairline rounded-[16px] bg-pure-white p-6 min-h-[360px] max-h-[600px] overflow-y-auto shadow-subtle">
-                    <div
-                      className="blog-content max-w-none"
-                      dangerouslySetInnerHTML={{ __html: renderTipTapContent(post.content) }}
-                    />
-                  </div>
-                </div>
-              )}
+            <div className="space-y-2">
+              <Editor
+                value={post.content}
+                onChange={v => setPost({ ...post, content: v })}
+              />
             </div>
           </Card>
         </div>

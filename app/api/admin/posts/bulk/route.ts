@@ -8,6 +8,8 @@ const bulkSchema = z.object({
   action: z.enum(['DELETE', 'PUBLISH', 'DRAFT', 'VERIFICATION_PENDING']),
 })
 
+import { deleteFromCloudinary } from '@/lib/cloudinary.server'
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
@@ -18,12 +20,30 @@ export async function POST(req: NextRequest) {
     // Writers can only delete their own posts or send for verification
     if (user.role === 'WRITER') {
       if (action === 'DELETE') {
+        const postsToDelete = await prisma.post.findMany({
+          where: {
+            id: { in: ids },
+            authorId: user.id,
+          },
+          include: { bannerImage: true },
+        })
+
         await prisma.post.deleteMany({
           where: {
             id: { in: ids },
             authorId: user.id,
           },
         })
+
+        for (const post of postsToDelete) {
+          if (post.bannerImage) {
+            await deleteFromCloudinary(post.bannerImage.url)
+            await prisma.image.deleteMany({
+              where: { id: post.bannerImage.id }
+            })
+          }
+        }
+
         return NextResponse.json({ success: true })
       }
 
@@ -49,9 +69,23 @@ export async function POST(req: NextRequest) {
 
     // Admin/Editor actions
     if (action === 'DELETE') {
+      const postsToDelete = await prisma.post.findMany({
+        where: { id: { in: ids } },
+        include: { bannerImage: true },
+      })
+
       await prisma.post.deleteMany({
         where: { id: { in: ids } },
       })
+
+      for (const post of postsToDelete) {
+        if (post.bannerImage) {
+          await deleteFromCloudinary(post.bannerImage.url)
+          await prisma.image.deleteMany({
+            where: { id: post.bannerImage.id }
+          })
+        }
+      }
     }
 
     if (action === 'PUBLISH') {

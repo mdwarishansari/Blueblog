@@ -4,16 +4,28 @@ import { getCloudinary } from './cloudinary'
 export async function deleteFromCloudinary(url: string) {
   if (!url) return
 
-  const parts = url.split('/')
-  const filename = parts[parts.length - 1]
-  if (!filename) return
+  // Extract public ID including nested folders
+  // Cloudinary URLs look like: .../image/upload/[v123456/][folder]/[public_id].[ext]
+  const uploadIndex = url.indexOf('/image/upload/')
+  if (uploadIndex === -1) return
 
-  const dotIndex = filename.lastIndexOf('.')
-  const publicId =
-    dotIndex !== -1 ? filename.slice(0, dotIndex) : filename
+  let pathAndFilename = url.substring(uploadIndex + '/image/upload/'.length)
+  
+  // Remove version prefix if present, e.g. "v12345678/"
+  pathAndFilename = pathAndFilename.replace(/^v\d+\//, '')
+
+  // Remove file extension
+  const dotIndex = pathAndFilename.lastIndexOf('.')
+  const publicId = dotIndex !== -1 ? pathAndFilename.slice(0, dotIndex) : pathAndFilename
 
   if (!publicId) return
 
   const cloudinary = getCloudinary()
-  await cloudinary.uploader.destroy(publicId)
+  try {
+    const result = await cloudinary.uploader.destroy(publicId)
+    console.log(`Cloudinary destroy result for ${publicId}:`, result)
+    return result
+  } catch (error) {
+    console.error(`Failed to destroy Cloudinary image ${publicId}:`, error)
+  }
 }

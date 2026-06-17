@@ -3,7 +3,7 @@
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import {
   Bold,
@@ -16,9 +16,7 @@ import {
   Quote,
   Minus,
   Undo,
-  Redo,
-  Eye,
-  Code
+  Redo
 } from 'lucide-react'
 
 interface EditorProps {
@@ -29,9 +27,6 @@ interface EditorProps {
 }
 
 export default function Editor({ value, onChange, className, readOnly = false }: EditorProps) {
-  const [isHtmlMode, setIsHtmlMode] = useState(false)
-  const [htmlValue, setHtmlValue] = useState('')
-
   const editor = useEditor({
     immediatelyRender: false, // REQUIRED for App Router
     editable: !readOnly,
@@ -40,7 +35,7 @@ export default function Editor({ value, onChange, className, readOnly = false }:
         heading: { levels: [1, 2, 3] },
       }),
       Placeholder.configure({
-        placeholder: 'Start writing your story here... (You can paste raw HTML or rich text directly, formatting will be preserved)',
+        placeholder: 'Start writing your story here... formatting options are available in the toolbar above.',
         emptyEditorClass: 'is-editor-empty',
       }),
     ],
@@ -52,37 +47,14 @@ export default function Editor({ value, onChange, className, readOnly = false }:
     },
   })
 
-  // Sync editor content with htmlValue when entering/leaving HTML mode
-  const toggleHtmlMode = () => {
-    if (!editor) return
-    if (!isHtmlMode) {
-      setHtmlValue(editor.getHTML())
-    } else {
-      editor.commands.setContent(htmlValue)
-    }
-    setIsHtmlMode(!isHtmlMode)
-  }
-
-  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const val = e.target.value
-    setHtmlValue(val)
-    if (onChange && editor) {
-      editor.commands.setContent(val, { emitUpdate: false })
-      onChange(editor.getJSON())
-    }
-  }
-
   // 🔁 Sync external value → editor (edit page)
   useEffect(() => {
     if (!editor || !value) return
     const current = editor.getJSON()
     if (JSON.stringify(current) !== JSON.stringify(value)) {
       editor.commands.setContent(value, { emitUpdate: false })
-      if (isHtmlMode) {
-        setHtmlValue(editor.getHTML())
-      }
     }
-  }, [value, editor, isHtmlMode])
+  }, [value, editor])
 
   // Update editor editable state dynamically if readOnly changes
   useEffect(() => {
@@ -112,7 +84,7 @@ export default function Editor({ value, onChange, className, readOnly = false }:
       disabled={disabled}
       title={label}
       className={cn(
-        'flex items-center justify-center h-8 w-8 rounded-[8px] transition-all duration-150',
+        'flex items-center justify-center h-10 w-10 rounded-[10px] transition-all duration-150',
         'hover:bg-pure-white hover:text-electric-cobalt border border-transparent',
         isActive
           ? 'bg-pure-white border-hairline text-electric-cobalt shadow-sm font-semibold'
@@ -120,12 +92,12 @@ export default function Editor({ value, onChange, className, readOnly = false }:
         disabled && 'opacity-30 cursor-not-allowed'
       )}
     >
-      <Icon className="h-4 w-4" />
+      <Icon className="h-5 w-5" />
     </button>
   )
 
   const Divider = () => (
-    <div className="h-4 w-px bg-hairline mx-1" />
+    <div className="h-5 w-px bg-hairline mx-1.5" />
   )
 
   return (
@@ -137,7 +109,7 @@ export default function Editor({ value, onChange, className, readOnly = false }:
     >
       {/* ================= TOOLBAR ================= */}
       {!readOnly && (
-        <div className="flex flex-wrap items-center justify-between border-b border-hairline bg-canvas-cream px-3 py-2 gap-2">
+        <div className="flex flex-wrap items-center justify-between border-b border-hairline bg-canvas-cream px-3 py-2.5 gap-2">
           <div className="flex flex-wrap items-center gap-1">
             {/* Text Formatting */}
             <ToolButton
@@ -145,14 +117,12 @@ export default function Editor({ value, onChange, className, readOnly = false }:
               isActive={editor.isActive('bold')}
               icon={Bold}
               label="Bold (Ctrl+B)"
-              disabled={isHtmlMode}
             />
             <ToolButton
               onClick={() => editor.chain().focus().toggleItalic().run()}
               isActive={editor.isActive('italic')}
               icon={Italic}
               label="Italic (Ctrl+I)"
-              disabled={isHtmlMode}
             />
 
             <Divider />
@@ -163,21 +133,18 @@ export default function Editor({ value, onChange, className, readOnly = false }:
               isActive={editor.isActive('heading', { level: 1 })}
               icon={Heading1}
               label="Heading 1"
-              disabled={isHtmlMode}
             />
             <ToolButton
               onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
               isActive={editor.isActive('heading', { level: 2 })}
               icon={Heading2}
               label="Heading 2"
-              disabled={isHtmlMode}
             />
             <ToolButton
               onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
               isActive={editor.isActive('heading', { level: 3 })}
               icon={Heading3}
               label="Heading 3"
-              disabled={isHtmlMode}
             />
 
             <Divider />
@@ -188,14 +155,12 @@ export default function Editor({ value, onChange, className, readOnly = false }:
               isActive={editor.isActive('bulletList')}
               icon={List}
               label="Bullet List"
-              disabled={isHtmlMode}
             />
             <ToolButton
               onClick={() => editor.chain().focus().toggleOrderedList().run()}
               isActive={editor.isActive('orderedList')}
               icon={ListOrdered}
               label="Numbered List"
-              disabled={isHtmlMode}
             />
 
             <Divider />
@@ -206,14 +171,12 @@ export default function Editor({ value, onChange, className, readOnly = false }:
               isActive={editor.isActive('blockquote')}
               icon={Quote}
               label="Blockquote"
-              disabled={isHtmlMode}
             />
             <ToolButton
               onClick={() => editor.chain().focus().setHorizontalRule().run()}
               isActive={false}
               icon={Minus}
               label="Horizontal Rule"
-              disabled={isHtmlMode}
             />
 
             <Divider />
@@ -222,54 +185,26 @@ export default function Editor({ value, onChange, className, readOnly = false }:
             <ToolButton
               onClick={() => editor.chain().focus().undo().run()}
               isActive={false}
-              disabled={isHtmlMode || !editor.can().undo()}
+              disabled={!editor.can().undo()}
               icon={Undo}
               label="Undo (Ctrl+Z)"
             />
             <ToolButton
               onClick={() => editor.chain().focus().redo().run()}
               isActive={false}
-              disabled={isHtmlMode || !editor.can().redo()}
+              disabled={!editor.can().redo()}
               icon={Redo}
               label="Redo (Ctrl+Y)"
             />
           </div>
-
-          {/* Toggle HTML view */}
-          <button
-            type="button"
-            onClick={toggleHtmlMode}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-hairline bg-pure-white text-slate-gray hover:text-electric-cobalt hover:border-slate-300 transition-all shadow-sm cursor-pointer"
-          >
-            {isHtmlMode ? (
-              <>
-                <Eye className="h-3.5 w-3.5 text-electric-cobalt" />
-                <span>Visual Editor</span>
-              </>
-            ) : (
-              <>
-                <Code className="h-3.5 w-3.5 text-slate-gray" />
-                <span>Edit HTML</span>
-              </>
-            )}
-          </button>
         </div>
       )}
 
       {/* ================= EDITOR ================= */}
-      {isHtmlMode ? (
-        <textarea
-          value={htmlValue}
-          onChange={handleTextareaChange}
-          placeholder="Paste or write HTML code here... (All HTML tags will be dynamically parsed and synced)"
-          className="min-h-[360px] w-full px-5 py-4 focus:outline-none text-ink-charcoal bg-pure-white font-mono text-sm leading-relaxed resize-y border-0"
-        />
-      ) : (
-        <EditorContent
-          editor={editor}
-          className="min-h-[360px] w-full px-5 py-4 focus:outline-none text-ink-charcoal bg-pure-white"
-        />
-      )}
+      <EditorContent
+        editor={editor}
+        className="min-h-[360px] w-full px-5 py-4 focus:outline-none text-ink-charcoal bg-pure-white"
+      />
 
       {/* ================= TYPOGRAPHY SCOPE ================= */}
       <style jsx global>{`

@@ -135,6 +135,8 @@ if (user.role === 'WRITER' && data.status === 'PUBLISHED') {
   }
 }
 
+import { deleteFromCloudinary } from '@/lib/cloudinary.server'
+
 /* ---------------- DELETE ---------------- */
 export async function DELETE(
   _req: NextRequest,
@@ -146,7 +148,7 @@ export async function DELETE(
 
     const post = await prisma.post.findUnique({
       where: { id },
-      select: { authorId: true },
+      include: { bannerImage: true },
     })
 
     if (!post) {
@@ -158,6 +160,11 @@ export async function DELETE(
     }
 
     await prisma.post.delete({ where: { id } })
+
+    if (post.bannerImage) {
+      await deleteFromCloudinary(post.bannerImage.url)
+      await prisma.image.delete({ where: { id: post.bannerImage.id } })
+    }
 
     return NextResponse.json({ success: true })
   } catch (e) {

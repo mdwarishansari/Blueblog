@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
+import { deleteFromCloudinary } from '@/lib/cloudinary.server'
 
 /* ===========================
    UPDATE USER
@@ -116,9 +117,18 @@ export async function DELETE(
       )
     }
 
+    const profileImage = user.profileImage
+
     await prisma.user.delete({
       where: { id },
     })
+
+    if (profileImage) {
+      await deleteFromCloudinary(profileImage)
+      await prisma.image.deleteMany({
+        where: { url: profileImage }
+      })
+    }
 
     return NextResponse.json({
       message: 'User deleted successfully',
