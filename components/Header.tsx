@@ -56,7 +56,7 @@ export default function Header() {
       `}
     >
       <div className="max-w-[1200px] mx-auto px-4 md:px-6">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-20 items-center justify-between">
 
           {/* LOGO */}
           <Link href="/" className="flex items-center gap-3">
@@ -65,7 +65,7 @@ export default function Header() {
                 {/* Logo skeleton */}
                 <div
                   className="
-                    h-8 w-8 rounded-full
+                    h-11 w-11 rounded-lg
                     bg-surface-ivory animate-pulse
                   "
                 />
@@ -73,7 +73,7 @@ export default function Header() {
                 {/* Site name skeleton */}
                 <div
                   className="
-                    h-5 w-28 rounded-full
+                    h-6 w-32 rounded-full
                     bg-surface-ivory animate-pulse
                   "
                 />
@@ -84,10 +84,10 @@ export default function Header() {
                   <img
                     src={siteLogo}
                     alt="Logo"
-                    className="h-8 w-8 object-contain rounded-full"
+                    className="h-11 w-auto max-w-[150px] object-contain rounded-md"
                   />
                 )}
-                <span className="text-lg font-bold text-ink-charcoal">
+                <span className="text-xl font-bold text-ink-charcoal tracking-tight">
                   {siteName}
                 </span>
               </>

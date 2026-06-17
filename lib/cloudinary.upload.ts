@@ -15,27 +15,19 @@ export async function uploadImage(
 ): Promise<UploadResult> {
   const bytes = await file.arrayBuffer()
   const buffer = Buffer.from(bytes)
+  const base64Image = `data:${file.type};base64,${buffer.toString('base64')}`
 
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        folder,
-        resource_type: 'image',
-        transformation: [{ quality: 'auto', fetch_format: 'auto' }],
-      },
-      (error, result) => {
-        if (error || !result) return reject(error)
-
-        resolve({
-          url: result.secure_url,
-          publicId: result.public_id,
-          width: result.width,
-          height: result.height,
-          format: result.format,
-        })
-      }
-    )
-
-    stream.end(buffer)
+  const result = await cloudinary.uploader.upload(base64Image, {
+    folder,
+    resource_type: 'auto',
+    transformation: [{ quality: 'auto', fetch_format: 'auto' }],
   })
+
+  return {
+    url: result.secure_url,
+    publicId: result.public_id,
+    width: result.width,
+    height: result.height,
+    format: result.format,
+  }
 }

@@ -3,7 +3,7 @@ export default function SiteNameSkeleton() {
     <span
       className="
         inline-block h-12 w-56 rounded-lg
-        skeleton-hero
+        skeleton-enhanced
         shadow-[inset_0_1px_2px_rgba(0,0,0,0.15)]
       "
     />

@@ -52,7 +52,7 @@ export default async function Footer() {
   const social = settings.social_links || {}
 
   return (
-    <footer className="relative mt-20 bg-pure-white border-t border-hairline overflow-hidden">
+    <footer className="relative mt-20 bg-ink-charcoal border-t border-mid-graphite overflow-hidden">
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-16 relative z-10">
         {/* ===============================
             Main grid
@@ -63,7 +63,7 @@ export default async function Footer() {
           <div className="space-y-4 md:col-span-2">
             <Link
               href="/"
-              className="group flex items-center gap-3 text-xl font-semibold text-ink-charcoal"
+              className="group flex items-center gap-3 text-xl font-semibold text-pure-white"
             >
               {settings.site_logo ? (
                 <img
@@ -72,12 +72,12 @@ export default async function Footer() {
                   className="h-9 w-9 object-contain rounded-full"
                 />
               ) : (
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-ivory border border-hairline text-sm font-bold text-ink-charcoal">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-mid-graphite border border-mid-graphite text-sm font-bold text-pure-white">
                   B
                 </div>
               )}
 
-              <span className="font-semibold text-ink-charcoal">
+              <span className="font-semibold text-pure-white">
                 {settings.site_name || 'BlueBlog'}
               </span>
             </Link>
@@ -91,7 +91,7 @@ export default async function Footer() {
 
           {/* Quick links */}
           <div>
-            <h3 className="mb-5 text-xs font-semibold uppercase tracking-widest text-ink-charcoal">
+            <h3 className="mb-5 text-xs font-semibold uppercase tracking-widest text-pure-white">
               Explore
             </h3>
 
@@ -99,7 +99,7 @@ export default async function Footer() {
               <li>
                 <Link
                   href="/blog"
-                  className="text-slate-gray hover:text-ink-charcoal transition-colors duration-150"
+                  className="text-slate-gray hover:text-pure-white transition-colors duration-150"
                 >
                   Blog
                 </Link>
@@ -107,7 +107,7 @@ export default async function Footer() {
               <li>
                 <Link
                   href="/about"
-                  className="text-slate-gray hover:text-ink-charcoal transition-colors duration-150"
+                  className="text-slate-gray hover:text-pure-white transition-colors duration-150"
                 >
                   About
                 </Link>
@@ -115,7 +115,7 @@ export default async function Footer() {
               <li>
                 <Link
                   href="/contact"
-                  className="text-slate-gray hover:text-ink-charcoal transition-colors duration-150"
+                  className="text-slate-gray hover:text-pure-white transition-colors duration-150"
                 >
                   Contact
                 </Link>
@@ -125,7 +125,7 @@ export default async function Footer() {
 
           {/* Social */}
           <div>
-            <h3 className="mb-5 text-xs font-semibold uppercase tracking-widest text-ink-charcoal">
+            <h3 className="mb-5 text-xs font-semibold uppercase tracking-widest text-pure-white">
               Connect
             </h3>
 
@@ -135,7 +135,7 @@ export default async function Footer() {
                   href={normalizeUrl(social.twitter)!}
                   target="_blank"
                   aria-label="Twitter"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-pure-white border border-hairline text-slate-gray hover:text-ink-charcoal hover:bg-canvas-cream transition-all duration-200"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-mid-graphite border border-mid-graphite text-slate-gray hover:text-pure-white hover:bg-black transition-all duration-200"
                 >
                   <Twitter className="h-4.5 w-4.5" />
                 </a>
@@ -145,7 +145,7 @@ export default async function Footer() {
                   href={normalizeUrl(social.facebook)!}
                   target="_blank"
                   aria-label="Facebook"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-pure-white border border-hairline text-slate-gray hover:text-ink-charcoal hover:bg-canvas-cream transition-all duration-200"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-mid-graphite border border-mid-graphite text-slate-gray hover:text-pure-white hover:bg-black transition-all duration-200"
                 >
                   <Facebook className="h-4.5 w-4.5" />
                 </a>
@@ -155,7 +155,7 @@ export default async function Footer() {
                   href={normalizeUrl(social.instagram)!}
                   target="_blank"
                   aria-label="Instagram"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-pure-white border border-hairline text-slate-gray hover:text-ink-charcoal hover:bg-canvas-cream transition-all duration-200"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-mid-graphite border border-mid-graphite text-slate-gray hover:text-pure-white hover:bg-black transition-all duration-200"
                 >
                   <Instagram className="h-4.5 w-4.5" />
                 </a>
@@ -165,7 +165,7 @@ export default async function Footer() {
                   href={normalizeUrl(social.github)!}
                   target="_blank"
                   aria-label="GitHub"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-pure-white border border-hairline text-slate-gray hover:text-ink-charcoal hover:bg-canvas-cream transition-all duration-200"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-mid-graphite border border-mid-graphite text-slate-gray hover:text-pure-white hover:bg-black transition-all duration-200"
                 >
                   <Github className="h-4.5 w-4.5" />
                 </a>
@@ -177,7 +177,7 @@ export default async function Footer() {
         {/* ===============================
             Bottom
         =============================== */}
-        <div className="mt-16 border-t border-hairline pt-8 text-center text-xs text-steel-gray">
+        <div className="mt-16 border-t border-mid-graphite pt-8 text-center text-xs text-slate-gray">
           <p>
             {settings.footer_text ||
               `© ${year} ${settings.site_name || 'BlueBlog'}. All rights reserved.`}
