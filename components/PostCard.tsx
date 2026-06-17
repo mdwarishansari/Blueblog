@@ -20,7 +20,7 @@ interface PostCardProps {
 
 export default function PostCard({ post }: PostCardProps) {
   const imageUrl = post.bannerImage?.url
-    ? getOptimizedImageUrl(post.bannerImage.url, 400, 250)
+    ? getOptimizedImageUrl(post.bannerImage.url, 600)
     : null
 
   return (
@@ -31,7 +31,7 @@ export default function PostCard({ post }: PostCardProps) {
     >
       {/* Image */}
       {imageUrl && (
-        <div className="relative h-48 w-full overflow-hidden rounded-t-[16px]">
+        <div className="relative aspect-video w-full overflow-hidden rounded-t-[16px]">
           <Image
             src={imageUrl}
             alt={post.bannerImage?.altText || post.title}

@@ -5,7 +5,7 @@ export default function PostCardSkeleton() {
       <div className="absolute inset-x-0 top-0 h-[3px] skeleton-gradient" />
 
       {/* Image */}
-      <div className="h-48 w-full skeleton-enhanced" />
+      <div className="aspect-video w-full skeleton-enhanced" />
 
       {/* Content */}
       <div className="flex flex-1 flex-col p-6">

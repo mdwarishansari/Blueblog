@@ -6,6 +6,7 @@ import { generateSEO } from '@/lib/seo'
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { Folder } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -91,11 +92,15 @@ export default async function CategoryPage(
         <div className="absolute bottom-5 right-[15%] w-[300px] h-[300px] bg-vivid-violet/5 rounded-full blur-[90px] pointer-events-none animate-glow-pulse-2" />
 
         <Container className="relative z-10 text-center">
-          {category.image?.url && (
-            <div className="mx-auto mb-6 h-24 w-24 rounded-[20px] overflow-hidden border border-hairline bg-pure-white flex items-center justify-center p-1.5 shadow-md hover:scale-105 active:scale-95 transition-all duration-300 opacity-0 animate-fade-up">
+          <div className="mx-auto mb-6 h-24 w-24 rounded-[20px] overflow-hidden border border-hairline bg-pure-white flex items-center justify-center p-1.5 shadow-md hover:scale-105 active:scale-95 transition-all duration-300 opacity-0 animate-fade-up">
+            {category.image?.url ? (
               <img src={category.image.url} className="h-full w-full object-cover rounded-[14px]" alt={category.name} />
-            </div>
-          )}
+            ) : (
+              <div className="h-full w-full bg-lavender-mist rounded-[14px] flex items-center justify-center">
+                <Folder className="h-10 w-10 text-vivid-violet/60" />
+              </div>
+            )}
+          </div>
 
           <div className="mx-auto mb-4 inline-flex items-center gap-1.5 rounded-full bg-pure-white border border-hairline px-3.5 py-1 text-xs font-semibold text-vivid-violet shadow-sm opacity-0 animate-fade-up delay-100">
             Category
