@@ -11,28 +11,28 @@ interface StatCardProps {
 
 const colorClasses = {
   primary: {
-    icon: 'bg-indigo-50 text-indigo-600',
-    glow: 'from-indigo-500/20 to-purple-500/20',
+    text: 'text-electric-cobalt',
+    icon: 'bg-lavender-mist text-vivid-violet',
   },
   green: {
-    icon: 'bg-green-50 text-green-600',
-    glow: 'from-green-500/20 to-emerald-500/20',
+    text: 'text-forest',
+    icon: 'bg-green-50 text-forest border border-green-100',
   },
   blue: {
-    icon: 'bg-blue-50 text-blue-600',
-    glow: 'from-blue-500/20 to-cyan-500/20',
+    text: 'text-electric-cobalt',
+    icon: 'bg-powder-blue/40 text-electric-cobalt',
   },
   purple: {
-    icon: 'bg-purple-50 text-purple-600',
-    glow: 'from-purple-500/20 to-pink-500/20',
+    text: 'text-vivid-violet',
+    icon: 'bg-lavender-mist text-vivid-violet',
   },
   yellow: {
-    icon: 'bg-yellow-50 text-yellow-600',
-    glow: 'from-yellow-400/20 to-orange-400/20',
+    text: 'text-ink-charcoal',
+    icon: 'bg-canvas-cream text-slate-gray border border-hairline',
   },
   red: {
-    icon: 'bg-red-50 text-red-600',
-    glow: 'from-red-500/20 to-rose-500/20',
+    text: 'text-vivid-violet',
+    icon: 'bg-lavender-mist text-vivid-violet',
   },
 }
 
@@ -48,38 +48,24 @@ export default function StatCard({
   return (
     <div
       className="
-        group relative overflow-hidden
-        rounded-2xl bg-card
-        p-6
-        elev-sm
-        ui-transition ui-lift
-        hover:elev-md
-        hover-glow
+        relative overflow-hidden
+        rounded-[16px] bg-pure-white border border-hairline
+        p-6 shadow-subtle hover:shadow-md transition-shadow duration-200
       "
     >
-      {/* subtle gradient glow */}
-      <div
-        className={cn(
-          'pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300',
-          'group-hover:opacity-100',
-          'bg-gradient-to-br',
-          colorClasses[color].glow
-        )}
-      />
-
       <div className="relative flex items-start justify-between gap-4">
         {/* LEFT */}
         <div>
-          <p className="text-sm font-medium text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-gray">
             {title}
           </p>
 
-          <p className="mt-2 text-3xl font-bold text-fg tracking-tight">
+          <p className={cn("mt-3 text-3xl font-bold tracking-tight", colorClasses[color].text)}>
             {value}
           </p>
 
           {trend && (
-            <p className="mt-1 text-sm font-medium text-green-600">
+            <p className="mt-1.5 text-xs font-semibold text-forest">
               {trend}
             </p>
           )}
@@ -88,12 +74,11 @@ export default function StatCard({
         {/* ICON */}
         <div
           className={cn(
-            'rounded-xl p-3',
-            'ui-transition',
+            'h-10 w-10 rounded-full flex items-center justify-center',
             colorClasses[color].icon
           )}
         >
-          <Icon className="h-6 w-6" />
+          <Icon className="h-4.5 w-4.5" />
         </div>
       </div>
     </div>

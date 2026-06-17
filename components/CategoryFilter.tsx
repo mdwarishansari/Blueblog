@@ -17,39 +17,20 @@ export default function CategoryFilter({ categories }: { categories: any[] }) {
   }
 
   return (
-    <ul className="space-y-2">
-      {categories.map((cat, index) => {
+    <ul className="space-y-1.5">
+      {categories.map((cat) => {
         const isActive = active === cat.slug
 
         return (
-          <li
-            key={cat.id}
-            className={`animate-fade-in-left stagger-${Math.min(index + 1, 6)}`}
-          >
+          <li key={cat.id}>
             <button
               type="button"
               onClick={() => selectCategory(cat.slug)}
               className={cn(
-                `
-                group flex w-full items-center justify-between
-                rounded-lg px-3 py-2
-                text-sm font-medium
-                ui-transition
-                `,
+                'group flex w-full items-center justify-between rounded-full px-4 py-2 text-sm font-medium transition-all duration-200',
                 isActive
-                  ? `
-                    bg-gradient-to-r
-                    from-indigo-500 via-violet-500 to-pink-500
-                    text-white
-                    elev-sm
-                    shadow-[0_0_15px_rgba(139,92,246,0.3)]
-                  `
-                  : `
-                    bg-card text-fg
-                    hover:bg-[var(--muted)]
-                    hover:shadow-md
-                    hover:translate-x-1
-                  `
+                  ? 'bg-surface-ivory border border-hairline text-ink-charcoal shadow-sm'
+                  : 'text-slate-gray hover:text-ink-charcoal hover:bg-canvas-cream'
               )}
             >
               {/* name */}
@@ -60,16 +41,10 @@ export default function CategoryFilter({ categories }: { categories: any[] }) {
               {/* count */}
               <span
                 className={cn(
-                  `
-                  ml-3 inline-flex min-w-[1.75rem]
-                  items-center justify-center
-                  rounded-full px-2 py-0.5
-                  text-xs
-                  ui-transition
-                  `,
+                  'ml-3 inline-flex min-w-[1.75rem] items-center justify-center rounded-full px-2 py-0.5 text-xs transition-colors duration-150',
                   isActive
-                    ? 'bg-white/20 text-white'
-                    : 'bg-slate-100 text-slate-600 group-hover:bg-indigo-100 group-hover:text-indigo-700'
+                    ? 'bg-pure-white text-ink-charcoal border border-hairline'
+                    : 'bg-canvas-cream text-slate-gray group-hover:bg-pure-white group-hover:text-ink-charcoal group-hover:border group-hover:border-hairline'
                 )}
               >
                 {cat._count.posts}

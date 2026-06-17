@@ -5,6 +5,11 @@ import TeamMember from '@/components/TeamMember'
 import { generateSEO } from '@/lib/seo'
 import TeamMemberSkeleton from '@/components/skeletons/TeamMemberSkeleton'
 import Link from 'next/link'
+import { Container } from '@/components/ui/Container'
+import { Section } from '@/components/ui/Section'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+
 export const revalidate = 60
 
 export const metadata = generateSEO({
@@ -13,7 +18,6 @@ export const metadata = generateSEO({
     'Learn more about BlueBlog, our mission, vision, values, and the team behind the platform.',
   url: '/about',
 })
-
 
 /* ================= TEAM DATA ================= */
 async function getTeamMembers() {
@@ -38,15 +42,18 @@ async function getTeamMembers() {
 async function TeamSection() {
   const teamMembers = await getTeamMembers()
 
+  if (teamMembers.length === 0) {
+    return (
+      <div className="col-span-full py-12 text-center text-slate-gray">
+        No team members found.
+      </div>
+    )
+  }
+
   return (
     <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-      {teamMembers.map((member, index) => (
-        <div
-          key={member.id}
-          className={`animate-fade-in-up stagger-${Math.min(index + 1, 6)}`}
-        >
-          <TeamMember member={member} />
-        </div>
+      {teamMembers.map((member) => (
+        <TeamMember key={member.id} member={member} />
       ))}
     </div>
   )
@@ -55,69 +62,63 @@ async function TeamSection() {
 /* ================= PAGE ================= */
 export default async function AboutPage() {
   return (
-    <div className="min-h-screen bg-bg">
-
+    <div className="min-h-screen bg-canvas-cream pb-12">
+      
       {/* ================= HERO ================= */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-violet-600 to-pink-500 py-24">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
-
-        {/* Floating blobs */}
-        <div className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-pink-400/30 blur-3xl animate-blob" />
-        <div className="absolute top-1/3 -right-24 h-80 w-80 rounded-full bg-indigo-400/30 blur-3xl animate-blob animation-delay-2000" />
-        <div className="absolute bottom-0 left-1/4 h-64 w-64 rounded-full bg-white/10 blur-2xl animate-float" />
-
-        <div className="container relative">
-          <div className="mx-auto max-w-3xl text-center text-white">
-            <h1 className="mb-6 text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl animate-fade-in-up">
-              About BlueBlog
-            </h1>
-            <p className="text-xl text-white/90 animate-fade-in-up stagger-2">
-              A modern blogging platform built for creators, by creators
-            </p>
+      <section className="relative overflow-hidden bg-gradient-to-b from-canvas-cream to-lavender-mist/50 py-20 border-b border-hairline">
+        <Container className="relative z-10 text-center">
+          <div className="mx-auto mb-4 inline-flex items-center gap-1.5 rounded-full bg-pure-white border border-hairline px-3.5 py-1 text-xs font-semibold text-vivid-violet shadow-sm">
+            About Us
           </div>
-        </div>
+          <h1 className="mb-6 text-3xl sm:text-[48px] md:text-[57px] font-bold tracking-tight text-ink-charcoal leading-tight">
+            About BlueBlog
+          </h1>
+          <p className="text-base sm:text-lg text-slate-gray max-w-xl mx-auto">
+            A modern blogging platform built for creators, by creators.
+          </p>
+        </Container>
       </section>
 
       {/* ================= MISSION & VISION ================= */}
-      <section className="py-20">
-        <div className="container">
-          <div className="grid gap-14 lg:grid-cols-2">
+      <Section>
+        <Container>
+          <div className="grid gap-12 lg:grid-cols-2">
 
             {/* Mission */}
-            <div className="space-y-6 animate-fade-in-left">
-              <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-2 text-indigo-700 hover-glow">
-                <Target className="h-5 w-5" />
-                <span className="text-sm font-medium">Our Mission</span>
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-lavender-mist px-3.5 py-1 text-xs font-medium text-vivid-violet">
+                <Target className="h-3.5 w-3.5" />
+                Our Mission
               </div>
 
-              <h2 className="text-3xl font-bold tracking-tight text-fg">
+              <h2 className="text-3xl font-bold tracking-tight text-ink-charcoal leading-tight">
                 Empowering voices in the digital age
               </h2>
 
-              <p className="text-lg text-slate-600">
+              <p className="text-base text-slate-gray leading-relaxed">
                 BlueBlog was founded with a simple mission: to create the most
                 user-friendly, powerful, and accessible blogging platform for
                 writers of all backgrounds.
               </p>
 
-              <p className="text-slate-600">
+              <p className="text-sm text-slate-gray leading-relaxed">
                 Our platform combines cutting-edge technology with intuitive
                 design to help you focus on what matters most—your content.
               </p>
             </div>
 
             {/* Vision */}
-            <div className="space-y-6 animate-fade-in-right">
-              <div className="inline-flex items-center gap-2 rounded-full bg-violet-50 px-4 py-2 text-violet-700 hover-glow">
-                <Globe className="h-5 w-5" />
-                <span className="text-sm font-medium">Our Vision</span>
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-powder-blue/40 px-3.5 py-1 text-xs font-medium text-electric-cobalt">
+                <Globe className="h-3.5 w-3.5" />
+                Our Vision
               </div>
 
-              <h2 className="text-3xl font-bold tracking-tight text-fg">
+              <h2 className="text-3xl font-bold tracking-tight text-ink-charcoal leading-tight">
                 Building a global community of creators
               </h2>
 
-              <p className="text-lg text-slate-600">
+              <p className="text-base text-slate-gray leading-relaxed mb-6">
                 We envision a world where every creator has the tools and
                 platform to share their unique perspective with a global
                 audience.
@@ -125,35 +126,36 @@ export default async function AboutPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 {[
-                  ['100K+', 'Monthly Readers'],
-                  ['500+', 'Published Authors'],
-                  ['10K+', 'Articles Published'],
-                  ['50+', 'Countries Reached'],
-                ].map(([value, label], index) => (
-                  <div
+                  ['100K+', 'Monthly Readers', 'text-electric-cobalt'],
+                  ['500+', 'Published Authors', 'text-vivid-violet'],
+                  ['10K+', 'Articles Published', 'text-forest'],
+                  ['50+', 'Countries Reached', 'text-electric-cobalt'],
+                ].map(([value, label, colorClass]) => (
+                  <Card
                     key={label}
-                    className={`rounded-xl bg-card p-6 elev-sm ui-transition hover:elev-md hover-glow animate-fade-in-up stagger-${index + 1}`}
+                    variant="white"
+                    className="p-5"
                   >
-                    <div className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-violet-600 to-pink-600 bg-clip-text text-transparent">
+                    <div className={`text-2xl sm:text-3xl font-bold ${colorClass}`}>
                       {value}
                     </div>
-                    <div className="mt-2 text-sm text-slate-600">
+                    <div className="mt-1 text-xs font-medium text-slate-gray">
                       {label}
                     </div>
-                  </div>
+                  </Card>
                 ))}
               </div>
             </div>
 
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
       {/* ================= VALUES ================= */}
-      <section className="bg-card py-20">
-        <div className="container">
-          <div className="mx-auto mb-14 max-w-3xl text-center animate-fade-in">
-            <h2 className="text-3xl font-bold tracking-tight text-fg">
+      <Section className="bg-pure-white border-y border-hairline py-16">
+        <Container>
+          <div className="mx-auto mb-12 max-w-3xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-ink-charcoal">
               Our Values
             </h2>
           </div>
@@ -163,56 +165,49 @@ export default async function AboutPage() {
               {
                 icon: Users,
                 title: 'Community First',
-                text:
-                  "We build for our community. Every feature is designed with real creators' needs in mind.",
-                color: 'indigo',
+                text: "We build for our community. Every feature is designed with real creators' needs in mind.",
               },
               {
                 icon: Award,
                 title: 'Quality Content',
-                text:
-                  "We're committed to maintaining high standards for content quality and credibility.",
-                color: 'emerald',
+                text: "We're committed to maintaining high standards for content quality and credibility.",
               },
               {
                 icon: Globe,
                 title: 'Global Reach',
-                text:
-                  'We help creators reach audiences worldwide with global distribution.',
-                color: 'violet',
+                text: 'We help creators reach audiences worldwide with global distribution.',
               },
-            ].map(({ icon: Icon, title, text, color }, index) => (
-              <div
+            ].map(({ icon: Icon, title, text }) => (
+              <Card
                 key={title}
-                className={`rounded-2xl bg-[var(--muted)] p-8 text-center ui-transition hover:elev-md hover-glow card-shine animate-fade-in-up stagger-${index + 1}`}
+                variant="ivory"
+                className="text-center p-8 flex flex-col items-center"
               >
-                <div
-                  className={`mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-${color}-100 text-${color}-600 ui-transition group-hover:scale-110`}
-                >
-                  <Icon className="h-8 w-8" />
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-pure-white border border-hairline text-vivid-violet shadow-sm">
+                  <Icon className="h-5 w-5" />
                 </div>
 
-                <h3 className="mb-4 text-xl font-bold text-fg">
+                <h3 className="mb-3 text-lg font-bold text-ink-charcoal">
                   {title}
                 </h3>
 
-                <p className="text-slate-600">
+                <p className="text-sm text-slate-gray leading-relaxed">
                   {text}
                 </p>
-              </div>
+              </Card>
             ))}
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
       {/* ================= TEAM (SUSPENSE) ================= */}
-      <section className="py-20">
-        <div className="container">
-          <div className="mx-auto mb-14 max-w-3xl text-center animate-fade-in">
-            <h2 className="text-3xl font-bold tracking-tight text-fg">
+      <Section>
+        <Container>
+          <div className="mx-auto mb-12 max-w-3xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-ink-charcoal">
               Meet Our Team
             </h2>
-            <p className="mt-4 text-slate-600">
+            <p className="mt-2 text-sm text-slate-gray">
               The passionate people behind BlueBlog
             </p>
           </div>
@@ -228,46 +223,33 @@ export default async function AboutPage() {
           >
             <TeamSection />
           </Suspense>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
       {/* ================= CTA ================= */}
-      <section className="py-20">
-        <div className="container">
-          <div className="rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-600 to-pink-500 p-14 text-center text-white elev-lg animate-fade-in-up relative overflow-hidden">
-            {/* Floating decorative elements */}
-            <div className="absolute -top-12 -right-12 h-40 w-40 rounded-full bg-white/10 blur-2xl animate-blob" />
-            <div className="absolute bottom-0 left-10 h-32 w-32 rounded-full bg-white/10 blur-2xl animate-blob animation-delay-2000" />
+      <section className="relative overflow-hidden bg-gradient-to-br from-canvas-cream via-powder-blue to-electric-cobalt py-20 border-t border-hairline">
+        <Container className="relative z-10 text-center">
+          <h2 className="text-3xl sm:text-[40px] font-bold text-ink-charcoal tracking-tight mb-6 leading-tight">
+            Ready to Start Writing?
+          </h2>
+          <p className="text-base sm:text-lg text-ink-charcoal/85 mb-10 max-w-xl mx-auto font-normal">
+            Join thousands of creators who are already sharing their stories with the world.
+          </p>
 
-            <div className="relative z-10">
-              <h2 className="mb-4 text-3xl font-bold">
-                Ready to Start Writing?
-              </h2>
-              <p className="mx-auto mb-10 max-w-2xl text-lg text-white/90">
-                Join thousands of creators who are already sharing their stories
-                with the world.
-              </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link href="/blog" aria-label="Read blog posts on BlueBlog">
+              <Button variant="default" size="lg">
+                Read Our Blog
+              </Button>
+            </Link>
 
-              <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-                <Link
-                  href="/blog"
-                  aria-label="Read blog posts on BlueBlog"
-                  className="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 font-medium text-indigo-600 ui-transition hover:bg-slate-100 hover-glow"
-                >
-                  Read Our Blog
-                </Link>
-
-                <Link
-                  href="/contact"
-                  aria-label="Contact the BlueBlog team"
-                  className="inline-flex items-center justify-center rounded-lg bg-white/20 px-6 py-3 font-medium text-white backdrop-blur-sm ui-transition hover:bg-white/30"
-                >
-                  Contact Us
-                </Link>
-              </div>
-            </div>
+            <Link href="/contact" aria-label="Contact the BlueBlog team">
+              <Button variant="secondary" size="lg" className="bg-pure-white border-hairline shadow-sm">
+                Contact Us
+              </Button>
+            </Link>
           </div>
-        </div>
+        </Container>
       </section>
 
     </div>

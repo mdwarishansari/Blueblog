@@ -53,30 +53,28 @@ export function Modal({
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* BACKDROP */}
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-ink-charcoal/40 backdrop-blur-sm"
         onClick={onClose}
       />
 
       {/* MODAL */}
       <div
-  className={cn(
-    'relative w-[95vw] max-w-full transform overflow-hidden rounded-2xl bg-white'
-,
-    sizeClasses[size]
-  )}
-  onClick={(e) => e.stopPropagation()}
->
-
+        className={cn(
+          'relative w-[95vw] max-w-full transform overflow-hidden rounded-[16px] bg-pure-white border border-hairline shadow-lg',
+          sizeClasses[size]
+        )}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* HEADER */}
         {(title || showCloseButton) && (
           <div className="flex items-start gap-4 px-6 py-5">
             {title && (
               <div className="flex-1">
-                <h3 className="text-lg font-semibold tracking-tight text-fg">
+                <h3 className="text-lg font-semibold tracking-tight text-ink-charcoal">
                   {title}
                 </h3>
                 {description && (
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-sm text-slate-gray">
                     {description}
                   </p>
                 )}
@@ -88,9 +86,9 @@ export function Modal({
                 variant="ghost"
                 size="icon"
                 onClick={onClose}
-                className="rounded-full hover:bg-muted"
+                className="h-8 w-8 rounded-full hover:bg-canvas-cream"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4" />
               </Button>
             )}
           </div>
@@ -98,7 +96,7 @@ export function Modal({
 
         {/* SUBTLE DIVIDER */}
         {(title || showCloseButton) && (
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent" />
+          <div className="h-px w-full bg-hairline" />
         )}
 
         {/* CONTENT */}

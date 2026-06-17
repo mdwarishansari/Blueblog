@@ -14,52 +14,51 @@ const buttonVariants = cva(
   [
     // base
     'inline-flex items-center justify-center gap-2',
-    'rounded-lg font-medium whitespace-nowrap',
+    'rounded-full font-medium whitespace-nowrap',
     'select-none',
-    'ui-transition btn-hover-effect',
-    'disabled:pointer-events-none disabled:opacity-60',
+    'transition-all duration-200 ease-in-out',
+    'disabled:pointer-events-none disabled:opacity-50',
     'active:scale-[0.98]',
   ].join(' '),
   {
     variants: {
       variant: {
         default: [
-          'text-white',
-          'bg-gradient-to-r from-[var(--accent-start)] via-[var(--accent-mid)] to-[var(--accent-end)]',
-          'btn-glow', // glow visible by default
+          'text-pure-white',
+          'bg-electric-cobalt',
+          'hover:bg-deep-cobalt',
         ].join(' '),
 
         secondary: [
-          'bg-card text-fg',
-          'border border-[var(--border)]',
-          'elev-sm',
-          'hover:elev-md',
+          'bg-pure-white text-ink-charcoal',
+          'border border-hairline',
+          'hover:bg-canvas-cream',
+          'shadow-sm',
         ].join(' '),
 
         outline: [
-          'bg-transparent text-fg',
-          'border border-[var(--border)]',
-          'hover:bg-[var(--muted)]',
-          'elev-sm hover:elev-md',
+          'bg-transparent text-ink-charcoal',
+          'border border-hairline',
+          'hover:bg-canvas-cream',
         ].join(' '),
 
         ghost: [
-          'bg-transparent text-fg',
-          'hover:bg-[var(--muted)]',
+          'bg-transparent text-ink-charcoal',
+          'hover:bg-surface-ivory',
         ].join(' '),
 
         link: [
-          'bg-transparent text-[var(--accent-start)]',
-          'underline-offset-4 hover:underline',
+          'bg-transparent text-electric-cobalt',
+          'hover:underline',
           'p-0 h-auto',
         ].join(' '),
       },
 
       size: {
-        sm: 'h-8 px-3 text-sm',
-        default: 'h-10 px-4 text-sm',
-        lg: 'h-12 px-6 text-base',
-        icon: 'h-10 w-10 p-0',
+        sm: 'h-9 px-4 text-sm',
+        default: 'h-11 px-6 text-[15px]',
+        lg: 'h-13 px-8 text-base',
+        icon: 'h-10 w-10 p-0 rounded-full',
       },
     },
 

@@ -68,13 +68,12 @@ export default function Editor({ value, onChange, className }: EditorProps) {
       disabled={disabled}
       title={label}
       className={cn(
-        'flex items-center justify-center h-9 w-9 rounded-lg ui-transition',
-        'hover:bg-indigo-50 hover:text-indigo-600',
-        'focus:outline-none focus:ring-2 focus:ring-indigo-500/20',
+        'flex items-center justify-center h-8 w-8 rounded-[8px] transition-all duration-150',
+        'hover:bg-pure-white hover:text-electric-cobalt border border-transparent',
         isActive
-          ? 'bg-gradient-to-br from-indigo-100 to-violet-100 text-indigo-700 shadow-sm'
-          : 'text-gray-600',
-        disabled && 'opacity-40 cursor-not-allowed'
+          ? 'bg-pure-white border-hairline text-electric-cobalt shadow-sm font-semibold'
+          : 'text-slate-gray',
+        disabled && 'opacity-30 cursor-not-allowed'
       )}
     >
       <Icon className="h-4 w-4" />
@@ -82,18 +81,18 @@ export default function Editor({ value, onChange, className }: EditorProps) {
   )
 
   const Divider = () => (
-    <div className="h-6 w-px bg-gray-200 mx-1" />
+    <div className="h-4 w-px bg-hairline mx-1" />
   )
 
   return (
     <div
       className={cn(
-        'rounded-xl bg-white overflow-hidden flex flex-col border-2 border-gray-100 shadow-sm hover:border-indigo-200 ui-transition',
+        'rounded-[16px] bg-pure-white overflow-hidden flex flex-col border border-hairline shadow-subtle hover:border-slate-300 transition-colors duration-200',
         className
       )}
     >
       {/* ================= TOOLBAR ================= */}
-      <div className="flex flex-wrap items-center gap-1 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-indigo-50/30 px-3 py-2">
+      <div className="flex flex-wrap items-center gap-1 border-b border-hairline bg-canvas-cream px-3 py-2">
         {/* Text Formatting */}
         <ToolButton
           onClick={() => editor.chain().focus().toggleBold().run()}
@@ -189,8 +188,8 @@ export default function Editor({ value, onChange, className }: EditorProps) {
           w-full
           px-5 py-4
           focus:outline-none
-          text-gray-800
-          bg-white
+          text-ink-charcoal
+          bg-pure-white
         "
       />
 
@@ -199,6 +198,7 @@ export default function Editor({ value, onChange, className }: EditorProps) {
         .ProseMirror {
           outline: none;
           min-height: 300px;
+          color: #121722;
         }
 
         .ProseMirror:focus {
@@ -210,37 +210,33 @@ export default function Editor({ value, onChange, className }: EditorProps) {
         }
 
         .ProseMirror h1 {
-          font-size: 2rem;
-          font-weight: 800;
+          font-size: 20px;
+          font-weight: 600;
           margin: 1.5rem 0 1rem 0;
-          line-height: 1.2;
-          color: #1e293b;
-          background: linear-gradient(135deg, #1e293b 0%, #4f46e5 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
+          line-height: 1.38;
+          color: #121722;
         }
 
         .ProseMirror h2 {
-          font-size: 1.5rem;
-          font-weight: 700;
+          font-size: 18px;
+          font-weight: 600;
           margin: 1.25rem 0 0.75rem 0;
-          line-height: 1.3;
-          color: #334155;
+          line-height: 1.5;
+          color: #121722;
         }
 
         .ProseMirror h3 {
-          font-size: 1.25rem;
+          font-size: 16px;
           font-weight: 600;
           margin: 1rem 0 0.5rem 0;
-          line-height: 1.4;
-          color: #475569;
+          line-height: 1.56;
+          color: #121722;
         }
 
         .ProseMirror p {
           margin: 0.75rem 0;
-          line-height: 1.8;
-          color: #475569;
+          line-height: 1.56;
+          color: #121722;
         }
 
         .ProseMirror ul {
@@ -257,8 +253,8 @@ export default function Editor({ value, onChange, className }: EditorProps) {
 
         .ProseMirror li {
           margin: 0.25rem 0;
-          line-height: 1.7;
-          color: #475569;
+          line-height: 1.56;
+          color: #121722;
         }
 
         .ProseMirror li p {
@@ -267,47 +263,50 @@ export default function Editor({ value, onChange, className }: EditorProps) {
 
         .ProseMirror strong {
           font-weight: 700;
-          color: #1e293b;
+          color: #121722;
         }
 
         .ProseMirror em {
           font-style: italic;
-          color: #64748b;
+          color: #777c86;
         }
 
         .ProseMirror blockquote {
-          border-left: 4px solid #6366f1;
+          border-left: 4px solid #0068f9;
           padding-left: 1.5rem;
           margin: 1rem 0;
           font-style: italic;
-          color: #64748b;
-          background: linear-gradient(90deg, rgba(99, 102, 241, 0.05) 0%, transparent 100%);
+          color: #121722;
+          background-color: #fbfaf7;
           padding: 1rem 1rem 1rem 1.5rem;
-          border-radius: 0 0.5rem 0.5rem 0;
+          border-radius: 0 8px 8px 0;
+          border-top: 1px solid #efefef;
+          border-right: 1px solid #efefef;
+          border-bottom: 1px solid #efefef;
         }
 
         .ProseMirror hr {
           border: none;
-          height: 2px;
-          background: linear-gradient(90deg, #e2e8f0 0%, #c7d2fe 50%, #e2e8f0 100%);
+          height: 1px;
+          background: #efefef;
           margin: 2rem 0;
-          border-radius: 1px;
         }
 
         .ProseMirror code {
-          background: #f1f5f9;
+          background: #fbfaf7;
           padding: 0.2rem 0.4rem;
-          border-radius: 0.25rem;
+          border-radius: 4px;
           font-family: ui-monospace, monospace;
           font-size: 0.9em;
-          color: #e11d48;
+          color: #6736eb;
+          border: 1px solid #efefef;
         }
 
         .ProseMirror pre {
-          background: #1e293b;
-          color: #e2e8f0;
+          background: #1d1d1d;
+          color: #faf9f7;
           padding: 1rem;
-          border-radius: 0.75rem;
+          border-radius: 12px;
           overflow-x: auto;
           margin: 1rem 0;
         }
@@ -316,13 +315,14 @@ export default function Editor({ value, onChange, className }: EditorProps) {
           background: none;
           color: inherit;
           padding: 0;
+          border: none;
         }
 
         /* Placeholder styling */
         .ProseMirror p.is-editor-empty:first-child::before {
           content: attr(data-placeholder);
           float: left;
-          color: #9ca3af;
+          color: #a5a5a5;
           pointer-events: none;
           height: 0;
         }
@@ -330,4 +330,3 @@ export default function Editor({ value, onChange, className }: EditorProps) {
     </div>
   )
 }
-

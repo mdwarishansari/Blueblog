@@ -11,28 +11,23 @@ interface TeamMemberProps {
 
 export default function TeamMember({ member }: TeamMemberProps) {
   const roleStyles: Record<UserType['role'], string> = {
-    ADMIN:
-      'bg-purple-100 text-purple-700 shadow-[0_6px_16px_rgba(168,85,247,0.35)]',
-    EDITOR:
-      'bg-blue-100 text-blue-700 shadow-[0_6px_16px_rgba(59,130,246,0.35)]',
-    WRITER:
-      'bg-green-100 text-green-700 shadow-[0_6px_16px_rgba(34,197,94,0.35)]',
+    ADMIN: 'bg-lavender-mist text-vivid-violet',
+    EDITOR: 'bg-powder-blue/40 text-electric-cobalt',
+    WRITER: 'bg-green-50 text-forest border border-green-100',
   }
 
   return (
     <div
       className="
         group
-        bg-card
-        rounded-2xl
+        bg-pure-white
+        rounded-[16px]
         p-6
         text-center
-        elev-sm
-        ui-transition
-        ui-lift
-        hover:elev-lg
-        hover-glow
-        card-shine
+        border border-hairline
+        shadow-subtle
+        hover:shadow-lg
+        transition-all duration-300
       "
     >
       {/* Avatar */}
@@ -42,31 +37,25 @@ export default function TeamMember({ member }: TeamMemberProps) {
             relative
             h-24 w-24
             rounded-full
-            bg-gradient-to-br
-            from-indigo-500
-            via-violet-500
-            to-pink-500
-            p-[3px]
-            ui-transition
-            group-hover:scale-105
-            group-hover:shadow-[0_0_30px_rgba(139,92,246,0.4)]
+            border border-hairline
+            overflow-hidden
+            bg-surface-ivory
+            flex items-center justify-center
           "
         >
-          <div className="h-full w-full rounded-full bg-card flex items-center justify-center overflow-hidden">
-            {member.profileImage ? (
-              <div
-                className="h-full w-full bg-cover bg-center ui-transition group-hover:scale-110"
-                style={{ backgroundImage: `url(${member.profileImage})` }}
-              />
-            ) : (
-              <User className="h-12 w-12 text-slate-400" />
-            )}
-          </div>
+          {member.profileImage ? (
+            <div
+              className="h-full w-full bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
+              style={{ backgroundImage: `url(${member.profileImage})` }}
+            />
+          ) : (
+            <User className="h-10 w-10 text-slate-gray" />
+          )}
         </div>
       </div>
 
       {/* Name */}
-      <h3 className="text-lg font-semibold text-fg ui-transition group-hover:text-indigo-600">
+      <h3 className="text-lg font-bold text-ink-charcoal transition-colors duration-150 group-hover:text-electric-cobalt">
         {member.name}
       </h3>
 
@@ -76,11 +65,10 @@ export default function TeamMember({ member }: TeamMemberProps) {
           className={`
             inline-flex
             items-center
-            rounded-full
-            px-3 py-1
+            rounded-[8px]
+            px-2.5 py-0.5
             text-xs
             font-medium
-            ui-transition
             ${roleStyles[member.role]}
           `}
         >
@@ -89,12 +77,12 @@ export default function TeamMember({ member }: TeamMemberProps) {
       </div>
 
       {/* Bio */}
-      <p className="mb-4 text-sm text-slate-600 line-clamp-3">
+      <p className="mb-4 text-sm text-slate-gray line-clamp-3 leading-relaxed">
         {member.bio || 'Passionate about sharing knowledge and stories.'}
       </p>
 
       {/* Meta */}
-      <div className="text-xs text-slate-400">
+      <div className="text-xs text-steel-gray">
         Member since {formatDate(member.createdAt)}
       </div>
     </div>

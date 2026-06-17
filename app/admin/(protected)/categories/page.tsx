@@ -3,16 +3,19 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
   Plus,
-  Search,
   Edit,
   Trash2,
   Image as ImageIcon,
   Upload,
   X,
+  PlusCircle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Modal } from '@/components/ui/Modal'
+import { Card } from '@/components/ui/Card'
+import { SearchInput } from '@/components/ui/SearchInput'
+import { EmptyState } from '@/components/ui/EmptyState'
 import toast from 'react-hot-toast'
 
 /* ------------------------------------------------------------------ */
@@ -226,25 +229,20 @@ export default function AdminCategoriesPage() {
       {/* HEADER */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Categories</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-2xl font-bold text-ink-charcoal">Categories</h1>
+          <p className="text-sm text-slate-gray">
             Organize posts with categories
           </p>
         </div>
 
-        <Button onClick={() => setIsModalOpen(true)} className="gap-2">
+        <Button onClick={() => setIsModalOpen(true)} className="gap-2 self-start">
           <Plus size={16} /> New Category
         </Button>
       </div>
 
       {/* SEARCH */}
-      <div className="relative max-w-sm">
-        <Search
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-          size={16}
-        />
-        <Input
-          className="pl-10"
+      <div className="max-w-sm">
+        <SearchInput
           placeholder="Search categories…"
           value={search}
           onChange={e => setSearch(e.target.value)}
@@ -253,84 +251,91 @@ export default function AdminCategoriesPage() {
 
       {/* LIST */}
       <div className="space-y-3">
-  {loading ? (
-    Array.from({ length: 6 }).map((_, i) => (
-      <div
-        key={i}
-        className="flex flex-wrap items-center justify-between gap-4 rounded-xl bg-card px-5 py-4 animate-pulse"
-      >
-        <div className="flex items-center gap-4">
-          <div className="h-11 w-11 rounded-lg bg-muted" />
-          <div className="space-y-2">
-            <div className="h-4 w-32 rounded bg-muted" />
-            <div className="h-3 w-40 rounded bg-muted" />
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <div className="h-4 w-16 rounded bg-muted" />
-          <div className="flex gap-2">
-            <div className="h-8 w-8 rounded bg-muted" />
-            <div className="h-8 w-8 rounded bg-muted" />
-          </div>
-        </div>
-      </div>
-    ))
-  ) : (
-    filteredCategories.map(c => (
-          <div
-            key={c.id}
-            className="flex flex-wrap items-center justify-between gap-4 rounded-xl bg-card px-5 py-4 elev-sm"
-          >
-            <div className="flex items-center gap-4 min-w-0">
-              {c.image ? (
-                <img
-                  src={c.image.url}
-                  className="h-11 w-11 rounded-lg object-cover"
-                />
-              ) : (
-                <div className="h-11 w-11 rounded-lg bg-muted flex items-center justify-center">
-                  <ImageIcon size={16} className="text-muted-foreground" />
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex flex-wrap items-center justify-between gap-4 rounded-[16px] bg-pure-white border border-hairline p-5 shadow-subtle"
+            >
+              <div className="flex items-center gap-4">
+                <div className="h-11 w-11 rounded-[12px] skeleton" />
+                <div className="space-y-2">
+                  <div className="h-4 w-32 skeleton" />
+                  <div className="h-3 w-40 skeleton" />
                 </div>
-              )}
+              </div>
 
-              <div className="min-w-0">
-                <p className="font-medium truncate">{c.name}</p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {c.slug}
-                </p>
+              <div className="flex items-center gap-4">
+                <div className="h-4 w-16 skeleton" />
+                <div className="flex gap-2">
+                  <div className="h-8 w-8 rounded-full skeleton" />
+                  <div className="h-8 w-8 rounded-full skeleton" />
+                </div>
               </div>
             </div>
+          ))
+        ) : (
+          filteredCategories.map(c => (
+            <Card
+              key={c.id}
+              variant="white"
+              className="flex flex-wrap items-center justify-between gap-4 p-5 hoverLift"
+            >
+              <div className="flex items-center gap-4 min-w-0">
+                {c.image ? (
+                  <img
+                    src={c.image.url}
+                    className="h-11 w-11 rounded-[12px] object-cover border border-hairline"
+                    alt={c.name}
+                  />
+                ) : (
+                  <div className="h-11 w-11 rounded-[12px] bg-canvas-cream border border-hairline flex items-center justify-center">
+                    <ImageIcon size={16} className="text-slate-gray" />
+                  </div>
+                )}
 
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">
-                {c._count.posts} posts
-              </span>
-
-              <div className="flex gap-1">
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => handleEdit(c)}
-                >
-                  <Edit size={16} />
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => handleDelete(c.id)}
-                >
-                  <Trash2 size={16} />
-                </Button>
+                <div className="min-w-0">
+                  <p className="font-medium text-ink-charcoal truncate">{c.name}</p>
+                  <p className="text-xs text-slate-gray font-mono truncate">
+                    /{c.slug}
+                  </p>
+                </div>
               </div>
-            </div>
-          </div>
-        )))}
 
-        {filteredCategories.length === 0 && (
-          <div className="p-10 text-center text-muted-foreground">
-            No categories found
-          </div>
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-slate-gray">
+                  {c._count.posts} posts
+                </span>
+
+                <div className="flex gap-1">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleEdit(c)}
+                  >
+                    <Edit size={16} />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleDelete(c.id)}
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))
+        )}
+
+        {!loading && filteredCategories.length === 0 && (
+          <EmptyState
+            title="No categories found"
+            description={search ? "Try searching for something else" : "Create your first category to organize posts"}
+            icon={<PlusCircle className="h-10 w-10 text-slate-gray" />}
+            actionLabel={!search ? "New Category" : undefined}
+            onAction={!search ? () => setIsModalOpen(true) : undefined}
+          />
         )}
       </div>
 
@@ -345,68 +350,82 @@ export default function AdminCategoriesPage() {
         description="Category name, slug, and optional image"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            placeholder="Category name"
-            value={formData.name}
-            onChange={e => setFormData(f => ({ ...f, name: e.target.value }))}
-            required
-          />
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-gray">Category Name</label>
+            <Input
+              placeholder="e.g. Technology"
+              value={formData.name}
+              onChange={e => setFormData(f => ({ ...f, name: e.target.value }))}
+              required
+            />
+          </div>
 
-          <Input
-            placeholder="category-slug"
-            value={formData.slug}
-            onChange={e => {
-              setSlugTouched(true)
-              setFormData(f => ({ ...f, slug: slugify(e.target.value) }))
-            }}
-            required
-          />
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-gray">URL Slug</label>
+            <Input
+              placeholder="e.g. technology"
+              value={formData.slug}
+              onChange={e => {
+                setSlugTouched(true)
+                setFormData(f => ({ ...f, slug: slugify(e.target.value) }))
+              }}
+              required
+            />
+          </div>
 
           {/* UPLOAD */}
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
-            <Upload size={16} />
-            Upload image
-            <input
-              type="file"
-              accept="image/*"
-              hidden
-              disabled={uploading}
-              onChange={e => {
-                const file = e.currentTarget.files?.[0]
-                if (file) uploadImage(file)
-              }}
-            />
-          </label>
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-slate-gray block">Featured Image</label>
+            <label className="inline-flex items-center gap-2 text-sm text-electric-cobalt font-medium cursor-pointer hover:text-deep-cobalt ui-transition">
+              <Upload size={16} />
+              Upload image
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                disabled={uploading}
+                onChange={e => {
+                  const file = e.currentTarget.files?.[0]
+                  if (file) uploadImage(file)
+                }}
+              />
+            </label>
+          </div>
 
           {/* IMAGE PICKER */}
-          <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto">
-            {images.map(img => (
-              <button
-                key={img.id}
-                type="button"
-                onClick={() => setFormData(f => ({ ...f, imageId: img.id }))}
-                className={`rounded-lg overflow-hidden ${
-                  formData.imageId === img.id
-                    ? 'ring-2 ring-primary'
-                    : 'opacity-80 hover:opacity-100'
-                }`}
-              >
-                <img src={img.url} className="h-16 w-full object-cover" />
-              </button>
-            ))}
-          </div>
+          {images.length > 0 && (
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-gray block">Or Choose Existing</label>
+              <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto p-1 bg-canvas-cream border border-hairline rounded-[16px]">
+                {images.map(img => (
+                  <button
+                    key={img.id}
+                    type="button"
+                    onClick={() => setFormData(f => ({ ...f, imageId: img.id }))}
+                    className={`rounded-[12px] overflow-hidden border transition-all duration-200 ${
+                      formData.imageId === img.id
+                        ? 'border-electric-cobalt ring-2 ring-electric-cobalt'
+                        : 'border-hairline opacity-80 hover:opacity-100'
+                    }`}
+                  >
+                    <img src={img.url} className="h-16 w-full object-cover" alt={img.altText || ''} />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {formData.imageId && (
             <button
               type="button"
               onClick={() => setFormData(f => ({ ...f, imageId: '' }))}
-              className="flex items-center gap-1 text-sm text-red-600"
+              className="flex items-center gap-1 text-sm text-red-500 font-semibold hover:text-red-600 ui-transition"
             >
-              <X size={14} /> Remove image
+              <X size={14} /> Remove image selection
             </button>
           )}
 
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex justify-end gap-3 pt-4 border-t border-hairline">
             <Button
               variant="outline"
               type="button"

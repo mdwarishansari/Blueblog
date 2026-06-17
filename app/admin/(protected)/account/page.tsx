@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { Lock, Save, Image as ImageIcon } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { Card } from '@/components/ui/Card'
+import { Textarea } from '@/components/ui/Textarea'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 
@@ -111,10 +113,10 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-5xl">
+    <div className="space-y-6 max-w-5xl">
       <div>
-        <h1 className="text-2xl font-bold">Account Settings</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-ink-charcoal">Account Settings</h1>
+        <p className="text-sm text-slate-gray">
           Manage your personal information and security
         </p>
       </div>
@@ -123,32 +125,32 @@ export default function AccountPage() {
       <div className="grid gap-6 lg:grid-cols-2">
 
         {/* PROFILE */}
-        <div className="bg-card elev-sm rounded-2xl p-6 space-y-6">
+        <Card variant="white" className="space-y-6">
           {loading ? (
             /* PROFILE SKELETON */
             <div className="space-y-6 animate-pulse">
-              <div className="h-5 w-24 rounded bg-muted" />
+              <div className="h-5 w-24 skeleton" />
 
               <div className="flex items-center gap-5">
-                <div className="h-24 w-24 rounded-full bg-muted" />
-                <div className="h-4 w-32 rounded bg-muted" />
+                <div className="h-24 w-24 rounded-full skeleton" />
+                <div className="h-4 w-32 skeleton" />
               </div>
 
               <div className="space-y-4">
-                <div className="h-10 w-full rounded bg-muted" />
-                <div className="h-10 w-full rounded bg-muted" />
-                <div className="h-20 w-full rounded bg-muted" />
+                <div className="h-10 w-full skeleton" />
+                <div className="h-10 w-full skeleton" />
+                <div className="h-20 w-full skeleton" />
               </div>
 
-              <div className="h-10 w-40 rounded bg-muted" />
+              <div className="h-10 w-40 skeleton" />
             </div>
           ) : (
             <>
-              <h2 className="text-lg font-semibold">Profile</h2>
+              <h2 className="text-lg font-semibold text-ink-charcoal">Profile Details</h2>
 
               {/* Avatar */}
               <div className="flex items-center gap-5">
-                <div className="relative h-24 w-24 rounded-full bg-muted elev-sm overflow-hidden">
+                <div className="relative h-24 w-24 rounded-full bg-canvas-cream border border-hairline overflow-hidden shadow-subtle flex items-center justify-center">
                   <img
                     key={previewImage || profile.profileImage || 'avatar'}
                     src={previewImage || profile.profileImage || undefined}
@@ -157,7 +159,7 @@ export default function AccountPage() {
                   />
                 </div>
 
-                <label className="cursor-pointer inline-flex items-center gap-2 text-sm font-medium text-indigo-600">
+                <label className="cursor-pointer inline-flex items-center gap-2 text-sm font-semibold text-electric-cobalt hover:text-deep-cobalt ui-transition">
                   <ImageIcon className="h-4 w-4" />
                   Change photo
                   <input
@@ -173,8 +175,8 @@ export default function AccountPage() {
               </div>
 
               {/* Name */}
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Name</label>
+              <div className="space-y-1.5">
+                <label className="text-sm font-semibold text-ink-charcoal">Name</label>
                 <Input
                   value={profile.name}
                   onChange={e =>
@@ -184,8 +186,8 @@ export default function AccountPage() {
               </div>
 
               {/* Email */}
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Email</label>
+              <div className="space-y-1.5">
+                <label className="text-sm font-semibold text-ink-charcoal">Email</label>
                 <Input
                   value={profile.email}
                   onChange={e =>
@@ -195,15 +197,15 @@ export default function AccountPage() {
               </div>
 
               {/* Bio */}
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Bio</label>
-                <textarea
+              <div className="space-y-1.5">
+                <label className="text-sm font-semibold text-ink-charcoal">Bio</label>
+                <Textarea
                   rows={3}
                   value={profile.bio || ''}
                   onChange={e =>
                     setProfile({ ...profile, bio: e.target.value })
                   }
-                  className="w-full rounded-xl bg-muted px-3 py-2 text-sm ui-transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="bg-pure-white"
                 />
               </div>
 
@@ -213,13 +215,14 @@ export default function AccountPage() {
               </Button>
             </>
           )}
-        </div>
-        {/* PASSWORD */}
-        <div className="bg-card elev-sm rounded-2xl p-6 space-y-6">
-          <h2 className="text-lg font-semibold">Change Password</h2>
+        </Card>
 
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Current Password</label>
+        {/* PASSWORD */}
+        <Card variant="white" className="space-y-6">
+          <h2 className="text-lg font-semibold text-ink-charcoal">Change Password</h2>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-semibold text-ink-charcoal">Current Password</label>
             <Input
               type="password"
               value={password.currentPassword}
@@ -232,8 +235,8 @@ export default function AccountPage() {
             />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-sm font-medium">New Password</label>
+          <div className="space-y-1.5">
+            <label className="text-sm font-semibold text-ink-charcoal">New Password</label>
             <Input
               type="password"
               value={password.newPassword}
@@ -246,8 +249,8 @@ export default function AccountPage() {
             />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Confirm Password</label>
+          <div className="space-y-1.5">
+            <label className="text-sm font-semibold text-ink-charcoal">Confirm Password</label>
             <Input
               type="password"
               value={password.confirmPassword}
@@ -268,7 +271,7 @@ export default function AccountPage() {
             <Lock className="h-4 w-4" />
             Update Password
           </Button>
-        </div>
+        </Card>
       </div>
     </div>
   )

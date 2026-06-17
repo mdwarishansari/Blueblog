@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { requireAuth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
 import { Plus, Clock } from 'lucide-react'
 import { Prisma } from '@prisma/client'
 import PostManager from '@/components/admin/PostManager'
@@ -71,19 +72,19 @@ export default async function AdminPostsPage({
 
   return (
     /* 🔒 ABSOLUTE WIDTH LOCK */
-    <section className="w-full max-w-full min-w-0 overflow-x-hidden space-y-8 animate-fade-in">
+    <section className="w-full max-w-full min-w-0 overflow-x-hidden space-y-6 animate-fade-in max-w-[1200px] mx-auto pb-10">
 
       {/* ================= HEADER ================= */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-hairline pb-5 bg-pure-white p-6 rounded-[16px] shadow-subtle">
         <div>
-          <h1 className="text-2xl font-bold text-fg">Posts</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-2xl font-bold text-ink-charcoal">Posts</h1>
+          <p className="text-xs text-slate-gray mt-1">
             Manage and publish blog content
           </p>
         </div>
 
         <Link href="/admin/posts/new">
-          <Button className="gap-2 btn-glow btn-hover-effect">
+          <Button variant="default" size="sm" className="gap-1.5 rounded-full">
             <Plus className="h-4 w-4" />
             New Post
           </Button>
@@ -92,21 +93,21 @@ export default async function AdminPostsPage({
 
       {/* ================= PENDING ALERT (Admin/Editor) ================= */}
       {isAdminOrEditor && pendingCount > 0 && !status && (
-        <div className="rounded-xl bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 p-4 flex items-center justify-between animate-fade-in-down">
+        <Card variant="white" className="p-4 border-l-4 border-l-vivid-violet flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100">
-              <Clock className="h-4 w-4 text-orange-600" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-lavender-mist text-vivid-violet">
+              <Clock className="h-4 w-4" />
             </div>
-            <p className="text-sm text-orange-800">
-              <span className="font-semibold">{pendingCount}</span> post{pendingCount !== 1 ? 's' : ''} awaiting verification
+            <p className="text-xs font-semibold text-ink-charcoal">
+              {pendingCount} post{pendingCount !== 1 ? 's' : ''} awaiting verification
             </p>
           </div>
           <Link href="/admin/posts?status=VERIFICATION_PENDING">
-            <Button size="sm" variant="outline" className="text-orange-600 border-orange-300 hover:bg-orange-100">
+            <Button size="sm" variant="secondary" className="h-8 text-xs rounded-full border-hairline">
               Review Now
             </Button>
           </Link>
-        </div>
+        </Card>
       )}
 
       {/* ================= MAIN CONTAINER ================= */}

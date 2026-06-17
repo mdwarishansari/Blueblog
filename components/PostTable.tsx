@@ -92,11 +92,11 @@ export default function PostTable({ posts, user }: PostTableProps) {
   const getStatusStyle = (status: string) => {
     switch (status) {
       case 'PUBLISHED':
-        return 'bg-green-100 text-green-700'
+        return 'bg-green-50 text-forest border border-green-100'
       case 'VERIFICATION_PENDING':
-        return 'bg-orange-100 text-orange-700'
+        return 'bg-lavender-mist text-vivid-violet border border-purple-100'
       default:
-        return 'bg-yellow-100 text-yellow-700'
+        return 'bg-canvas-cream text-slate-gray border border-hairline'
     }
   }
 
@@ -110,8 +110,8 @@ export default function PostTable({ posts, user }: PostTableProps) {
 
       {/* ================= BULK BAR ================= */}
       {selectedRows.length > 0 && (
-        <div className="sticky top-0 z-10 mb-4 flex flex-col gap-3 rounded-xl bg-card px-4 py-3 elev-sm sm:flex-row sm:items-center sm:justify-between animate-fade-in-down">
-          <span className="text-sm text-muted-foreground">
+        <div className="sticky top-0 z-10 mb-4 flex flex-col gap-3 rounded-[16px] bg-pure-white border border-hairline px-4 py-3 shadow-md sm:flex-row sm:items-center sm:justify-between">
+          <span className="text-xs font-semibold text-slate-gray">
             {selectedRows.length} selected
           </span>
 
@@ -119,7 +119,7 @@ export default function PostTable({ posts, user }: PostTableProps) {
             <Button
               variant="outline"
               size="sm"
-              className="border-red-200 text-red-600 hover:bg-red-50"
+              className="rounded-full text-red-600 border-red-200 hover:bg-red-50"
               onClick={() => runBulk('DELETE')}
               loading={loading}
             >
@@ -129,9 +129,10 @@ export default function PostTable({ posts, user }: PostTableProps) {
             {canPublish && (
               <Button
                 size="sm"
+                variant="default"
                 onClick={() => runBulk('PUBLISH')}
                 loading={loading}
-                className="gap-2 bg-green-600 hover:bg-green-700"
+                className="gap-1.5 rounded-full"
               >
                 <CheckCircle className="h-4 w-4" />
                 Publish
@@ -139,7 +140,7 @@ export default function PostTable({ posts, user }: PostTableProps) {
             )}
 
             {canUnpublish && (
-              <Button variant="outline" size="sm" onClick={() => runBulk('DRAFT')} loading={loading}>
+              <Button variant="outline" size="sm" className="rounded-full border-hairline" onClick={() => runBulk('DRAFT')} loading={loading}>
                 Move to Draft
               </Button>
             )}
@@ -158,9 +159,9 @@ export default function PostTable({ posts, user }: PostTableProps) {
           return (
             <div
               key={post.id}
-              className={`w-full max-w-full overflow-hidden rounded-xl bg-card p-2 elev-sm ui-transition hover:shadow-md ${post.status === 'VERIFICATION_PENDING' ? 'border-l-4 border-orange-400' : ''
-                }`}
-
+              className={`w-full max-w-full overflow-hidden rounded-[16px] bg-pure-white border border-hairline p-4 shadow-subtle hover:shadow-md transition-shadow duration-200 ${
+                post.status === 'VERIFICATION_PENDING' ? 'border-l-4 border-vivid-violet' : ''
+              }`}
             >
               {/* SELECT */}
               <div className="mb-2 flex items-center gap-2">
@@ -168,17 +169,16 @@ export default function PostTable({ posts, user }: PostTableProps) {
                   type="checkbox"
                   checked={selectedRows.includes(post.id)}
                   onChange={() => handleSelectRow(post.id)}
-                  className="h-4 w-4 rounded border-gray-300"
+                  className="h-4 w-4 rounded border-hairline accent-electric-cobalt"
                 />
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs font-semibold text-slate-gray">
                   Select
                 </span>
               </div>
 
               {/* IMAGE */}
               {imageUrl && (
-                <div className="relative mb-2 h-20 w-full overflow-hidden rounded-md">
-
+                <div className="relative mb-2.5 h-20 w-full overflow-hidden rounded-[8px] border border-hairline">
                   <Image
                     src={imageUrl}
                     alt={post.title}
@@ -191,21 +191,21 @@ export default function PostTable({ posts, user }: PostTableProps) {
               {/* TITLE */}
               <Link
                 href={`/admin/posts/${post.id}`}
-                className="block text-[13px] font-semibold leading-snug break-words"
+                className="block text-sm font-semibold leading-snug break-words text-ink-charcoal hover:text-electric-cobalt transition-colors"
               >
                 {post.title}
               </Link>
 
               {/* SLUG */}
-              <p className="mt-1 text-[11px] text-muted-foreground break-all">
+              <p className="mt-1 text-xs text-slate-gray break-all">
                 {post.slug}
               </p>
 
               {/* META */}
-              <div className="mt-2 space-y-1 text-[11px] text-muted-foreground">
+              <div className="mt-2 space-y-1 text-xs text-slate-gray">
                 <div>
                   Status:{' '}
-                  <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ${getStatusStyle(post.status)}`}>
+                  <span className={`inline-block rounded-[8px] px-2 py-0.5 text-xs font-semibold ${getStatusStyle(post.status)}`}>
                     {getStatusLabel(post.status)}
                   </span>
                 </div>
@@ -215,13 +215,13 @@ export default function PostTable({ posts, user }: PostTableProps) {
               </div>
 
               {/* ACTIONS */}
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-3 flex flex-wrap gap-2 border-t border-hairline pt-3">
 
                 {post.status === 'PUBLISHED' && (
                   <a
                     href={`/blog/${post.slug}`}
                     target="_blank"
-                    className="rounded-md p-1.5 hover:bg-muted"
+                    className="rounded-full p-1.5 hover:bg-canvas-cream text-slate-gray hover:text-ink-charcoal"
                   >
                     <ExternalLink className="h-4 w-4" />
                   </a>
@@ -230,7 +230,7 @@ export default function PostTable({ posts, user }: PostTableProps) {
                 {canEdit(post) && (
                   <Link
                     href={`/admin/posts/${post.id}`}
-                    className="rounded-md p-1.5 hover:bg-muted"
+                    className="rounded-full p-1.5 hover:bg-canvas-cream text-slate-gray hover:text-ink-charcoal"
                   >
                     <Edit className="h-4 w-4" />
                   </Link>
@@ -239,7 +239,7 @@ export default function PostTable({ posts, user }: PostTableProps) {
                 {canDelete(post) && (
                   <button
                     onClick={() => deleteSingle(post.id)}
-                    className="rounded-md p-1.5 text-red-600 hover:bg-red-50"
+                    className="rounded-full p-1.5 text-red-600 hover:bg-red-50"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -250,7 +250,7 @@ export default function PostTable({ posts, user }: PostTableProps) {
         })}
 
         {posts.length === 0 && (
-          <div className="p-6 text-center text-sm text-muted-foreground">
+          <div className="p-6 text-center text-xs text-slate-gray font-semibold">
             No posts found
           </div>
         )}
@@ -258,15 +258,15 @@ export default function PostTable({ posts, user }: PostTableProps) {
 
       {/* ================= DESKTOP TABLE ================= */}
       <div className="hidden md:block w-full overflow-x-auto">
-        <table className="min-w-[900px] w-full table-fixed border-separate border-spacing-y-2">
-          <thead className="text-xs uppercase text-muted-foreground">
+        <table className="min-w-[900px] w-full table-fixed border-separate border-spacing-y-2.5">
+          <thead className="text-xs uppercase text-slate-gray font-semibold">
             <tr>
               <th className="w-10 px-4">
                 <input
                   type="checkbox"
                   checked={selectedRows.length === posts.length && posts.length > 0}
                   onChange={handleSelectAll}
-                  className="h-4 w-4 rounded border-gray-300"
+                  className="h-4 w-4 rounded border-hairline accent-electric-cobalt"
                 />
               </th>
               <th className="px-4 text-left w-[320px]">Post</th>
@@ -287,22 +287,23 @@ export default function PostTable({ posts, user }: PostTableProps) {
               return (
                 <tr
                   key={post.id}
-                  className={`bg-card rounded-xl elev-sm ui-transition hover:shadow-md ${post.status === 'VERIFICATION_PENDING' ? 'border-l-4 border-orange-400' : ''
-                    }`}
+                  className={`bg-pure-white border border-hairline shadow-subtle hover:shadow-md transition-shadow duration-200 ${
+                    post.status === 'VERIFICATION_PENDING' ? 'border-l-4 border-vivid-violet' : ''
+                  }`}
                 >
-                  <td className="px-4 py-4">
+                  <td className="px-4 py-4 rounded-l-[16px] border-y border-l border-hairline">
                     <input
                       type="checkbox"
                       checked={selectedRows.includes(post.id)}
                       onChange={() => handleSelectRow(post.id)}
-                      className="h-4 w-4 rounded border-gray-300"
+                      className="h-4 w-4 rounded border-hairline accent-electric-cobalt"
                     />
                   </td>
 
-                  <td className="px-4 py-4">
+                  <td className="px-4 py-4 border-y border-hairline">
                     <div className="flex gap-3 max-w-[320px]">
                       {imageUrl && (
-                        <div className="relative h-12 w-20 shrink-0 overflow-hidden rounded-lg">
+                        <div className="relative h-12 w-20 shrink-0 overflow-hidden rounded-[8px] border border-hairline">
                           <Image
                             src={imageUrl}
                             alt={post.title}
@@ -314,25 +315,27 @@ export default function PostTable({ posts, user }: PostTableProps) {
                       <div className="min-w-0">
                         <Link
                           href={`/admin/posts/${post.id}`}
-                          className="line-clamp-2 text-sm font-medium break-words hover:text-indigo-600 ui-transition"
+                          className="line-clamp-2 text-sm font-semibold text-ink-charcoal break-words hover:text-electric-cobalt transition-colors"
                         >
                           {post.title}
                         </Link>
-                        <p className="text-xs text-muted-foreground truncate">
+                        <p className="text-xs text-slate-gray truncate mt-0.5">
                           {post.slug}
                         </p>
                       </div>
                     </div>
                   </td>
 
-                  <td className="px-4 py-4 truncate">{post.author.name}</td>
+                  <td className="px-4 py-4 border-y border-hairline text-sm text-ink-charcoal truncate">
+                    {post.author.name}
+                  </td>
 
-                  <td className="px-4 py-4">
+                  <td className="px-4 py-4 border-y border-hairline">
                     <div className="flex flex-wrap gap-1 max-w-[180px]">
                       {post.categories.slice(0, 2).map(cat => (
                         <span
                           key={cat.id}
-                          className="rounded-full bg-muted px-2 py-0.5 text-xs truncate"
+                          className="rounded-[8px] bg-lavender-mist text-vivid-violet px-2.5 py-0.5 text-xs truncate"
                         >
                           {cat.name}
                         </span>
@@ -340,38 +343,38 @@ export default function PostTable({ posts, user }: PostTableProps) {
                     </div>
                   </td>
 
-                  <td className="px-4 py-4">
-                    <span className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${getStatusStyle(post.status)}`}>
+                  <td className="px-4 py-4 border-y border-hairline">
+                    <span className={`inline-block rounded-[8px] px-2.5 py-0.5 text-xs font-semibold ${getStatusStyle(post.status)}`}>
                       {getStatusLabel(post.status)}
                     </span>
                   </td>
 
-                  <td className="px-4 py-4 text-xs">
+                  <td className="px-4 py-4 border-y border-hairline text-xs text-slate-gray">
                     {formatDateTime(post.createdAt)}
                   </td>
 
-                  <td className="px-4 py-4">
-                    <div className="flex gap-2">
+                  <td className="px-4 py-4 rounded-r-[16px] border-y border-r border-hairline">
+                    <div className="flex gap-1.5">
                       {post.status === 'PUBLISHED' && (
                         <a
                           href={`/blog/${post.slug}`}
                           target="_blank"
-                          className="p-1.5 rounded-md hover:bg-muted ui-transition"
+                          className="p-1.5 rounded-full hover:bg-canvas-cream text-slate-gray hover:text-ink-charcoal transition-colors duration-150"
                         >
                           <ExternalLink className="h-4 w-4" />
                         </a>
                       )}
                       {canEdit(post) && (
-                        <Link href={`/admin/posts/${post.id}`} className="p-1.5 rounded-md hover:bg-muted ui-transition">
+                        <Link href={`/admin/posts/${post.id}`} className="p-1.5 rounded-full hover:bg-canvas-cream text-slate-gray hover:text-ink-charcoal transition-colors duration-150">
                           <Edit className="h-4 w-4" />
                         </Link>
                       )}
                       {canDelete(post) && (
                         <button
                           onClick={() => deleteSingle(post.id)}
-                          className="p-1.5 rounded-md hover:bg-red-50 ui-transition"
+                          className="p-1.5 rounded-full hover:bg-red-50 text-red-600 transition-colors duration-150"
                         >
-                          <Trash2 className="h-4 w-4 text-red-600" />
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       )}
                     </div>
@@ -383,7 +386,7 @@ export default function PostTable({ posts, user }: PostTableProps) {
         </table>
 
         {posts.length === 0 && (
-          <div className="p-10 text-center text-sm text-muted-foreground">
+          <div className="p-10 text-center text-xs text-slate-gray font-semibold">
             No posts found
           </div>
         )}

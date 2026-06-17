@@ -1,10 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Search, Edit, Trash2, User as UserIcon } from 'lucide-react'
+import { Plus, Edit, Trash2, User as UserIcon } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Modal } from '@/components/ui/Modal'
+import { Card } from '@/components/ui/Card'
+import { SearchInput } from '@/components/ui/SearchInput'
+import { Badge } from '@/components/ui/Badge'
 import toast from 'react-hot-toast'
 
 interface UserData {
@@ -112,209 +115,213 @@ export default function AdminUsersPage() {
     user.role.toLowerCase().includes(search.toLowerCase())
   )
 
-  const roleStyles: Record<string, string> = {
-    ADMIN:
-      'bg-purple-100 text-purple-700 shadow-[0_6px_16px_rgba(168,85,247,0.35)]',
-    EDITOR:
-      'bg-blue-100 text-blue-700 shadow-[0_6px_16px_rgba(59,130,246,0.35)]',
-    WRITER:
-      'bg-green-100 text-green-700 shadow-[0_6px_16px_rgba(34,197,94,0.35)]',
+  const roleBadgeVariant: Record<string, 'default' | 'secondary' | 'violet' | 'green' | 'blue'> = {
+    ADMIN: 'violet',
+    EDITOR: 'blue',
+    WRITER: 'green',
   }
 
   return (
-    <div className="space-y-8 w-full max-w-full overflow-x-hidden">
+    <div className="space-y-6 w-full max-w-full overflow-x-hidden">
 
       {/* ================= HEADER ================= */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Users</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-2xl font-bold text-ink-charcoal">Users</h1>
+          <p className="text-sm text-slate-gray">
             Manage blog users and permissions
           </p>
         </div>
 
-        <Button onClick={() => setIsModalOpen(true)} className="gap-2">
+        <Button onClick={() => setIsModalOpen(true)} className="gap-2 self-start">
           <Plus className="h-4 w-4" />
           New User
         </Button>
       </div>
 
       {/* ================= SEARCH ================= */}
-      <div className="bg-card elev-sm rounded-xl p-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <Input
-            placeholder="Search users..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
-          />
-        </div>
+      <div className="max-w-sm">
+        <SearchInput
+          placeholder="Search users..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
 
       {/* ================= MOBILE LIST ================= */}
-      <div className="md:hidden space-y-3 px-2">
-  {loading
-    ? Array.from({ length: 4 }).map((_, i) => (
-        <div
-          key={i}
-          className="rounded-xl bg-card p-3 elev-sm animate-pulse"
-        >
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-muted" />
-            <div className="space-y-2 flex-1">
-              <div className="h-4 w-32 rounded bg-muted" />
-              <div className="h-3 w-40 rounded bg-muted" />
-            </div>
-          </div>
-        </div>
-      ))
-    : filteredUsers.map(user => (
-          <div
-            key={user.id}
-            className="rounded-xl bg-card p-3 elev-sm w-full max-w-full overflow-hidden"
-          >
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center overflow-hidden">
-                {user.profileImage ? (
-                  <img
-                    src={user.profileImage}
-                    alt={user.name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <UserIcon className="h-5 w-5 text-slate-400" />
-                )}
-              </div>
-
-              <div className="min-w-0">
-                <p className="text-sm font-medium truncate">{user.name}</p>
-                <p className="text-xs text-slate-500 truncate">{user.email}</p>
-              </div>
-            </div>
-
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-              <span className={`rounded-full px-3 py-1 ${roleStyles[user.role]}`}>
-                {user.role}
-              </span>
-              <span className="text-slate-500">
-                Posts: {user._count.posts}
-              </span>
-              <span className="text-slate-500">
-                Joined: {new Date(user.createdAt).toLocaleDateString()}
-              </span>
-            </div>
-
-            <div className="mt-3 flex gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleEdit(user)}
+      <div className="md:hidden space-y-3">
+        {loading
+          ? Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="rounded-[16px] bg-pure-white border border-hairline p-4 shadow-subtle flex items-center gap-3 animate-pulse"
               >
-                <Edit className="h-4 w-4" />
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-red-500 hover:bg-red-50"
-                onClick={() => handleDelete(user.id)}
+                <div className="h-10 w-10 rounded-full skeleton" />
+                <div className="space-y-2 flex-1">
+                  <div className="h-4 w-32 skeleton" />
+                  <div className="h-3 w-40 skeleton" />
+                </div>
+              </div>
+            ))
+          : filteredUsers.map(user => (
+              <Card
+                key={user.id}
+                variant="white"
+                className="p-4 w-full max-w-full overflow-hidden space-y-3"
               >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        ))}
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full overflow-hidden bg-canvas-cream border border-hairline flex items-center justify-center shrink-0">
+                    {user.profileImage ? (
+                      <img
+                        src={user.profileImage}
+                        alt={user.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <UserIcon className="h-5 w-5 text-slate-gray" />
+                    )}
+                  </div>
+
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-ink-charcoal truncate">{user.name}</p>
+                    <p className="text-xs text-slate-gray truncate">{user.email}</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <Badge variant={roleBadgeVariant[user.role] || 'secondary'}>
+                    {user.role}
+                  </Badge>
+                  <span className="text-slate-gray">
+                    Posts: {user._count.posts}
+                  </span>
+                  <span className="text-slate-gray">
+                    Joined: {new Date(user.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+
+                <div className="flex gap-2 pt-2 border-t border-hairline">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleEdit(user)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-red-500 hover:bg-red-50"
+                    onClick={() => handleDelete(user.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </Card>
+            ))}
       </div>
 
       {/* ================= DESKTOP TABLE ================= */}
-      <div className="hidden md:block bg-card elev-sm rounded-2xl overflow-x-auto">
-        <table className="min-w-full">
-          <thead>
-            <tr className="text-xs uppercase tracking-wide text-slate-500">
-              <th className="px-6 py-4 text-left">User</th>
-              <th className="px-6 py-4 text-left">Role</th>
-              <th className="px-6 py-4 text-left">Posts</th>
-              <th className="px-6 py-4 text-left">Joined</th>
-              <th className="px-6 py-4 text-right">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-  {loading
-    ? Array.from({ length: 6 }).map((_, i) => (
-        <tr key={i}>
-          <td colSpan={5} className="px-6 py-5">
-            <div className="h-6 rounded bg-muted animate-pulse" />
-          </td>
-        </tr>
-      ))
-    : filteredUsers.map(user => (
-              <tr
-                key={user.id}
-                className="ui-transition hover:bg-muted"
-              >
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-                      {user.profileImage ? (
-                        <img
-                          src={user.profileImage}
-                          alt={user.name}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <UserIcon className="h-5 w-5 text-slate-400" />
-                      )}
-                    </div>
-
-                    <div>
-                      <p className="text-sm font-medium">{user.name}</p>
-                      <p className="text-xs text-slate-500">{user.email}</p>
-                    </div>
-                  </div>
-                </td>
-
-                <td className="px-6 py-4">
-                  <span
-                    className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${roleStyles[user.role]}`}
-                  >
-                    {user.role}
-                  </span>
-                </td>
-
-                <td className="px-6 py-4 text-sm text-slate-500">
-                  {user._count.posts}
-                </td>
-
-                <td className="px-6 py-4 text-sm text-slate-500">
-                  {new Date(user.createdAt).toLocaleDateString()}
-                </td>
-
-                <td className="px-6 py-4">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEdit(user)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-red-500 hover:bg-red-50"
-                      onClick={() => handleDelete(user.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </td>
+      <div className="hidden md:block bg-pure-white border border-hairline rounded-[16px] shadow-subtle overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full border-collapse">
+            <thead>
+              <tr className="text-xs uppercase tracking-wide text-slate-gray border-b border-hairline bg-surface-ivory">
+                <th className="px-6 py-4 text-left font-semibold">User</th>
+                <th className="px-6 py-4 text-left font-semibold">Role</th>
+                <th className="px-6 py-4 text-left font-semibold">Posts</th>
+                <th className="px-6 py-4 text-left font-semibold">Joined</th>
+                <th className="px-6 py-4 text-right font-semibold">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody className="divide-y divide-hairline">
+              {loading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <tr key={i} className="border-b border-hairline">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-full skeleton" />
+                        <div className="space-y-2">
+                          <div className="h-4 w-32 skeleton" />
+                          <div className="h-3 w-24 skeleton" />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4"><div className="h-5 w-16 rounded-[8px] skeleton" /></td>
+                    <td className="px-6 py-4"><div className="h-4 w-8 skeleton" /></td>
+                    <td className="px-6 py-4"><div className="h-4 w-20 skeleton" /></td>
+                    <td className="px-6 py-4"><div className="h-8 w-16 rounded-[8px] skeleton float-right" /></td>
+                  </tr>
+                ))
+              ) : (
+                filteredUsers.map(user => (
+                  <tr
+                    key={user.id}
+                    className="ui-transition hover:bg-canvas-cream"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-full overflow-hidden bg-canvas-cream border border-hairline flex items-center justify-center shrink-0">
+                          {user.profileImage ? (
+                            <img
+                              src={user.profileImage}
+                              alt={user.name}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <UserIcon className="h-5 w-5 text-slate-gray" />
+                          )}
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-medium text-ink-charcoal">{user.name}</p>
+                          <p className="text-xs text-slate-gray">{user.email}</p>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <Badge variant={roleBadgeVariant[user.role] || 'secondary'}>
+                        {user.role}
+                      </Badge>
+                    </td>
+
+                    <td className="px-6 py-4 text-sm text-slate-gray">
+                      {user._count.posts}
+                    </td>
+
+                    <td className="px-6 py-4 text-sm text-slate-gray">
+                      {new Date(user.createdAt).toLocaleDateString()}
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEdit(user)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-red-500 hover:bg-red-50"
+                          onClick={() => handleDelete(user.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* ================= MODAL ================= */}
@@ -326,47 +333,72 @@ export default function AdminUsersPage() {
           setFormData({ name: '', email: '', role: 'WRITER', password: '' })
         }}
         title={editingUser ? 'Edit User' : 'Create User'}
-        size="md"
+        description="Configure details and credentials for user"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            placeholder="Name"
-            value={formData.name}
-            onChange={e => setFormData({ ...formData, name: e.target.value })}
-            required
-          />
-
-          <Input
-            type="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={e => setFormData({ ...formData, email: e.target.value })}
-            required
-          />
-
-          <select
-            value={formData.role}
-            onChange={e => setFormData({ ...formData, role: e.target.value })}
-            className="w-full rounded-xl bg-muted px-3 py-2 text-sm ui-transition focus:outline-none"
-          >
-            <option value="WRITER">Writer</option>
-            <option value="EDITOR">Editor</option>
-          </select>
-
-          {!editingUser && (
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-gray">Name</label>
             <Input
-              type="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={e =>
-                setFormData({ ...formData, password: e.target.value })
-              }
-              minLength={6}
+              placeholder="e.g. John Doe"
+              value={formData.name}
+              onChange={e => setFormData({ ...formData, name: e.target.value })}
               required
             />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-gray">Email</label>
+            <Input
+              type="email"
+              placeholder="e.g. john@example.com"
+              value={formData.email}
+              onChange={e => setFormData({ ...formData, email: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-gray">Role</label>
+            <select
+              value={formData.role}
+              onChange={e => setFormData({ ...formData, role: e.target.value })}
+              className="
+                flex h-11 w-full
+                rounded-[16px]
+                border border-hairline
+                bg-pure-white
+                px-4 py-2.5
+                text-sm text-ink-charcoal
+                transition-all duration-200 ease-in-out
+                hover:border-slate-300
+                focus:outline-none
+                focus:border-electric-cobalt
+                focus:ring-1
+                focus:ring-electric-cobalt
+              "
+            >
+              <option value="WRITER">Writer</option>
+              <option value="EDITOR">Editor</option>
+            </select>
+          </div>
+
+          {!editingUser && (
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-gray">Password</label>
+              <Input
+                type="password"
+                placeholder="Choose password (min 6 chars)"
+                value={formData.password}
+                onChange={e =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
+                minLength={6}
+                required
+              />
+            </div>
           )}
 
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-4 border-t border-hairline">
             <Button
               type="button"
               variant="outline"

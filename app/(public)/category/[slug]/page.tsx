@@ -1,12 +1,13 @@
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
-import Image from 'next/image'
 import { prisma } from '@/lib/prisma'
 import PostCard from '@/components/PostCard'
 import { generateSEO } from '@/lib/seo'
+import { Container } from '@/components/ui/Container'
+import { Section } from '@/components/ui/Section'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export const dynamic = 'force-dynamic'
-
 
 /* ---------------- DATA ---------------- */
 async function getCategory(slug: string) {
@@ -58,12 +59,11 @@ export async function generateMetadata(
   const image = category.image?.url
 
   return generateSEO({
-  title: `${category.name} Articles – BlueBlog`,
-  description: `Browse all published articles in the ${category.name} category on BlueBlog.`,
-  url: `/category/${category.slug}`,
-  ...(image ? { image } : {}),
-})
-
+    title: `${category.name} Articles – BlueBlog`,
+    description: `Browse all published articles in the ${category.name} category on BlueBlog.`,
+    url: `/category/${category.slug}`,
+    ...(image ? { image } : {}),
+  })
 }
 
 /* ---------------- PAGE ---------------- */
@@ -76,59 +76,41 @@ export default async function CategoryPage(
   if (!category) notFound()
 
   return (
-    <div className="min-h-screen bg-bg">
-
+    <div className="min-h-screen bg-canvas-cream">
+      
       {/* ================= HERO ================= */}
-      <section className="relative overflow-hidden">
-        {category.image?.url ? (
-          <div className="absolute inset-0">
-            <Image
-              src={category.image.url}
-              alt={category.image.altText || category.name}
-              fill
-              className="object-cover"
-              priority
-            />
-            {/* overlay for readability */}
-            <div className="absolute inset-0 bg-black/55" />
+      <section className="relative overflow-hidden bg-gradient-to-b from-canvas-cream to-lavender-mist/30 py-16 border-b border-hairline">
+        <Container className="relative z-10 text-center">
+          <div className="mx-auto mb-4 inline-flex items-center gap-1.5 rounded-full bg-pure-white border border-hairline px-3.5 py-1 text-xs font-semibold text-vivid-violet shadow-sm">
+            Category
           </div>
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-violet-600 to-pink-500" />
-        )}
 
-        <div className="relative py-24 text-center text-white">
-          <h1 className="mb-3 text-4xl font-extrabold tracking-tight sm:text-5xl">
+          <h1 className="mb-4 text-3xl sm:text-[48px] font-bold tracking-tight text-ink-charcoal leading-tight">
             {category.name}
           </h1>
-          <p className="text-lg text-white/90">
-            {category._count.posts} published posts
+          <p className="text-sm sm:text-base text-slate-gray">
+            {category._count.posts} {category._count.posts === 1 ? 'article' : 'articles'} published
           </p>
-        </div>
+        </Container>
       </section>
 
       {/* ================= POSTS ================= */}
-      <section className="py-20">
-        <div className="container">
-
+      <Section className="py-12">
+        <Container>
           {category.posts.length > 0 ? (
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {category.posts.map(post => (
+              {category.posts.map((post) => (
                 <PostCard key={post.id} post={post} />
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-card p-14 text-center">
-              <h3 className="mb-2 text-xl font-semibold text-fg">
-                No posts in {category.name}
-              </h3>
-              <p className="text-slate-600">
-                Posts will appear here once published.
-              </p>
-            </div>
+            <EmptyState
+              title={`No posts in ${category.name}`}
+              description="Articles will appear here once they are published by our team."
+            />
           )}
-
-        </div>
-      </section>
+        </Container>
+      </Section>
     </div>
   )
 }

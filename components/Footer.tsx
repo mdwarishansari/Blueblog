@@ -52,71 +52,46 @@ export default async function Footer() {
   const social = settings.social_links || {}
 
   return (
-    <footer className="relative mt-32 bg-slate-900 text-slate-300 overflow-hidden">
-
-      {/* top gradient divider */}
-      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-violet-500/60 to-transparent" />
-
-      {/* Decorative floating elements */}
-      <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-indigo-500/10 blur-3xl animate-blob" />
-      <div className="absolute bottom-0 left-1/4 h-48 w-48 rounded-full bg-violet-500/10 blur-3xl animate-blob animation-delay-2000" />
-      <div className="absolute top-1/2 right-1/3 h-32 w-32 rounded-full bg-pink-500/10 blur-2xl animate-float" />
-
-      <div className="container mx-auto px-4 py-20 relative z-10">
-
+    <footer className="relative mt-20 bg-pure-white border-t border-hairline overflow-hidden">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-16 relative z-10">
         {/* ===============================
             Main grid
         =============================== */}
         <div className="grid gap-12 md:grid-cols-4">
 
           {/* Brand */}
-          <div className="space-y-4 md:col-span-2 animate-fade-in-up">
+          <div className="space-y-4 md:col-span-2">
             <Link
               href="/"
-              className="group flex items-center gap-3 text-xl font-semibold text-white"
+              className="group flex items-center gap-3 text-xl font-semibold text-ink-charcoal"
             >
               {settings.site_logo ? (
                 <img
                   src={settings.site_logo}
                   alt="Site logo"
-                  className="h-9 w-9 object-contain ui-transition group-hover:scale-110"
+                  className="h-9 w-9 object-contain rounded-full"
                 />
               ) : (
-                <div className="flex h-9 w-9 items-center justify-center rounded-md bg-gradient-to-br from-indigo-500 via-violet-500 to-pink-500 text-sm font-bold text-white ui-transition group-hover:shadow-[0_0_20px_rgba(139,92,246,0.5)]">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-ivory border border-hairline text-sm font-bold text-ink-charcoal">
                   B
                 </div>
               )}
 
-              <span
-                className="
-    font-semibold
-    bg-gradient-to-r
-    from-indigo-400
-    via-violet-400
-    to-pink-400
-    bg-clip-text
-    text-transparent
-    ui-transition
-    group-hover:from-white
-    group-hover:via-white
-    group-hover:to-white
-  "
-              >
+              <span className="font-semibold text-ink-charcoal">
                 {settings.site_name || 'BlueBlog'}
               </span>
-
             </Link>
 
             {settings.site_description && (
-              <p className="max-w-md text-sm text-slate-400">
+              <p className="max-w-md text-sm text-slate-gray">
                 {settings.site_description}
               </p>
             )}
           </div>
 
           {/* Quick links */}
-          <div className="animate-fade-in-up stagger-2">
-            <h3 className="mb-5 text-sm font-semibold uppercase tracking-wide text-slate-200">
+          <div>
+            <h3 className="mb-5 text-xs font-semibold uppercase tracking-widest text-ink-charcoal">
               Explore
             </h3>
 
@@ -124,7 +99,7 @@ export default async function Footer() {
               <li>
                 <Link
                   href="/blog"
-                  className="ui-transition hover:text-white hover:translate-x-1 inline-block"
+                  className="text-slate-gray hover:text-ink-charcoal transition-colors duration-150"
                 >
                   Blog
                 </Link>
@@ -132,7 +107,7 @@ export default async function Footer() {
               <li>
                 <Link
                   href="/about"
-                  className="ui-transition hover:text-white hover:translate-x-1 inline-block"
+                  className="text-slate-gray hover:text-ink-charcoal transition-colors duration-150"
                 >
                   About
                 </Link>
@@ -140,7 +115,7 @@ export default async function Footer() {
               <li>
                 <Link
                   href="/contact"
-                  className="ui-transition hover:text-white hover:translate-x-1 inline-block"
+                  className="text-slate-gray hover:text-ink-charcoal transition-colors duration-150"
                 >
                   Contact
                 </Link>
@@ -149,18 +124,20 @@ export default async function Footer() {
           </div>
 
           {/* Social */}
-          <div className="animate-fade-in-up stagger-3">
-            <h3 className="mb-5 text-sm font-semibold uppercase tracking-wide text-slate-200">
+          <div>
+            <h3 className="mb-5 text-xs font-semibold uppercase tracking-widest text-ink-charcoal">
               Connect
             </h3>
 
-            <div className="flex gap-3">
+            <div className="flex gap-2.5">
               {social.twitter && (
-                <a href={normalizeUrl(social.twitter)!} target="_blank"
+                <a
+                  href={normalizeUrl(social.twitter)!}
+                  target="_blank"
                   aria-label="Twitter"
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-slate-300 ui-transition hover:bg-gradient-to-br hover:from-indigo-500 hover:to-violet-500 hover:text-white hover:shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:scale-110"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-pure-white border border-hairline text-slate-gray hover:text-ink-charcoal hover:bg-canvas-cream transition-all duration-200"
                 >
-                  <Twitter className="h-5 w-5" />
+                  <Twitter className="h-4.5 w-4.5" />
                 </a>
               )}
               {social.facebook && (
@@ -168,9 +145,9 @@ export default async function Footer() {
                   href={normalizeUrl(social.facebook)!}
                   target="_blank"
                   aria-label="Facebook"
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-slate-300 ui-transition hover:bg-gradient-to-br hover:from-indigo-500 hover:to-violet-500 hover:text-white hover:shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:scale-110"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-pure-white border border-hairline text-slate-gray hover:text-ink-charcoal hover:bg-canvas-cream transition-all duration-200"
                 >
-                  <Facebook className="h-5 w-5" />
+                  <Facebook className="h-4.5 w-4.5" />
                 </a>
               )}
               {social.instagram && (
@@ -178,9 +155,9 @@ export default async function Footer() {
                   href={normalizeUrl(social.instagram)!}
                   target="_blank"
                   aria-label="Instagram"
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-slate-300 ui-transition hover:bg-gradient-to-br hover:from-indigo-500 hover:to-violet-500 hover:text-white hover:shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:scale-110"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-pure-white border border-hairline text-slate-gray hover:text-ink-charcoal hover:bg-canvas-cream transition-all duration-200"
                 >
-                  <Instagram className="h-5 w-5" />
+                  <Instagram className="h-4.5 w-4.5" />
                 </a>
               )}
               {social.github && (
@@ -188,9 +165,9 @@ export default async function Footer() {
                   href={normalizeUrl(social.github)!}
                   target="_blank"
                   aria-label="GitHub"
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-slate-300 ui-transition hover:bg-gradient-to-br hover:from-indigo-500 hover:to-violet-500 hover:text-white hover:shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:scale-110"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-pure-white border border-hairline text-slate-gray hover:text-ink-charcoal hover:bg-canvas-cream transition-all duration-200"
                 >
-                  <Github className="h-5 w-5" />
+                  <Github className="h-4.5 w-4.5" />
                 </a>
               )}
             </div>
@@ -200,15 +177,12 @@ export default async function Footer() {
         {/* ===============================
             Bottom
         =============================== */}
-        <div className="mt-20 border-t border-slate-800 pt-8 text-center text-sm text-slate-400 space-y-3 animate-fade-in">
+        <div className="mt-16 border-t border-hairline pt-8 text-center text-xs text-steel-gray">
           <p>
             {settings.footer_text ||
-              `© ${year} ${settings.site_name}. All rights reserved.`}
+              `© ${year} ${settings.site_name || 'BlueBlog'}. All rights reserved.`}
           </p>
-
-
         </div>
-
       </div>
     </footer>
   )

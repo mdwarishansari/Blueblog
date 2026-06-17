@@ -15,7 +15,8 @@
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "prisma:seed": "tsx scripts/seed.ts",
-    "deploy:build": "prisma generate && prisma migrate deploy && next build",
+    "postinstall": "prisma generate",
+    "deploy:build": "prisma generate && prisma migrate deploy && prisma db seed && next build",
     "deploy:seed": "prisma db seed"
   },
   "dependencies": {
@@ -49,6 +50,8 @@
     "@types/node": "^20.19.27",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.9",
     "postcss": "^8.4.38",
     "tailwindcss": "^4.1.18",
     "tsx": "^4.19.2",

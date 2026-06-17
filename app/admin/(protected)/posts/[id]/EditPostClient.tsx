@@ -5,16 +5,14 @@ import dynamic from 'next/dynamic'
 import toast from 'react-hot-toast'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { Textarea } from '@/components/ui/Textarea'
+import { Card } from '@/components/ui/Card'
+import { Badge } from '@/components/ui/Badge'
 import { Category, UserRole } from '@prisma/client'
 import { useRouter } from 'next/navigation'
 import { Send, Save, CheckCircle, Upload, RefreshCw, X, ImageIcon, FileText, Tag, Search, Sparkles, Clock } from 'lucide-react'
 
 const Editor = dynamic(() => import('@/components/Editor'), { ssr: false })
-
-// interface PageProps {
-//   params: Promise<{ id: string }>
-//   userRole: UserRole
-// }
 
 interface Props {
   userRole: UserRole
@@ -78,7 +76,6 @@ async function compressImage(file: File, targetSizeKB: number = 500): Promise<Bl
 }
 
 export default function EditPostClient({ postId, userRole }: Props) {
-  // const { id } = use(params)
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -291,18 +288,18 @@ export default function EditPostClient({ postId, userRole }: Props) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600"></div>
-          <span className="text-muted-foreground">Loading post...</span>
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-canvas-cream border-t-electric-cobalt"></div>
+          <span className="text-slate-gray">Loading post...</span>
         </div>
       </div>
     )
   }
 
-  const getStatusColor = () => {
+  const getStatusBadgeVariant = () => {
     switch (currentStatus) {
-      case 'PUBLISHED': return 'from-green-500 to-emerald-600'
-      case 'VERIFICATION_PENDING': return 'from-orange-500 to-amber-600'
-      default: return 'from-yellow-500 to-amber-500'
+      case 'PUBLISHED': return 'green'
+      case 'VERIFICATION_PENDING': return 'blue'
+      default: return 'secondary'
     }
   }
 
@@ -320,23 +317,23 @@ export default function EditPostClient({ postId, userRole }: Props) {
       <div className="lg:col-span-2 space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg">
-            <FileText className="h-5 w-5 text-white" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-canvas-cream border border-hairline">
+            <FileText className="h-5 w-5 text-electric-cobalt" />
           </div>
           <div className="flex-1">
-            <h1 className="text-xl font-bold">Edit Post</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-xl font-bold text-ink-charcoal">Edit Post</h1>
+            <p className="text-sm text-slate-gray">
               {isWriter ? 'Edit and submit for review' : 'Edit and publish content'}
             </p>
           </div>
-          <div className={`px-4 py-2 rounded-full bg-gradient-to-r ${getStatusColor()} text-white text-sm font-medium shadow-lg`}>
+          <Badge variant={getStatusBadgeVariant()} className="px-3.5 py-1.5 text-sm rounded-full">
             {getStatusLabel()}
-          </div>
+          </Badge>
         </div>
 
         {/* Title Card */}
-        <div className="rounded-2xl bg-gradient-to-br from-white to-gray-50 p-6 shadow-lg border border-gray-100">
-          <label className="mb-2 block text-sm font-semibold text-gray-700">
+        <Card variant="white" className="space-y-4">
+          <label className="block text-sm font-semibold text-ink-charcoal">
             Post Title
           </label>
           <Input
@@ -345,52 +342,52 @@ export default function EditPostClient({ postId, userRole }: Props) {
             placeholder="Enter an engaging title..."
             className="text-lg font-medium"
           />
-        </div>
+        </Card>
 
         {/* Slug Card */}
-        <div className="rounded-2xl bg-white p-6 shadow-md border border-gray-100">
-          <label className="mb-2 block text-sm font-semibold text-gray-700">
+        <Card variant="white" className="space-y-4">
+          <label className="block text-sm font-semibold text-ink-charcoal">
             URL Slug
           </label>
-          <div className="flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
-            <span className="text-sm text-muted-foreground">/blog/</span>
+          <div className="flex items-center gap-2 rounded-[16px] bg-canvas-cream border border-hairline px-3 py-2">
+            <span className="text-sm text-slate-gray">/blog/</span>
             <input
               value={post.slug}
               onChange={e => {
                 setSlugTouched(true)
                 setPost({ ...post, slug: slugify(e.target.value) })
               }}
-              className="flex-1 bg-transparent outline-none text-sm font-mono"
+              className="flex-1 bg-transparent outline-none text-sm font-mono text-ink-charcoal"
               placeholder="your-post-slug"
             />
           </div>
-        </div>
+        </Card>
 
         {/* Excerpt Card */}
-        <div className="rounded-2xl bg-white p-6 shadow-md border border-gray-100">
-          <label className="mb-2 block text-sm font-semibold text-gray-700">
+        <Card variant="white" className="space-y-4">
+          <label className="block text-sm font-semibold text-ink-charcoal">
             Excerpt
           </label>
-          <textarea
+          <Textarea
             value={post.excerpt}
             onChange={e => setPost({ ...post, excerpt: e.target.value })}
             placeholder="Write a brief summary that appears in post previews..."
-            className="w-full rounded-lg bg-gray-50 p-3 min-h-[80px] resize-none"
+            className="bg-pure-white"
           />
-        </div>
+        </Card>
 
         {/* Content Card */}
-        <div className="rounded-2xl bg-white p-6 shadow-md border border-gray-100">
-          <label className="mb-3 block text-sm font-semibold text-gray-700">
+        <Card variant="white" className="space-y-4">
+          <label className="block text-sm font-semibold text-ink-charcoal">
             Content
           </label>
           <Editor
             value={post.content}
             onChange={v => setPost({ ...post, content: v })}
           />
-        </div>
+        </Card>
 
-        <Button variant="ghost" onClick={() => router.push('/admin/posts')} className="gap-2">
+        <Button variant="ghost" onClick={() => router.push('/admin/posts')} className="gap-2 self-start">
           ← Back to Posts
         </Button>
       </div>
@@ -398,10 +395,10 @@ export default function EditPostClient({ postId, userRole }: Props) {
       {/* ================= SIDEBAR ================= */}
       <div className="space-y-6">
         {/* Image Upload Card */}
-        <div className="rounded-2xl bg-gradient-to-br from-white to-indigo-50/30 p-5 shadow-lg border border-indigo-100/50">
-          <label className="text-sm font-semibold flex items-center gap-2 mb-4">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100">
-              <ImageIcon className="h-4 w-4 text-indigo-600" />
+        <Card variant="white" className="space-y-4">
+          <label className="text-sm font-semibold flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-canvas-cream border border-hairline">
+              <ImageIcon className="h-4 w-4 text-electric-cobalt" />
             </div>
             Featured Image
           </label>
@@ -422,14 +419,14 @@ export default function EditPostClient({ postId, userRole }: Props) {
             <>
               <label
                 htmlFor="post-image"
-                className="flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-indigo-200 bg-gradient-to-br from-indigo-50 to-purple-50 p-8 cursor-pointer hover:border-indigo-400 hover:shadow-md ui-transition group"
+                className="flex flex-col items-center justify-center gap-3 rounded-[16px] border-2 border-dashed border-hairline bg-surface-ivory p-8 cursor-pointer hover:border-slate-300 hover:shadow-subtle ui-transition group"
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg group-hover:scale-110 ui-transition">
-                  <Upload className="h-6 w-6 text-white" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-canvas-cream border border-hairline group-hover:scale-105 ui-transition">
+                  <Upload className="h-5 w-5 text-electric-cobalt" />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-semibold text-gray-700">Click to upload</p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-sm font-semibold text-ink-charcoal">Click to upload</p>
+                  <p className="text-xs text-slate-gray mt-1">
                     JPG or PNG • Up to 5MB
                   </p>
                 </div>
@@ -438,15 +435,15 @@ export default function EditPostClient({ postId, userRole }: Props) {
               {uploading && (
                 <div className="mt-4 space-y-2 animate-fade-in">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-indigo-600">
+                    <span className="font-medium text-electric-cobalt">
                       {uploadPhase === 'compressing' && '✨ Compressing...'}
                       {uploadPhase === 'uploading' && '🚀 Uploading...'}
                     </span>
-                    <span className="text-muted-foreground">{uploadProgress}%</span>
+                    <span className="text-slate-gray">{uploadProgress}%</span>
                   </div>
-                  <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
+                  <div className="h-2 rounded-full bg-canvas-cream overflow-hidden border border-hairline">
                     <div
-                      className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-300"
+                      className="h-full bg-electric-cobalt transition-all duration-300"
                       style={{ width: `${uploadProgress}%` }}
                     />
                   </div>
@@ -459,24 +456,24 @@ export default function EditPostClient({ postId, userRole }: Props) {
             </>
           ) : (
             <>
-              <div className="relative group rounded-xl overflow-hidden shadow-md">
+              <div className="relative group rounded-[16px] overflow-hidden border border-hairline shadow-subtle">
                 <img
                   src={image.url}
                   alt={image.altText || 'Preview'}
-                  className="w-full rounded-xl"
+                  className="w-full rounded-[16px]"
                 />
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 ui-transition flex items-end justify-center gap-2 p-4">
+                <div className="absolute inset-0 bg-ink-charcoal/60 opacity-0 group-hover:opacity-100 ui-transition flex items-end justify-center gap-2 p-4">
                   <label
                     htmlFor="post-image"
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/90 backdrop-blur text-gray-900 text-sm font-medium cursor-pointer hover:bg-white ui-transition shadow-lg"
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-pure-white text-ink-charcoal text-sm font-medium cursor-pointer hover:bg-canvas-cream ui-transition shadow-subtle"
                   >
                     <RefreshCw className="h-4 w-4" />
                     Replace
                   </label>
                   <button
                     onClick={removeImage}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500 text-white text-sm font-medium hover:bg-red-600 ui-transition shadow-lg"
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-red-500 text-pure-white text-sm font-medium hover:bg-red-600 ui-transition shadow-subtle"
                   >
                     <X className="h-4 w-4" />
                     Remove
@@ -486,7 +483,7 @@ export default function EditPostClient({ postId, userRole }: Props) {
 
               <div className="space-y-3 mt-4">
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                  <label className="block text-xs font-medium text-slate-gray mb-1.5">
                     Alt Text (SEO)
                   </label>
                   <Input
@@ -496,7 +493,7 @@ export default function EditPostClient({ postId, userRole }: Props) {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                  <label className="block text-xs font-medium text-slate-gray mb-1.5">
                     Title
                   </label>
                   <Input
@@ -506,33 +503,33 @@ export default function EditPostClient({ postId, userRole }: Props) {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                  <label className="block text-xs font-medium text-slate-gray mb-1.5">
                     Caption
                   </label>
-                  <textarea
+                  <Textarea
                     placeholder="Optional caption..."
                     value={image.caption || ''}
                     onChange={e => setImage({ ...image, caption: e.target.value })}
-                    className="w-full rounded-lg bg-gray-50 p-2 text-sm border resize-none"
+                    className="bg-pure-white min-h-[60px]"
                     rows={2}
                   />
                 </div>
               </div>
             </>
           )}
-        </div>
+        </Card>
 
         {/* Categories Card */}
-        <div className="rounded-2xl bg-white p-5 shadow-lg border border-gray-100">
-          <label className="text-sm font-semibold flex items-center gap-2 mb-4">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
-              <Tag className="h-4 w-4 text-purple-600" />
+        <Card variant="white" className="space-y-4">
+          <label className="text-sm font-semibold flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-canvas-cream border border-hairline">
+              <Tag className="h-4 w-4 text-electric-cobalt" />
             </div>
             Categories
           </label>
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {categories.map(c => (
-              <label key={c.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer ui-transition">
+              <label key={c.id} className="flex items-center gap-3 p-2 rounded-[12px] hover:bg-surface-ivory cursor-pointer ui-transition">
                 <input
                   type="checkbox"
                   checked={post.categoryIds.includes(c.id)}
@@ -544,33 +541,33 @@ export default function EditPostClient({ postId, userRole }: Props) {
                         : p.categoryIds.filter((x: string) => x !== c.id),
                     }))
                   }
-                  className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  className="h-4 w-4 rounded-[4px] border-hairline text-electric-cobalt focus:ring-electric-cobalt"
                 />
-                <span className="text-sm">{c.name}</span>
+                <span className="text-sm text-ink-charcoal">{c.name}</span>
               </label>
             ))}
           </div>
-        </div>
+        </Card>
 
         {/* SEO Card */}
-        <div className="rounded-2xl bg-white p-5 shadow-lg border border-gray-100">
-          <label className="text-sm font-semibold flex items-center gap-2 mb-4">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100">
-              <Search className="h-4 w-4 text-green-600" />
+        <Card variant="white" className="space-y-4">
+          <label className="text-sm font-semibold flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-canvas-cream border border-hairline">
+              <Search className="h-4 w-4 text-electric-cobalt" />
             </div>
             SEO Settings
           </label>
 
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs text-muted-foreground">SEO Score</span>
-              <span className={`text-xs font-semibold ${seoScore >= 70 ? 'text-green-600' : seoScore >= 40 ? 'text-yellow-600' : 'text-red-500'}`}>
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs text-slate-gray">SEO Score</span>
+              <span className={`text-xs font-semibold ${seoScore >= 70 ? 'text-forest' : seoScore >= 40 ? 'text-electric-cobalt' : 'text-slate-gray'}`}>
                 {seoScore}%
               </span>
             </div>
-            <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
+            <div className="h-2 rounded-full bg-canvas-cream border border-hairline overflow-hidden">
               <div
-                className={`h-full transition-all duration-500 ${seoScore >= 70 ? 'bg-green-500' : seoScore >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                className={`h-full transition-all duration-500 ${seoScore >= 70 ? 'bg-forest' : seoScore >= 40 ? 'bg-electric-cobalt' : 'bg-slate-gray'}`}
                 style={{ width: `${seoScore}%` }}
               />
             </div>
@@ -578,7 +575,7 @@ export default function EditPostClient({ postId, userRole }: Props) {
 
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+              <label className="block text-xs font-medium text-slate-gray mb-1.5">
                 SEO Title (40–60 chars)
               </label>
               <Input
@@ -588,25 +585,27 @@ export default function EditPostClient({ postId, userRole }: Props) {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+              <label className="block text-xs font-medium text-slate-gray mb-1.5">
                 Meta Description (120–160 chars)
               </label>
-              <textarea
+              <Textarea
                 placeholder="Compelling description for search results..."
                 value={post.seoDescription}
                 onChange={e => setPost({ ...post, seoDescription: e.target.value })}
-                className="w-full rounded-lg bg-gray-50 p-2 text-sm border resize-none"
+                className="bg-pure-white"
                 rows={3}
               />
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Actions Card */}
-        <div className="rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 p-5 shadow-xl">
-          <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="h-4 w-4 text-yellow-400" />
-            <span className="text-sm font-semibold text-white">Actions</span>
+        <Card variant="white" className="space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-canvas-cream border border-hairline">
+              <Sparkles className="h-4 w-4 text-electric-cobalt" />
+            </div>
+            <span className="text-sm font-semibold text-ink-charcoal">Actions</span>
           </div>
 
           <div className="space-y-3">
@@ -616,7 +615,7 @@ export default function EditPostClient({ postId, userRole }: Props) {
               disabled={uploading}
               onClick={() => save('DRAFT')}
               variant="outline"
-              className="w-full gap-2 bg-white/10 border-white/20 text-white hover:bg-white/20"
+              className="w-full gap-2 border-hairline bg-pure-white hover:bg-canvas-cream text-ink-charcoal"
             >
               <Save className="h-4 w-4" />
               Save as Draft
@@ -628,7 +627,7 @@ export default function EditPostClient({ postId, userRole }: Props) {
                 loading={saving}
                 disabled={uploading}
                 onClick={() => save('PUBLISHED')}
-                className="w-full gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg"
+                className="w-full gap-2"
               >
                 <CheckCircle className="h-4 w-4" />
                 Publish Now
@@ -641,7 +640,7 @@ export default function EditPostClient({ postId, userRole }: Props) {
                 loading={saving}
                 disabled={uploading}
                 onClick={() => save('VERIFICATION_PENDING')}
-                className="w-full gap-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 shadow-lg"
+                className="w-full gap-2"
               >
                 <Send className="h-4 w-4" />
                 {currentStatus === 'VERIFICATION_PENDING' ? 'Resubmit for Verification' : 'Send for Verification'}
@@ -650,13 +649,13 @@ export default function EditPostClient({ postId, userRole }: Props) {
 
             {/* Status message for pending verification */}
             {isWriter && currentStatus === 'VERIFICATION_PENDING' && (
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-orange-500/20 border border-orange-400/30">
-                <Clock className="h-4 w-4 text-orange-300" />
-                <span className="text-sm text-orange-200">Awaiting admin/editor review</span>
+              <div className="flex items-center gap-2 p-3 rounded-[12px] bg-canvas-cream border border-hairline">
+                <Clock className="h-4 w-4 text-electric-cobalt" />
+                <span className="text-sm text-slate-gray">Awaiting admin/editor review</span>
               </div>
             )}
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   )

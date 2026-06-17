@@ -4,9 +4,10 @@ import { useState, useTransition, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import PostTable from '@/components/PostTable'
 import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { Search } from 'lucide-react'
+import { SearchInput } from '@/components/ui/SearchInput'
+import { Card } from '@/components/ui/Card'
 import { Post, User, Category, Image as ImageType } from '@prisma/client'
+import { cn } from '@/lib/utils'
 
 interface PostManagerProps {
   initialPosts: (Post & {
@@ -98,71 +99,59 @@ export default function PostManager({
       statusKey: 'VERIFICATION_PENDING',
       active: selectedStatus === 'VERIFICATION_PENDING',
       badge: pendingCount > 0 ? pendingCount : undefined,
-      badgeColor: 'bg-orange-500',
+      badgeColor: 'bg-vivid-violet text-pure-white border border-purple-100',
     },
   ]
 
   const isAdminOrEditor = user.role === 'ADMIN' || user.role === 'EDITOR'
 
   return (
-    <div className="space-y-8 w-full max-w-full min-w-0">
+    <div className="space-y-6 w-full max-w-full min-w-0">
       {/* ================= FILTERS ================= */}
-      <div className="rounded-2xl bg-card p-5 elev-sm space-y-4 max-w-full overflow-x-hidden">
+      <Card variant="white" className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Search Bar */}
-        <div className="relative flex-1 group">
-          <Search
-            className="
-              absolute left-3 top-1/2 -translate-y-1/2
-              h-4 w-4
-              text-muted-foreground
-              ui-transition
-              group-focus-within:text-indigo-500
-            "
-          />
-          <Input
+        <div className="w-full md:max-w-xs">
+          <SearchInput
             placeholder="Search posts…"
-            className="
-              pl-10
-              bg-card
-              focus-visible:border-indigo-500
-            "
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
           />
         </div>
 
         {/* Filter Buttons */}
-        <div className="flex flex-wrap gap-2 rounded-xl bg-muted/60 p-1 shadow-inner">
+        <div className="flex flex-wrap gap-1.5 bg-canvas-cream border border-hairline p-1 rounded-full">
           {filterTabs.map(tab => (
-            <Button
+            <button
               key={tab.label}
-              size="sm"
-              variant={tab.active ? 'default' : 'ghost'}
-              className={`${tab.active ? 'btn-glow' : ''} relative`}
               onClick={() => handleFilterClick(tab.statusKey)}
+              className={cn(
+                'px-4 py-1.5 text-xs font-semibold rounded-full transition-all duration-200 flex items-center gap-1.5',
+                tab.active
+                  ? 'bg-pure-white text-ink-charcoal border border-hairline shadow-sm'
+                  : 'text-slate-gray hover:text-ink-charcoal hover:bg-pure-white/50'
+              )}
             >
               {tab.label}
               {tab.badge && (
-                <span className={`ml-2 px-1.5 py-0.5 text-xs rounded-full text-white ${tab.badgeColor}`}>
+                <span className={cn('px-1.5 py-0.5 text-[10px] rounded-full', tab.badgeColor)}>
                   {tab.badge}
                 </span>
               )}
-            </Button>
+            </button>
           ))}
         </div>
-      </div>
+      </Card>
 
       {/* ================= TABLE ================= */}
-      {/* 🔥 TABLE SCROLLS — PAGE NEVER DOES */}
-      <div className="relative rounded-2xl bg-card elev-md overflow-hidden">
+      <div className="relative rounded-[16px] bg-pure-white border border-hairline shadow-subtle overflow-hidden">
         {/* Bottom Shimmer Overlay */}
         {isPending && (
-          <div className="absolute inset-0 z-20 flex flex-col justify-center items-center bg-white/60 backdrop-blur-[1px] animate-fade-in">
-            <div className="w-full h-full skeleton-enhanced" />
+          <div className="absolute inset-0 z-20 flex flex-col justify-center items-center bg-pure-white/60 backdrop-blur-[1px] animate-fade-in">
+            <div className="w-full h-full skeleton" />
           </div>
         )}
 
-        <div className={`w-full overflow-x-auto ui-transition ${isPending ? 'opacity-40' : ''}`}>
+        <div className={cn('w-full overflow-x-auto transition-opacity duration-200', isPending ? 'opacity-40' : '')}>
           <div className="w-full md:min-w-[900px]">
             <PostTable
               posts={initialPosts}
@@ -174,9 +163,9 @@ export default function PostManager({
       </div>
 
       {/* ================= PAGINATION ================= */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-2">
         {/* INFO */}
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs font-semibold text-slate-gray">
           {total === 0
             ? 'No posts found'
             : `Showing ${skip + 1} – ${Math.min(skip + limit, total)} of ${total}`}
@@ -187,24 +176,26 @@ export default function PostManager({
           {/* PREVIOUS */}
           <Button
             size="sm"
-            variant="outline"
+            variant="secondary"
             disabled={!hasPrev || isPending}
             onClick={() => navigate(selectedStatus, searchValue, page - 1)}
+            className="rounded-full border-hairline text-xs font-semibold h-9"
           >
             Previous
           </Button>
 
           {/* PAGE INFO */}
-          <span className="text-sm text-muted-foreground">
+          <span className="text-xs font-semibold text-slate-gray">
             Page {page} of {safeTotalPages}
           </span>
 
           {/* NEXT */}
           <Button
             size="sm"
-            variant="outline"
+            variant="secondary"
             disabled={!hasNext || isPending}
             onClick={() => navigate(selectedStatus, searchValue, page + 1)}
+            className="rounded-full border-hairline text-xs font-semibold h-9"
           >
             Next
           </Button>

@@ -2,6 +2,9 @@ import { Suspense } from 'react'
 import { Filter, BookOpen } from 'lucide-react'
 import BlogSearchInput from '@/components/blog/BlogSearchInput'
 import { generateSEO } from '@/lib/seo'
+import { Container } from '@/components/ui/Container'
+import { Section } from '@/components/ui/Section'
+import { Card } from '@/components/ui/Card'
 
 import CategoriesSidebar from '@/components/CategoriesSidebar'
 import BlogPostsGrid from '@/components/BlogPostsGrid'
@@ -16,7 +19,6 @@ export const metadata = generateSEO({
   url: '/blog',
 })
 
-
 export default async function BlogPage({
   searchParams,
 }: {
@@ -25,61 +27,54 @@ export default async function BlogPage({
   const params = await searchParams
 
   return (
-    <div className="min-h-screen bg-bg">
-
+    <div className="min-h-screen bg-canvas-cream">
+      
       {/* ===============================
-        HERO (INSTANT)
+        HERO
       =============================== */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-indigo-50 via-violet-50 to-purple-50 py-20">
-        {/* Decorative elements */}
-        <div className="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-indigo-200/50 blur-3xl animate-blob" />
-        <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-violet-200/50 blur-3xl animate-blob animation-delay-2000" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-32 w-32 rounded-full bg-pink-200/30 blur-2xl animate-float" />
-
-        <div className="container relative z-10">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-indigo-700 backdrop-blur-sm shadow-sm animate-fade-in-down">
-              <BookOpen className="h-4 w-4" />
-              <span className="text-sm font-medium">Latest Articles</span>
+      <section className="relative overflow-hidden bg-gradient-to-b from-canvas-cream to-lavender-mist/50 py-16 border-b border-hairline">
+        <Container>
+          <div className="mx-auto max-w-2xl text-center">
+            <div className="mx-auto mb-4 inline-flex items-center gap-1.5 rounded-full bg-pure-white border border-hairline px-3.5 py-1 text-xs font-semibold text-vivid-violet shadow-sm">
+              <BookOpen className="h-3.5 w-3.5" />
+              Latest Articles
             </div>
 
-            <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-fg animate-fade-in-up">
+            <h1 className="mb-4 text-3xl sm:text-[48px] font-bold tracking-tight text-ink-charcoal leading-tight">
               Our Blog
             </h1>
-            <p className="mb-10 text-lg text-slate-600 animate-fade-in-up stagger-2">
+            <p className="mb-8 text-sm sm:text-base text-slate-gray">
               Discover insights, tutorials, and stories from our team
             </p>
 
-            {/* Search loads instantly */}
-            <div className="animate-fade-in-up stagger-3">
-              <BlogSearchInput />
-            </div>
+            {/* Search */}
+            <BlogSearchInput />
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* ===============================
          CONTENT
       =============================== */}
-      <section className="py-16">
-        <div className="container">
-          <div className="grid gap-10 lg:grid-cols-4">
+      <Section className="py-12">
+        <Container>
+          <div className="grid gap-8 lg:grid-cols-4">
 
             {/* ================= Sidebar ================= */}
-            <aside className="lg:col-span-1 animate-fade-in-left">
-              <div className="sticky top-28">
-                <div className="rounded-2xl bg-card p-6 elev-sm hover-glow">
-                  <div className="mb-5 flex items-center justify-between">
-                    <h3 className="text-sm font-semibold tracking-wide text-fg">
+            <aside className="lg:col-span-1">
+              <div className="sticky top-24">
+                <Card variant="white" className="p-6">
+                  <div className="mb-4 flex items-center justify-between border-b border-hairline pb-3">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-ink-charcoal">
                       Categories
                     </h3>
-                    <Filter className="h-4 w-4 text-slate-400" />
+                    <Filter className="h-4 w-4 text-slate-gray" />
                   </div>
 
                   <Suspense fallback={<CategoryFilterSkeleton />}>
                     <CategoriesSidebar />
                   </Suspense>
-                </div>
+                </Card>
               </div>
             </aside>
 
@@ -87,7 +82,7 @@ export default async function BlogPage({
             <div className="lg:col-span-3">
               <Suspense
                 fallback={
-                  <div className="grid gap-8 md:grid-cols-2">
+                  <div className="grid gap-6 md:grid-cols-2">
                     {Array.from({ length: 4 }).map((_, i) => (
                       <PostCardSkeleton key={i} />
                     ))}
@@ -98,13 +93,12 @@ export default async function BlogPage({
                   {...(params.category ? { category: params.category } : {})}
                   {...(params.q ? { q: params.q } : {})}
                 />
-
               </Suspense>
             </div>
 
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
     </div>
   )
 }

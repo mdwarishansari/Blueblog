@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, X, LogIn, UserPlus } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 
 export default function Header() {
@@ -50,12 +50,12 @@ export default function Header() {
     <header
       className={`
         sticky top-0 z-50
-        bg-card backdrop-blur-xl
+        bg-pure-white border-b border-hairline
         transition-all duration-300
-        ${scrolled ? 'shadow-[0_12px_30px_rgba(0,0,0,0.25)]' : ''}
+        ${scrolled ? 'shadow-sm' : ''}
       `}
     >
-      <div className="container mx-auto px-4">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6">
         <div className="flex h-16 items-center justify-between">
 
           {/* LOGO */}
@@ -65,21 +65,17 @@ export default function Header() {
                 {/* Logo skeleton */}
                 <div
                   className="
-    h-8 w-8 rounded-full
-    bg-muted
-    animate-pulse
-    shadow-[inset_0_1px_2px_rgba(0,0,0,0.12),_0_2px_6px_rgba(0,0,0,0.12)]
-  "
+                    h-8 w-8 rounded-full
+                    bg-surface-ivory animate-pulse
+                  "
                 />
 
                 {/* Site name skeleton */}
                 <div
                   className="
-    h-5 w-28 rounded
-    bg-muted
-    animate-pulse
-    shadow-[inset_0_1px_2px_rgba(0,0,0,0.12),_0_2px_6px_rgba(0,0,0,0.12)]
-  "
+                    h-5 w-28 rounded-full
+                    bg-surface-ivory animate-pulse
+                  "
                 />
               </>
             ) : (
@@ -88,27 +84,26 @@ export default function Header() {
                   <img
                     src={siteLogo}
                     alt="Logo"
-                    className="h-8 w-8 object-contain"
+                    className="h-8 w-8 object-contain rounded-full"
                   />
                 )}
-                <span className="text-lg sm:text-xl font-bold text-slate-900">
+                <span className="text-lg font-bold text-ink-charcoal">
                   {siteName}
                 </span>
               </>
             )}
           </Link>
 
-
           {/* DESKTOP NAV */}
-          <div className="hidden md:flex items-center gap-2 rounded-2xl bg-muted/60 p-1 shadow-inner">
+          <div className="hidden md:flex items-center gap-1.5">
             {nav.map(item => (
               <Link key={item.name} href={item.href}>
                 <Button
                   size="sm"
-                  variant={isActive(item.href) ? 'default' : 'ghost'}
+                  variant={isActive(item.href) ? 'secondary' : 'ghost'}
                   className={`
-                    px-4
-                    ${isActive(item.href) ? 'btn-glow' : ''}
+                    px-4 h-9 text-sm font-medium rounded-full
+                    ${isActive(item.href) ? 'text-ink-charcoal bg-surface-ivory border-hairline' : 'text-slate-gray'}
                   `}
                 >
                   {item.name}
@@ -124,9 +119,8 @@ export default function Header() {
               <Button
                 size="sm"
                 variant="outline"
-                className="border-indigo-200 text-indigo-600 hover:bg-indigo-50"
+                className="h-9 px-4 rounded-full border-hairline text-ink-charcoal hover:bg-canvas-cream"
               >
-                <UserPlus className="mr-2 h-4 w-4" />
                 Register
               </Button>
             </Link>
@@ -135,14 +129,9 @@ export default function Header() {
             <Link href="/login">
               <Button
                 size="sm"
-                className="
-                  bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500
-                  text-white
-                  shadow-lg
-                  hover:shadow-xl
-                "
+                variant="default"
+                className="h-9 px-4 rounded-full"
               >
-                <LogIn className="mr-2 h-4 w-4" />
                 Login
               </Button>
             </Link>
@@ -151,10 +140,10 @@ export default function Header() {
             <Button
               size="icon"
               variant="ghost"
-              className="md:hidden"
+              className="md:hidden h-9 w-9"
               onClick={() => setOpen(v => !v)}
             >
-              {open ? <X /> : <Menu />}
+              {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </Button>
           </div>
         </div>
@@ -162,8 +151,8 @@ export default function Header() {
 
       {/* MOBILE NAV */}
       {open && (
-        <div className="md:hidden border-t bg-card shadow-xl">
-          <div className="mx-4 my-4 rounded-2xl bg-muted/60 p-2 space-y-1">
+        <div className="md:hidden border-t border-hairline bg-pure-white shadow-lg">
+          <div className="mx-4 my-4 p-2 space-y-1 rounded-[16px] bg-surface-ivory border border-hairline">
             {nav.map(item => (
               <Link
                 key={item.name}
@@ -171,11 +160,8 @@ export default function Header() {
                 onClick={() => setOpen(false)}
               >
                 <Button
-                  variant={isActive(item.href) ? 'default' : 'ghost'}
-                  className={`
-                    w-full justify-start
-                    ${isActive(item.href) ? 'btn-glow' : ''}
-                  `}
+                  variant={isActive(item.href) ? 'secondary' : 'ghost'}
+                  className="w-full justify-start rounded-full"
                 >
                   {item.name}
                 </Button>
@@ -186,9 +172,8 @@ export default function Header() {
             <Link href="/register" onClick={() => setOpen(false)}>
               <Button
                 variant="ghost"
-                className="w-full justify-start text-indigo-600"
+                className="w-full justify-start text-ink-charcoal"
               >
-                <UserPlus className="mr-2 h-4 w-4" />
                 Register
               </Button>
             </Link>

@@ -4,6 +4,10 @@ import { useState } from 'react'
 import { Mail, Phone, MapPin, Send, Clock, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { Textarea } from '@/components/ui/Textarea'
+import { Card } from '@/components/ui/Card'
+import { Container } from '@/components/ui/Container'
+import { Section } from '@/components/ui/Section'
 import toast from 'react-hot-toast'
 
 export default function ContactClient() {
@@ -40,136 +44,128 @@ export default function ContactClient() {
   }
 
   return (
-    <div className="min-h-screen bg-bg">
-
+    <div className="min-h-screen bg-canvas-cream pb-12">
       {/* ================= HERO ================= */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-violet-600 to-pink-500 py-24 text-center text-white">
-        {/* Floating blobs */}
-        <div className="absolute -top-24 -left-24 h-80 w-80 rounded-full bg-pink-400/30 blur-3xl animate-blob" />
-        <div className="absolute top-1/3 -right-24 h-72 w-72 rounded-full bg-indigo-400/30 blur-3xl animate-blob animation-delay-2000" />
-        <div className="absolute bottom-0 left-1/3 h-56 w-56 rounded-full bg-white/10 blur-2xl animate-float" />
-
-        <div className="relative z-10">
-          <h1 className="mb-4 text-4xl font-extrabold tracking-tight animate-fade-in-up">
+      <section className="relative overflow-hidden bg-gradient-to-b from-canvas-cream to-lavender-mist/50 py-20 border-b border-hairline">
+        <Container className="relative z-10 text-center">
+          <div className="mx-auto mb-4 inline-flex items-center gap-1.5 rounded-full bg-pure-white border border-hairline px-3.5 py-1 text-xs font-semibold text-vivid-violet shadow-sm">
+            Contact
+          </div>
+          <h1 className="mb-4 text-3xl sm:text-[48px] font-bold tracking-tight text-ink-charcoal leading-tight">
             Get in Touch
           </h1>
-          <p className="text-lg text-white/90 animate-fade-in-up stagger-2">
-            We'd love to hear from you.
+          <p className="text-base sm:text-lg text-slate-gray max-w-xl mx-auto">
+            We'd love to hear from you. Feel free to reach out with any questions.
           </p>
-        </div>
+        </Container>
       </section>
 
       {/* ================= CONTENT ================= */}
-      <section className="container py-20 grid gap-12 lg:grid-cols-2">
-
-        {/* ================= FORM ================= */}
-        <div className="rounded-2xl bg-card p-10 elev-sm hover-glow animate-fade-in-left">
-          {submitted ? (
-            <div className="text-center space-y-4 animate-bounce-in">
-              <CheckCircle className="mx-auto h-14 w-14 text-emerald-600" />
-              <p className="text-lg font-semibold text-fg">
-                Message sent successfully!
-              </p>
-              <Button onClick={() => setSubmitted(false)}>
-                Send another
-              </Button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <Input
-                  aria-label="Your name"
-                  placeholder="Your name"
-                  value={formData.name}
-                  onChange={e =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  required
-                />
-              </div>
-
-              <div>
-                <Input
-                  aria-label="Your email"
-                  type="email"
-                  placeholder="Your email"
-                  value={formData.email}
-                  onChange={e =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  required
-                />
-              </div>
-
-              <div>
-                <textarea
-                  aria-label="Your message"
-                  className="
-                    w-full rounded-lg
-                    border border-[var(--border)]
-                    bg-card
-                    px-3 py-2
-                    text-sm text-fg
-                    placeholder:text-slate-400
-                    ui-transition
-                    focus-visible:outline-none
-                    focus-visible:border-indigo-500
-                    focus-visible:ring-2
-                    focus-visible:ring-indigo-500/25
-                  "
-                  rows={5}
-                  placeholder="Your message"
-                  value={formData.message}
-                  onChange={e =>
-                    setFormData({ ...formData, message: e.target.value })
-                  }
-                  required
-                />
-              </div>
-
-              <div>
-                <Button
-                  loading={loading}
-                  className="w-full gap-2"
-                >
-                  <Send className="h-4 w-4" />
-                  Send Message
+      <Section className="py-12">
+        <Container className="grid gap-10 lg:grid-cols-2">
+          {/* ================= FORM ================= */}
+          <Card variant="white" className="p-8 md:p-10">
+            {submitted ? (
+              <div className="text-center space-y-5 py-8">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-forest border border-green-100 mb-4">
+                  <CheckCircle className="h-8 w-8" />
+                </div>
+                <h3 className="text-lg font-bold text-ink-charcoal">
+                  Message sent successfully!
+                </h3>
+                <p className="text-sm text-slate-gray max-w-xs mx-auto">
+                  Thank you for reaching out. We will get back to you as soon as possible.
+                </p>
+                <Button onClick={() => setSubmitted(false)} variant="secondary" className="rounded-full">
+                  Send another
                 </Button>
               </div>
-            </form>
-          )}
-        </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-gray mb-1.5">
+                    Your Name
+                  </label>
+                  <Input
+                    aria-label="Your name"
+                    placeholder="Your name"
+                    value={formData.name}
+                    onChange={e =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    required
+                  />
+                </div>
 
-        {/* ================= INFO ================= */}
-        <div className="space-y-5">
-          <div className="animate-fade-in-right stagger-1">
-            <Info icon={<Mail />} title="Email" value="contact@blueblog.com" />
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-gray mb-1.5">
+                    Your Email
+                  </label>
+                  <Input
+                    aria-label="Your email"
+                    type="email"
+                    placeholder="Your email"
+                    value={formData.email}
+                    onChange={e =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-gray mb-1.5">
+                    Your Message
+                  </label>
+                  <Textarea
+                    aria-label="Your message"
+                    rows={5}
+                    placeholder="How can we help you?"
+                    value={formData.message}
+                    onChange={e =>
+                      setFormData({ ...formData, message: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+
+                <div className="pt-2">
+                  <Button
+                    loading={loading}
+                    className="w-full gap-2 rounded-full"
+                    type="submit"
+                  >
+                    <Send className="h-4 w-4" />
+                    Send Message
+                  </Button>
+                </div>
+              </form>
+            )}
+          </Card>
+
+          {/* ================= INFO ================= */}
+          <div className="space-y-4">
+            <InfoCard icon={<Mail className="h-5 w-5" />} title="Email" value="contact@blueblog.com" />
+            <InfoCard icon={<Phone className="h-5 w-5" />} title="Phone" value="+1 (555) 123-4567" />
+            <InfoCard icon={<MapPin className="h-5 w-5" />} title="Location" value="San Francisco, CA" />
+            <InfoCard icon={<Clock className="h-5 w-5" />} title="Hours" value="Mon–Fri, 9am–6pm" />
           </div>
-          <div className="animate-fade-in-right stagger-2">
-            <Info icon={<Phone />} title="Phone" value="+1 (555) 123-4567" />
-          </div>
-          <div className="animate-fade-in-right stagger-3">
-            <Info icon={<MapPin />} title="Location" value="San Francisco, CA" />
-          </div>
-          <div className="animate-fade-in-right stagger-4">
-            <Info icon={<Clock />} title="Hours" value="Mon–Fri, 9am–6pm" />
-          </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
     </div>
   )
 }
 
-function Info({ icon, title, value }: any) {
+function InfoCard({ icon, title, value }: any) {
   return (
-    <div className="flex items-center gap-4 rounded-xl bg-card p-5 elev-sm ui-transition hover:elev-md hover-glow card-shine">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-indigo-100 to-violet-100 text-indigo-600">
+    <Card variant="white" className="flex items-center gap-4 p-5 hover:shadow-md transition-shadow duration-200">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-lavender-mist text-vivid-violet">
         {icon}
       </div>
       <div>
-        <p className="font-medium text-fg">{title}</p>
-        <p className="text-slate-600">{value}</p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-slate-gray">{title}</p>
+        <p className="font-medium text-ink-charcoal mt-0.5">{value}</p>
       </div>
-    </div>
+    </Card>
   )
 }
