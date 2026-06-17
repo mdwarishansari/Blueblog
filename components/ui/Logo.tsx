@@ -14,6 +14,7 @@ export function Logo({ src: propSrc, alt = 'Logo', variant, className }: LogoPro
   const [src, setSrc] = useState<string | null>(propSrc ?? null)
   const [loading, setLoading] = useState(propSrc === undefined)
   const [error, setError] = useState(false)
+  const [faviconFailed, setFaviconFailed] = useState(false)
 
   // Sync with prop if it changes
   useEffect(() => {
@@ -21,6 +22,7 @@ export function Logo({ src: propSrc, alt = 'Logo', variant, className }: LogoPro
       setSrc(propSrc)
       setLoading(false)
       setError(false)
+      setFaviconFailed(false)
     }
   }, [propSrc])
 
@@ -53,10 +55,20 @@ export function Logo({ src: propSrc, alt = 'Logo', variant, className }: LogoPro
     )
   }
 
-  // Fallback if logo is missing or load failed
-  const showFallback = !src || error
+  // Determine source: Database logo URL, fallback to /favicon.ico, fallback to letter
+  const hasDbLogo = src && !error
+  const finalSrc = hasDbLogo ? src : '/favicon.ico'
 
-  if (showFallback) {
+  const handleError = () => {
+    if (hasDbLogo) {
+      setError(true)
+    } else {
+      setFaviconFailed(true)
+    }
+  }
+
+  // If both logo and favicon fail, render letter fallback
+  if (faviconFailed) {
     return (
       <div
         className={cn(
@@ -76,11 +88,11 @@ export function Logo({ src: propSrc, alt = 'Logo', variant, className }: LogoPro
 
   return (
     <img
-      src={src}
+      src={finalSrc}
       alt={alt}
-      onError={() => setError(true)}
+      onError={handleError}
       className={cn(
-        'object-contain',
+        'object-contain rounded-[12px]',
         variant === 'header' && 'h-[56px] w-auto max-w-[180px]',
         variant === 'auth' && 'h-[96px] w-auto max-w-[220px]',
         variant === 'sidebar' && 'h-[72px] w-auto max-w-[180px]',

@@ -2,7 +2,10 @@
 
 > **BlueBlog** is a production-ready, SEO-optimized tech blogging platform and Content Management System (CMS). Built with Next.js 16 (App Router) and React 19, it features strict Role-Based Access Control (RBAC), media management, dynamic search filters, and an editorial lifecycle workflow.
 
-🔗 **Live URL:** [https://blueblog-warish.vercel.app](https://blueblog-warish.vercel.app)
+> [!IMPORTANT]
+> 🔗 **Production Live Link:** [https://blueblog-warish.vercel.app](https://blueblog-warish.vercel.app)
+> 
+> [![Live Site](https://img.shields.io/badge/Live_Demo-BlueBlog_Platform-0068f9?style=for-the-badge&logo=vercel&logoColor=white)](https://blueblog-warish.vercel.app)
 
 
 <div align="center">
