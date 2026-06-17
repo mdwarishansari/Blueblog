@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { Logo } from '@/components/ui/Logo'
 
 export default function Header() {
   const pathname = usePathname()
@@ -60,37 +61,17 @@ export default function Header() {
 
           {/* LOGO */}
           <Link href="/" className="flex items-center gap-3">
+            <Logo
+              src={loadingSettings ? undefined : siteLogo}
+              alt={siteName}
+              variant="header"
+            />
             {loadingSettings ? (
-              <>
-                {/* Logo skeleton */}
-                <div
-                  className="
-                    h-11 w-11 rounded-lg
-                    bg-surface-ivory animate-pulse
-                  "
-                />
-
-                {/* Site name skeleton */}
-                <div
-                  className="
-                    h-6 w-32 rounded-full
-                    bg-surface-ivory animate-pulse
-                  "
-                />
-              </>
+              <div className="h-6 w-32 rounded-full bg-surface-ivory animate-pulse" />
             ) : (
-              <>
-                {siteLogo && (
-                  <img
-                    src={siteLogo}
-                    alt="Logo"
-                    className="h-11 w-auto max-w-[150px] object-contain rounded-md"
-                  />
-                )}
-                <span className="text-xl font-bold text-ink-charcoal tracking-tight">
-                  {siteName}
-                </span>
-              </>
+              <span className="text-xl font-bold text-ink-charcoal tracking-tight">
+                {siteName}
+              </span>
             )}
           </Link>
 

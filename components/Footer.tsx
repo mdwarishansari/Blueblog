@@ -7,6 +7,8 @@ import {
   Github,
 } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
+import { unstable_noStore as noStore } from 'next/cache'
+import { Logo } from '@/components/ui/Logo'
 function normalizeUrl(url?: string) {
   if (!url) return null
   if (url.startsWith('http://') || url.startsWith('https://')) {
@@ -19,6 +21,7 @@ function normalizeUrl(url?: string) {
    Data
 ------------------------------------- */
 async function getSettings() {
+  noStore()
   const rows = await prisma.setting.findMany()
 
   const settings: any = {
@@ -65,17 +68,11 @@ export default async function Footer() {
               href="/"
               className="group flex items-center gap-3 text-xl font-semibold text-pure-white"
             >
-              {settings.site_logo ? (
-                <img
-                  src={settings.site_logo}
-                  alt="Site logo"
-                  className="h-9 w-9 object-contain rounded-full"
-                />
-              ) : (
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-mid-graphite border border-mid-graphite text-sm font-bold text-pure-white">
-                  B
-                </div>
-              )}
+              <Logo
+                src={settings.site_logo}
+                alt={settings.site_name || 'BlueBlog'}
+                variant="footer"
+              />
 
               <span className="font-semibold text-pure-white">
                 {settings.site_name || 'BlueBlog'}
@@ -124,54 +121,56 @@ export default async function Footer() {
           </div>
 
           {/* Social */}
-          <div>
-            <h3 className="mb-5 text-xs font-semibold uppercase tracking-widest text-pure-white">
-              Connect
-            </h3>
+          {(social.twitter?.trim() || social.facebook?.trim() || social.instagram?.trim() || social.github?.trim()) && (
+            <div>
+              <h3 className="mb-5 text-xs font-semibold uppercase tracking-widest text-pure-white">
+                Connect
+              </h3>
 
-            <div className="flex gap-2.5">
-              {social.twitter && (
-                <a
-                  href={normalizeUrl(social.twitter)!}
-                  target="_blank"
-                  aria-label="Twitter"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-mid-graphite border border-mid-graphite text-slate-gray hover:text-pure-white hover:bg-black transition-all duration-200"
-                >
-                  <Twitter className="h-4.5 w-4.5" />
-                </a>
-              )}
-              {social.facebook && (
-                <a
-                  href={normalizeUrl(social.facebook)!}
-                  target="_blank"
-                  aria-label="Facebook"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-mid-graphite border border-mid-graphite text-slate-gray hover:text-pure-white hover:bg-black transition-all duration-200"
-                >
-                  <Facebook className="h-4.5 w-4.5" />
-                </a>
-              )}
-              {social.instagram && (
-                <a
-                  href={normalizeUrl(social.instagram)!}
-                  target="_blank"
-                  aria-label="Instagram"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-mid-graphite border border-mid-graphite text-slate-gray hover:text-pure-white hover:bg-black transition-all duration-200"
-                >
-                  <Instagram className="h-4.5 w-4.5" />
-                </a>
-              )}
-              {social.github && (
-                <a
-                  href={normalizeUrl(social.github)!}
-                  target="_blank"
-                  aria-label="GitHub"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-mid-graphite border border-mid-graphite text-slate-gray hover:text-pure-white hover:bg-black transition-all duration-200"
-                >
-                  <Github className="h-4.5 w-4.5" />
-                </a>
-              )}
+              <div className="flex gap-2.5">
+                {social.twitter && social.twitter.trim() !== '' && (
+                  <a
+                    href={normalizeUrl(social.twitter)!}
+                    target="_blank"
+                    aria-label="Twitter"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-mid-graphite border border-mid-graphite text-slate-gray hover:text-pure-white hover:bg-black transition-all duration-200"
+                  >
+                    <Twitter className="h-4.5 w-4.5" />
+                  </a>
+                )}
+                {social.facebook && social.facebook.trim() !== '' && (
+                  <a
+                    href={normalizeUrl(social.facebook)!}
+                    target="_blank"
+                    aria-label="Facebook"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-mid-graphite border border-mid-graphite text-slate-gray hover:text-pure-white hover:bg-black transition-all duration-200"
+                  >
+                    <Facebook className="h-4.5 w-4.5" />
+                  </a>
+                )}
+                {social.instagram && social.instagram.trim() !== '' && (
+                  <a
+                    href={normalizeUrl(social.instagram)!}
+                    target="_blank"
+                    aria-label="Instagram"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-mid-graphite border border-mid-graphite text-slate-gray hover:text-pure-white hover:bg-black transition-all duration-200"
+                  >
+                    <Instagram className="h-4.5 w-4.5" />
+                  </a>
+                )}
+                {social.github && social.github.trim() !== '' && (
+                  <a
+                    href={normalizeUrl(social.github)!}
+                    target="_blank"
+                    aria-label="GitHub"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-mid-graphite border border-mid-graphite text-slate-gray hover:text-pure-white hover:bg-black transition-all duration-200"
+                  >
+                    <Github className="h-4.5 w-4.5" />
+                  </a>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* ===============================

@@ -6,8 +6,6 @@ import {
   Edit,
   Trash2,
   Image as ImageIcon,
-  Upload,
-  X,
   PlusCircle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
@@ -16,6 +14,7 @@ import { Modal } from '@/components/ui/Modal'
 import { Card } from '@/components/ui/Card'
 import { SearchInput } from '@/components/ui/SearchInput'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { ImageUploadPreview } from '@/components/ui/ImageUploadPreview'
 import toast from 'react-hot-toast'
 
 /* ------------------------------------------------------------------ */
@@ -376,20 +375,14 @@ export default function AdminCategoriesPage() {
           {/* UPLOAD */}
           <div className="space-y-2">
             <label className="text-xs font-semibold text-slate-gray block">Featured Image</label>
-            <label className="inline-flex items-center gap-2 text-sm text-electric-cobalt font-medium cursor-pointer hover:text-deep-cobalt ui-transition">
-              <Upload size={16} />
-              Upload image
-              <input
-                type="file"
-                accept="image/*"
-                hidden
-                disabled={uploading}
-                onChange={e => {
-                  const file = e.currentTarget.files?.[0]
-                  if (file) uploadImage(file)
-                }}
-              />
-            </label>
+            <ImageUploadPreview
+              typeLabel="Category Image"
+              currentImageUrl={images.find(img => img.id === formData.imageId)?.url}
+              onFileSelect={uploadImage}
+              onClear={() => setFormData(f => ({ ...f, imageId: '' }))}
+              maxSizeMB={5}
+              uploading={uploading}
+            />
           </div>
 
           {/* IMAGE PICKER */}
@@ -415,15 +408,7 @@ export default function AdminCategoriesPage() {
             </div>
           )}
 
-          {formData.imageId && (
-            <button
-              type="button"
-              onClick={() => setFormData(f => ({ ...f, imageId: '' }))}
-              className="flex items-center gap-1 text-sm text-red-500 font-semibold hover:text-red-600 ui-transition"
-            >
-              <X size={14} /> Remove image selection
-            </button>
-          )}
+
 
           <div className="flex justify-end gap-3 pt-4 border-t border-hairline">
             <Button

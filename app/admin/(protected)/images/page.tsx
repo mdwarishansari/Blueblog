@@ -9,6 +9,7 @@ import { Modal } from '@/components/ui/Modal'
 import { Card } from '@/components/ui/Card'
 import { SearchInput } from '@/components/ui/SearchInput'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { ImageUploadPreview } from '@/components/ui/ImageUploadPreview'
 import toast from 'react-hot-toast'
 
 interface ImageData {
@@ -268,59 +269,13 @@ export default function AdminImagesPage() {
         <form onSubmit={handleUpload} className="space-y-4">
           {/* File selector */}
           <div className="space-y-3">
-            {!selectedFile ? (
-              <label
-                htmlFor="file-input"
-                className="
-                  flex cursor-pointer items-center justify-center gap-2
-                  rounded-[48px] px-6 py-3
-                  bg-canvas-cream border border-hairline
-                  ui-transition
-                  hover:bg-surface-ivory
-                  text-sm font-semibold text-ink-charcoal
-                "
-              >
-                <Upload className="h-4 w-4 text-electric-cobalt" />
-                Choose image
-              </label>
-            ) : (
-              <div className="rounded-[16px] bg-canvas-cream border border-hairline p-4 shadow-subtle">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-ink-charcoal truncate">
-                      {selectedFile.name}
-                    </p>
-                    <p className="text-xs text-slate-gray">
-                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
-                  </div>
-
-                  <div className="flex gap-2 shrink-0">
-                    <label htmlFor="file-input" className="cursor-pointer">
-                      <span className="inline-flex h-9 items-center justify-center rounded-full border border-hairline bg-pure-white px-4 text-xs font-semibold text-ink-charcoal hover:bg-canvas-cream ui-transition">
-                        Replace
-                      </span>
-                    </label>
-
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-red-500 hover:bg-red-50"
-                      onClick={() => setSelectedFile(null)}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <input
-              id="file-input"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+            <ImageUploadPreview
+              key={isUploadModalOpen ? 'open' : 'closed'}
+              typeLabel="Post Image"
+              onFileSelect={(file) => setSelectedFile(file)}
+              onClear={() => setSelectedFile(null)}
+              maxSizeMB={10}
+              allowedTypes={['image/jpeg', 'image/png', 'image/webp']}
             />
           </div>
 
@@ -363,7 +318,7 @@ export default function AdminImagesPage() {
             >
               Cancel
             </Button>
-            <Button type="submit" loading={uploading}>
+            <Button type="submit" loading={uploading} disabled={!selectedFile}>
               Upload
             </Button>
           </div>

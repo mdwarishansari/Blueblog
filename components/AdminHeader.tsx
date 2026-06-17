@@ -1,4 +1,6 @@
 import AdminHeaderSkeleton from '@/components/skeletons/AdminHeaderSkeleton'
+import { Logo } from '@/components/ui/Logo'
+import { UserAvatar } from '@/components/ui/UserAvatar'
 
 interface AdminHeaderProps {
   user: {
@@ -11,42 +13,23 @@ interface AdminHeaderProps {
   siteLogo?: string
 }
 
-// Get user initials from name
-function getUserInitials(name: string): string {
-  const parts = name.trim().split(/\s+/)
-  if (parts.length >= 2 && parts[0] && parts[1]) {
-    return (parts[0]![0]! + parts[1]![0]!).toUpperCase()
-  }
-  return name.slice(0, 2).toUpperCase()
-}
-
-
 export default function AdminHeader({ user, siteName, siteLogo }: AdminHeaderProps) {
   if (!siteName && !siteLogo) {
     return <AdminHeaderSkeleton />
   }
 
-  const hasProfileImage = user.profileImage && user.profileImage.trim() !== ''
-  const initials = getUserInitials(user.name)
-
   return (
     <header
       className="
         hidden lg:flex
-        h-16 items-center justify-between
+        h-20 items-center justify-between
         bg-pure-white px-6 border-b border-hairline
       "
     >
       {/* LEFT — BRAND */}
       <div className="flex items-center gap-3">
-        {siteLogo && (
-          <img
-            src={siteLogo}
-            alt="Site logo"
-            className="h-9 w-9 object-contain rounded-full"
-          />
-        )}
-        <span className="text-lg font-bold text-ink-charcoal">
+        <Logo src={siteLogo} alt={siteName || 'Dashboard'} variant="admin-header" />
+        <span className="text-xl font-bold text-ink-charcoal tracking-tight">
           {siteName || 'Dashboard'}
         </span>
       </div>
@@ -54,7 +37,7 @@ export default function AdminHeader({ user, siteName, siteLogo }: AdminHeaderPro
       {/* RIGHT — USER */}
       <div className="flex items-center gap-3">
         <div className="text-right leading-tight">
-          <p className="text-sm font-medium text-ink-charcoal">
+          <p className="text-sm font-semibold text-ink-charcoal">
             {user.name}
           </p>
           <p className="text-xs text-slate-gray">
@@ -62,26 +45,7 @@ export default function AdminHeader({ user, siteName, siteLogo }: AdminHeaderPro
           </p>
         </div>
 
-        {hasProfileImage ? (
-          <img
-            src={user.profileImage!}
-            alt={user.name}
-            className="h-9 w-9 rounded-full object-cover border border-hairline"
-            referrerPolicy="no-referrer"
-          />
-        ) : (
-          <div
-            className="
-              h-9 w-9
-              rounded-full
-              bg-surface-ivory border border-hairline
-              flex items-center justify-center
-              font-semibold text-ink-charcoal text-sm
-            "
-          >
-            {initials}
-          </div>
-        )}
+        <UserAvatar src={user.profileImage} name={user.name} size="md" />
       </div>
     </header>
   )

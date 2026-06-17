@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
 import { Textarea } from '@/components/ui/Textarea'
+import { ImageUploadPreview } from '@/components/ui/ImageUploadPreview'
 import toast from 'react-hot-toast'
 
 interface SiteSettings {
@@ -34,6 +35,7 @@ interface SiteSettings {
 export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [uploadingLogo, setUploadingLogo] = useState(false)
   const [settings, setSettings] = useState<SiteSettings>({
     site_name: '',
     site_description: '',
@@ -61,24 +63,29 @@ export default function AdminSettingsPage() {
   }
 
   const uploadLogo = async (file: File) => {
-    const localPreview = URL.createObjectURL(file)
-    setSettings(s => ({ ...s, site_logo: localPreview }))
-
+    setUploadingLogo(true)
     const form = new FormData()
     form.append('file', file)
 
-    const res = await fetch('/api/upload/cloudinary', {
-      method: 'POST',
-      body: form,
-    })
+    try {
+      const res = await fetch('/api/upload/cloudinary', {
+        method: 'POST',
+        body: form,
+      })
 
-    const data = await res.json()
-    if (!res.ok || !data.image?.url) {
+      const data = await res.json()
+      if (!res.ok || !data.image?.url) {
+        toast.error('Logo upload failed')
+        return
+      }
+
+      setSettings(s => ({ ...s, site_logo: data.image.url }))
+      toast.success('Logo uploaded')
+    } catch {
       toast.error('Logo upload failed')
-      return
+    } finally {
+      setUploadingLogo(false)
     }
-
-    setSettings(s => ({ ...s, site_logo: data.image.url }))
   }
 
   const handleSave = async () => {
@@ -157,36 +164,15 @@ export default function AdminSettingsPage() {
               {/* LOGO */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-ink-charcoal">Site Logo</label>
-
-                <div className="flex flex-col sm:flex-row gap-6 items-start">
-                  <div className="h-40 w-40 rounded-[16px] bg-canvas-cream border border-hairline shadow-subtle flex items-center justify-center overflow-hidden">
-                    <img
-                      src={settings.site_logo || '/logo-placeholder.png'}
-                      alt="Site Logo"
-                      className="h-full w-full object-contain"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="cursor-pointer inline-block">
-                      <span className="inline-flex items-center rounded-full border border-hairline bg-pure-white px-4 py-2 text-sm font-semibold text-ink-charcoal hover:bg-canvas-cream ui-transition shadow-subtle">
-                        Change Logo
-                      </span>
-                      <input
-                        type="file"
-                        hidden
-                        accept="image/*"
-                        onChange={e => {
-                          const file = e.target.files?.[0]
-                          if (file) uploadLogo(file)
-                        }}
-                      />
-                    </label>
-                    <p className="text-xs text-slate-gray">
-                      Square image recommended
-                    </p>
-                  </div>
-                </div>
+                <ImageUploadPreview
+                  typeLabel="Logo"
+                  currentImageUrl={settings.site_logo}
+                  onFileSelect={uploadLogo}
+                  onClear={() => setSettings(s => ({ ...s, site_logo: '' }))}
+                  maxSizeMB={2}
+                  allowedTypes={['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']}
+                  uploading={uploadingLogo}
+                />
               </div>
 
               {/* SITE NAME */}

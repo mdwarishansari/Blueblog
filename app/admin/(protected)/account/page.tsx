@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Lock, Save, Image as ImageIcon } from 'lucide-react'
+import { Lock, Save } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
 import { Textarea } from '@/components/ui/Textarea'
+import { ImageUploadPreview } from '@/components/ui/ImageUploadPreview'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 
@@ -18,7 +19,7 @@ export default function AccountPage() {
     profileImage: '',
   })
 
-  const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const [uploadingImage, setUploadingImage] = useState(false)
   const router = useRouter()
 
   const [password, setPassword] = useState({
@@ -36,27 +37,29 @@ export default function AccountPage() {
 
   /* -------- IMAGE UPLOAD -------- */
   const uploadImage = async (file: File) => {
-    const reader = new FileReader()
-    reader.onload = () => {
-      setPreviewImage(reader.result as string)
-    }
-    reader.readAsDataURL(file)
-
+    setUploadingImage(true)
     const form = new FormData()
     form.append('file', file)
 
-    const res = await fetch('/api/upload/cloudinary', {
-      method: 'POST',
-      body: form,
-    })
+    try {
+      const res = await fetch('/api/upload/cloudinary', {
+        method: 'POST',
+        body: form,
+      })
 
-    const data = await res.json()
-    if (!res.ok || !data.image?.url) {
+      const data = await res.json()
+      if (!res.ok || !data.image?.url) {
+        toast.error('Image upload failed')
+        return
+      }
+
+      setProfile(p => ({ ...p, profileImage: data.image.url }))
+      toast.success('Profile image uploaded')
+    } catch {
       toast.error('Image upload failed')
-      return
+    } finally {
+      setUploadingImage(false)
     }
-
-    setProfile(p => ({ ...p, profileImage: data.image.url }))
   }
 
   /* -------- SAVE PROFILE -------- */
@@ -149,29 +152,17 @@ export default function AccountPage() {
               <h2 className="text-lg font-semibold text-ink-charcoal">Profile Details</h2>
 
               {/* Avatar */}
-              <div className="flex items-center gap-5">
-                <div className="relative h-24 w-24 rounded-full bg-canvas-cream border border-hairline overflow-hidden shadow-subtle flex items-center justify-center">
-                  <img
-                    key={previewImage || profile.profileImage || 'avatar'}
-                    src={previewImage || profile.profileImage || undefined}
-                    alt="Profile"
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-
-                <label className="cursor-pointer inline-flex items-center gap-2 text-sm font-semibold text-electric-cobalt hover:text-deep-cobalt ui-transition">
-                  <ImageIcon className="h-4 w-4" />
-                  Change photo
-                  <input
-                    type="file"
-                    hidden
-                    accept="image/*"
-                    onChange={e => {
-                      const file = e.currentTarget.files?.[0]
-                      if (file) uploadImage(file)
-                    }}
-                  />
-                </label>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-ink-charcoal">Profile Picture</label>
+                <ImageUploadPreview
+                  typeLabel="Profile Image"
+                  currentImageUrl={profile.profileImage}
+                  onFileSelect={uploadImage}
+                  onClear={() => setProfile(p => ({ ...p, profileImage: '' }))}
+                  maxSizeMB={2}
+                  uploading={uploadingImage}
+                  isAvatar
+                />
               </div>
 
               {/* Name */}

@@ -1,4 +1,4 @@
-import { User } from 'lucide-react'
+import { UserAvatar } from '@/components/ui/UserAvatar'
 import { User as UserType } from '@prisma/client'
 import { formatDate } from '@/lib/utils'
 
@@ -32,26 +32,12 @@ export default function TeamMember({ member }: TeamMemberProps) {
     >
       {/* Avatar */}
       <div className="mb-4 flex justify-center">
-        <div
-          className="
-            relative
-            h-24 w-24
-            rounded-full
-            border border-hairline
-            overflow-hidden
-            bg-surface-ivory
-            flex items-center justify-center
-          "
-        >
-          {member.profileImage ? (
-            <div
-              className="h-full w-full bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
-              style={{ backgroundImage: `url(${member.profileImage})` }}
-            />
-          ) : (
-            <User className="h-10 w-10 text-slate-gray" />
-          )}
-        </div>
+        <UserAvatar
+          src={member.profileImage}
+          name={member.name}
+          size="xl"
+          className="transition-transform duration-300 group-hover:scale-105"
+        />
       </div>
 
       {/* Name */}

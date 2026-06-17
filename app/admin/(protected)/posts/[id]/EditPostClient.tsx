@@ -8,9 +8,10 @@ import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
+import { ImageUploadPreview } from '@/components/ui/ImageUploadPreview'
 import { Category, UserRole } from '@prisma/client'
 import { useRouter } from 'next/navigation'
-import { Send, Save, CheckCircle, Upload, RefreshCw, X, ImageIcon, FileText, Tag, Search, Sparkles, Clock } from 'lucide-react'
+import { Send, Save, CheckCircle, ImageIcon, FileText, Tag, Search, Sparkles, Clock } from 'lucide-react'
 
 const Editor = dynamic(() => import('@/components/Editor'), { ssr: false })
 
@@ -83,9 +84,7 @@ export default function EditPostClient({ postId, userRole }: Props) {
   const isAdminOrEditor = userRole === 'ADMIN' || userRole === 'EDITOR'
 
   const [uploading, setUploading] = useState(false)
-  const [uploadPhase, setUploadPhase] = useState<'idle' | 'compressing' | 'uploading' | 'done'>('idle')
   const [uploadProgress, setUploadProgress] = useState(0)
-  const [uploadError, setUploadError] = useState<string | null>(null)
 
   const [slugTouched, setSlugTouched] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
@@ -132,7 +131,6 @@ export default function EditPostClient({ postId, userRole }: Props) {
 
         setImage(postData.bannerImage || null)
         setCurrentStatus(postData.status || 'DRAFT')
-        if (postData.bannerImage) setUploadPhase('done')
       } catch {
         toast.error('Failed to load post')
       } finally {
@@ -159,15 +157,15 @@ export default function EditPostClient({ postId, userRole }: Props) {
     return Math.min(score, 100)
   }, [post])
 
-  const MAX_IMAGE_SIZE = 5 * 1024 * 1024
-  const ALLOWED_TYPES = ['image/jpeg', 'image/png']
+  const MAX_IMAGE_SIZE = 10 * 1024 * 1024
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
   function validateImage(file: File) {
     if (!ALLOWED_TYPES.includes(file.type)) {
-      return 'Only JPG and PNG images are allowed'
+      return 'Only JPG, PNG and WEBP images are allowed'
     }
     if (file.size > MAX_IMAGE_SIZE) {
-      return 'Image size must be less than 5MB'
+      return 'Image size must be less than 10MB'
     }
     return null
   }
@@ -175,14 +173,11 @@ export default function EditPostClient({ postId, userRole }: Props) {
   async function uploadImage(file: File) {
     const error = validateImage(file)
     if (error) {
-      setUploadError(error)
       toast.error(error)
       return
     }
 
-    setUploadError(null)
     setUploading(true)
-    setUploadPhase('compressing')
     setUploadProgress(0)
 
     try {
@@ -192,7 +187,6 @@ export default function EditPostClient({ postId, userRole }: Props) {
         setUploadProgress(30)
       }
 
-      setUploadPhase('uploading')
       const formData = new FormData()
       formData.append('file', fileToUpload, file.name)
 
@@ -210,10 +204,9 @@ export default function EditPostClient({ postId, userRole }: Props) {
           const res = JSON.parse(xhr.responseText)
           if (xhr.status >= 400) reject(res.message)
           else {
-            setImage(res.image)
-            setUploadProgress(100)
-            setUploadPhase('done')
-            resolve()
+             setImage(res.image)
+             setUploadProgress(100)
+             resolve()
           }
         }
 
@@ -224,7 +217,6 @@ export default function EditPostClient({ postId, userRole }: Props) {
       toast.success('Image uploaded')
     } catch (err: any) {
       toast.error(err)
-      setUploadPhase('idle')
     } finally {
       setUploading(false)
     }
@@ -232,7 +224,6 @@ export default function EditPostClient({ postId, userRole }: Props) {
 
   function removeImage() {
     setImage(null)
-    setUploadPhase('idle')
     setUploadProgress(0)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
@@ -402,120 +393,51 @@ export default function EditPostClient({ postId, userRole }: Props) {
             </div>
             Featured Image
           </label>
-
-          <input
-            ref={fileInputRef}
-            id="post-image"
-            type="file"
-            accept="image/png,image/jpeg"
-            className="hidden"
-            onChange={e => {
-              const file = e.target.files?.[0]
-              if (file) uploadImage(file)
-            }}
+          <ImageUploadPreview
+            typeLabel="Post Image"
+            currentImageUrl={image?.url}
+            onFileSelect={uploadImage}
+            onClear={removeImage}
+            maxSizeMB={10}
+            allowedTypes={['image/jpeg', 'image/png', 'image/webp']}
+            uploading={uploading}
+            progress={uploadProgress}
           />
-
-          {!image ? (
-            <>
-              <label
-                htmlFor="post-image"
-                className="flex flex-col items-center justify-center gap-3 rounded-[16px] border-2 border-dashed border-hairline bg-surface-ivory p-8 cursor-pointer hover:border-slate-300 hover:shadow-subtle ui-transition group"
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-canvas-cream border border-hairline group-hover:scale-105 ui-transition">
-                  <Upload className="h-5 w-5 text-electric-cobalt" />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-semibold text-ink-charcoal">Click to upload</p>
-                  <p className="text-xs text-slate-gray mt-1">
-                    JPG or PNG • Up to 5MB
-                  </p>
-                </div>
-              </label>
-
-              {uploading && (
-                <div className="mt-4 space-y-2 animate-fade-in">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-electric-cobalt">
-                      {uploadPhase === 'compressing' && '✨ Compressing...'}
-                      {uploadPhase === 'uploading' && '🚀 Uploading...'}
-                    </span>
-                    <span className="text-slate-gray">{uploadProgress}%</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-canvas-cream overflow-hidden border border-hairline">
-                    <div
-                      className="h-full bg-electric-cobalt transition-all duration-300"
-                      style={{ width: `${uploadProgress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {uploadError && (
-                <p className="mt-3 text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">{uploadError}</p>
-              )}
-            </>
-          ) : (
-            <>
-              <div className="relative group rounded-[16px] overflow-hidden border border-hairline shadow-subtle">
-                <img
-                  src={image.url}
-                  alt={image.altText || 'Preview'}
-                  className="w-full rounded-[16px]"
+          {image && (
+            <div className="space-y-3 mt-4 pt-4 border-t border-hairline">
+              <div>
+                <label className="block text-xs font-medium text-slate-gray mb-1.5">
+                  Alt Text (SEO)
+                </label>
+                <Input
+                  placeholder="Describe the image..."
+                  value={image.altText || ''}
+                  onChange={e => setImage({ ...image, altText: e.target.value })}
                 />
-
-                <div className="absolute inset-0 bg-ink-charcoal/60 opacity-0 group-hover:opacity-100 ui-transition flex items-end justify-center gap-2 p-4">
-                  <label
-                    htmlFor="post-image"
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-pure-white text-ink-charcoal text-sm font-medium cursor-pointer hover:bg-canvas-cream ui-transition shadow-subtle"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                    Replace
-                  </label>
-                  <button
-                    onClick={removeImage}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-red-500 text-pure-white text-sm font-medium hover:bg-red-600 ui-transition shadow-subtle"
-                  >
-                    <X className="h-4 w-4" />
-                    Remove
-                  </button>
-                </div>
               </div>
-
-              <div className="space-y-3 mt-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-gray mb-1.5">
-                    Alt Text (SEO)
-                  </label>
-                  <Input
-                    placeholder="Describe the image..."
-                    value={image.altText || ''}
-                    onChange={e => setImage({ ...image, altText: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-gray mb-1.5">
-                    Title
-                  </label>
-                  <Input
-                    placeholder="Image title..."
-                    value={image.title || ''}
-                    onChange={e => setImage({ ...image, title: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-gray mb-1.5">
-                    Caption
-                  </label>
-                  <Textarea
-                    placeholder="Optional caption..."
-                    value={image.caption || ''}
-                    onChange={e => setImage({ ...image, caption: e.target.value })}
-                    className="bg-pure-white min-h-[60px]"
-                    rows={2}
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-gray mb-1.5">
+                  Title
+                </label>
+                <Input
+                  placeholder="Image title..."
+                  value={image.title || ''}
+                  onChange={e => setImage({ ...image, title: e.target.value })}
+                />
               </div>
-            </>
+              <div>
+                <label className="block text-xs font-medium text-slate-gray mb-1.5">
+                  Caption
+                </label>
+                <Textarea
+                  placeholder="Optional caption..."
+                  value={image.caption || ''}
+                  onChange={e => setImage({ ...image, caption: e.target.value })}
+                  className="bg-pure-white min-h-[60px]"
+                  rows={2}
+                />
+              </div>
+            </div>
           )}
         </Card>
 

@@ -1,6 +1,6 @@
 'use client'
-import AdminSidebarSkeleton from '@/components/skeletons/AdminSidebarSkeleton'
 
+import AdminSidebarSkeleton from '@/components/skeletons/AdminSidebarSkeleton'
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -17,11 +17,12 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  Menu,
   X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
+import { Logo } from '@/components/ui/Logo'
+import { UserAvatar } from '@/components/ui/UserAvatar'
 
 interface AdminSidebarProps {
   user: {
@@ -47,16 +48,6 @@ const navigation = [
   { name: 'Account', href: '/admin/account', icon: User, roles: ['ADMIN', 'EDITOR', 'WRITER'] },
 ]
 
-// Get user initials from name
-function getUserInitials(name: string): string {
-  const parts = name.trim().split(/\s+/)
-  if (parts.length >= 2 && parts[0] && parts[1]) {
-    return (parts[0]![0]! + parts[1]![0]!).toUpperCase()
-  }
-  return name.slice(0, 2).toUpperCase()
-}
-
-
 export default function AdminSidebar({ user, settings }: AdminSidebarProps) {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
@@ -67,41 +58,9 @@ export default function AdminSidebar({ user, settings }: AdminSidebarProps) {
     return <AdminSidebarSkeleton />
   }
 
-  const hasProfileImage = user.profileImage && user.profileImage.trim() !== ''
-  const initials = getUserInitials(user.name)
-
   const filteredNavigation = navigation.filter(item =>
     item.roles.includes(user.role)
   )
-
-  /* ===== AVATAR COMPONENT ===== */
-  const UserAvatar = ({ size = 'md' }: { size?: 'sm' | 'md' }) => {
-    const sizeClasses = size === 'sm' ? 'h-8 w-8 text-xs' : 'h-10 w-10 text-sm'
-
-    if (hasProfileImage) {
-      return (
-        <img
-          src={user.profileImage!}
-          alt={user.name}
-          className={`${sizeClasses} rounded-full object-cover border border-hairline`}
-        />
-      )
-    }
-
-    return (
-      <div
-        className={`
-          ${sizeClasses}
-          rounded-full
-          bg-surface-ivory border border-hairline
-          flex items-center justify-center
-          font-semibold text-ink-charcoal
-        `}
-      >
-        {initials}
-      </div>
-    )
-  }
 
   /* ===== MOBILE TOGGLE ===== */
   const MobileToggle = (
@@ -114,7 +73,7 @@ export default function AdminSidebar({ user, settings }: AdminSidebarProps) {
         p-2.5 text-ink-charcoal
       "
     >
-      <Menu className="h-4 w-4" />
+      <LayoutDashboard className="h-4 w-4" />
     </button>
   )
 
@@ -133,13 +92,7 @@ export default function AdminSidebar({ user, settings }: AdminSidebarProps) {
       <div className="flex h-16 items-center justify-between px-4">
         {/* 🔥 BRAND — ONLY MOBILE/TABLET */}
         <div className="flex items-center gap-3 lg:hidden">
-          {settings.site_logo && (
-            <img
-              src={settings.site_logo}
-              alt="Site logo"
-              className="h-8 w-8 object-contain rounded-full"
-            />
-          )}
+          <Logo src={settings.site_logo} alt={settings.site_name || 'Dashboard'} variant="sidebar" />
           <span className="text-lg font-bold text-ink-charcoal truncate">
             {settings.site_name || 'Dashboard'}
           </span>
@@ -201,7 +154,7 @@ export default function AdminSidebar({ user, settings }: AdminSidebarProps) {
       {/* USER */}
       <div className="p-4 border-t border-hairline">
         <div className="flex items-center gap-3">
-          <UserAvatar />
+          <UserAvatar src={user.profileImage} name={user.name} size="md" />
           {!collapsed && (
             <div className="truncate">
               <p className="text-sm font-semibold text-ink-charcoal truncate">{user.name}</p>
