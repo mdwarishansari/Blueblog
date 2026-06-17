@@ -135,9 +135,9 @@ export default function AccountPage() {
             <div className="space-y-6 animate-pulse">
               <div className="h-5 w-24 skeleton" />
 
-              <div className="flex items-center gap-5">
-                <div className="h-24 w-24 rounded-full skeleton" />
-                <div className="h-4 w-32 skeleton" />
+              <div className="flex flex-col items-center gap-5">
+                <div className="h-64 w-64 rounded-full skeleton mx-auto" />
+                <div className="h-4 w-32 skeleton mx-auto" />
               </div>
 
               <div className="space-y-4">

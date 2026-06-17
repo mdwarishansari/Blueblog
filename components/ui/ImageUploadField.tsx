@@ -160,7 +160,7 @@ export function ImageUploadField({
           'relative border-2 border-dashed border-hairline rounded-[16px] p-6 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center min-h-[180px] bg-canvas-cream/50 hover:bg-pure-white hover:border-electric-cobalt/40',
           dragActive && 'border-electric-cobalt bg-pure-white ring-4 ring-electric-cobalt/5',
           error && 'border-rose-300 hover:border-rose-400 bg-rose-50/10',
-          isAvatar && 'rounded-full aspect-square w-48 h-48 min-h-0 p-0 overflow-hidden mx-auto',
+          isAvatar && 'rounded-full aspect-square w-64 h-64 min-h-0 p-0 overflow-hidden mx-auto',
           uploading && 'cursor-not-allowed pointer-events-none'
         )}
       >
