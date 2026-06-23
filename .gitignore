@@ -49,3 +49,12 @@ uploads/
 tmp/
 ExampleData.md
 DESIGN.md
+
+# =========================
+# Testing artifacts
+# =========================
+coverage/
+playwright-report/
+test-results/
+playwright/.cache/
+lighthouse-results/

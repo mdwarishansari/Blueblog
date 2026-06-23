@@ -1,4 +1,4 @@
-import { generateHTML } from '@tiptap/html'
+import { generateHTML } from '@tiptap/html/server'
 import StarterKit from '@tiptap/starter-kit'
 
 export function renderTipTapContent(content: any): string {

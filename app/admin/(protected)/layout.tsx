@@ -18,7 +18,7 @@ export default async function AdminLayout({
 }) {
   /* ================= AUTH ================= */
   const sessionUser = await getCurrentUser()
-  if (!sessionUser) redirect('/admin/login')
+  if (!sessionUser) redirect('/login')
 
   /* ================= USER ================= */
   const user = await prisma.user.findUnique({
@@ -31,7 +31,7 @@ export default async function AdminLayout({
     },
   })
 
-  if (!user) redirect('/admin/login')
+  if (!user) redirect('/login')
 
   /* ================= SETTINGS ================= */
   const rows = await prisma.setting.findMany()

@@ -3,8 +3,11 @@ import './globals.css'
 // import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from 'react-hot-toast'
 import { Inter } from 'next/font/google'
+import { generateSEO } from '@/lib/seo'
 
 const inter = Inter({ subsets: ['latin'] })
+
+export const metadata = generateSEO()
 
 export default function RootLayout({
   children,
