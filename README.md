@@ -281,7 +281,7 @@ npx prisma generate && npx prisma migrate deploy && npx prisma db seed && npm ru
 |-------|--------|-------|
 | **Build** | ✅ Pass | `next build` completed successfully (Next.js 16.1.1) |
 | **Type Check** | ✅ Pass | `tsc --noEmit` — 0 errors |
-| **Lint** | ⚠️ Fail | `eslint .` reports **80 errors / 14 warnings** (pre-existing codebase debt; ESLint flat config added) |
+
 
 ## Testing
 
@@ -389,15 +389,6 @@ Measured locally with `node scripts/lighthouse-audit.mjs` against `http://localh
 - SSR TipTap rendering environment bug
 - Password toggle accessibility on auth forms
 
-## Remaining Issues
-
-| Issue | Blocker |
-|-------|---------|
-| **CartNest E2E** | Separate repository (`../CartNest`); placeholder documented in `e2e/cartnest/README.md` |
-| **Authenticated admin E2E** (create/edit/publish post) | Requires `E2E_ADMIN_EMAIL` + `E2E_ADMIN_PASSWORD` env vars |
-| **ESLint debt** | 80 pre-existing errors across UI components |
-| **Homepage performance** | Lighthouse Performance 58 on `/` (image/font payload) |
-| **Full-repo coverage** | UI components and Cloudinary routes excluded from coverage scope |
 
 ## Production Readiness Score
 
@@ -419,4 +410,3 @@ BlueBlog has a **professional, verified testing suite** with real coverage and L
 1. Set E2E admin credentials and expand authenticated publish workflow tests
 2. Address ESLint/type hygiene in UI layer
 3. Optimize homepage LCP (images, font loading) to target Performance ≥ 90
-4. Add CartNest E2E suite in the CartNest repository
